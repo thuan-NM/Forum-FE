@@ -1,99 +1,115 @@
 // components/auth/Login.tsx
 
-import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { loginUser } from "../../store/slices/authSlice"; // Đảm bảo import từ 'authSlice'
+import { useEffect, useState } from "react";
+import { useLoginMutation } from "../../hooks/useLoginMutation";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import { RootState } from "../../store/store";
+import { Button, Form, Input } from "@heroui/react";
+import { useAuth } from "../../context/AuthContext";
 
+type credentialsType = {
+    email: string;
+    password: string;
+}
 const Login = () => {
-    const [credentials, setCredentials] = useState({
-        email: "",
+    const { registeredEmail } = useAuth();
+
+    const [credentials, setCredentials] = useState<credentialsType>({
+        email: registeredEmail || "",
         password: "",
     });
-
-    const dispatch = useAppDispatch();
-    const navigate = useNavigate();
-    const { loading, error } = useAppSelector((state: RootState) => state.auth);
-    const user = useAppSelector((state: RootState) => state.user.user);
-    console.log(user); // Kiểm tra thông tin người dùng trong console
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setCredentials({ ...credentials, [name]: value });
     };
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const navigate = useNavigate();
+    const { mutate, isPending } = useLoginMutation();
+    // Bắt đầu login
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Dispatch login action
-        const resultAction = await dispatch(loginUser(credentials));
-
-        if (loginUser.fulfilled.match(resultAction)) {
-            toast.success("Đăng nhập thành công.");
-            navigate("/");
-        } else if (loginUser.rejected.match(resultAction)) {
-            toast.error(resultAction.payload as string);
+        try {
+            mutate(credentials, {
+                onSuccess: (data) => {
+                    toast.success(data.message);
+                    navigate("/");
+                },
+                onError: (err: any) => {
+                    toast.error(err?.response?.data?.error || "Login failed");
+                },
+            });
+        } catch (error) {
+            console.error("Mutation crashed:", error);
         }
     };
 
+
+    useEffect(() => {
+        setCredentials((prev) => ({ ...prev, email: registeredEmail }));
+    }, [registeredEmail]);
     return (
-        <div className="container mx-auto w-1/2 px-6 border-l border-neutral-700 ">
-            <p className="border-b mb-4 border-neutral-700 pb-2 text-sm font-semibold text-white">
+        <div className="container mx-auto w-1/2 px-6 border-l !border-content4">
+            <p className="border-b mb-3 border-content4 pb-2 text-sm font-semibold">
                 Đăng nhập
             </p>
-            <form onSubmit={handleLogin} className="space-y-4 text-xs">
-                <div>
-                    <label htmlFor="email" className="font-bold">
-                        Email
-                    </label>
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={credentials.email}
-                        onChange={handleChange}
-                        className="w-full p-[10px] border border-neutral-600 rounded-sm mt-2 "
-                        required
-                    />
-                </div>
-                <div>
-                    <label htmlFor="password" className="font-bold">
-                        Mật khẩu
-                    </label>
-                    <input
-                        type="password"
-                        name="password"
-                        placeholder="Mật khẩu"
-                        value={credentials.password}
-                        onChange={handleChange}
-                        className="w-full p-[10px] border !bg-black border-neutral-600 rounded-sm mt-2"
-                        required
-                    />
-                </div>
+            <Form onSubmit={(e) => handleSubmit(e)} className="space-y-6 text-xs">
+                <Input
+                    label={
+                        <span className='text-xs font-bold mb-0'>
+                            Email
+                        </span>
+                    }
+                    autoComplete=""
+                    isRequired
+                    labelPlacement="outside"
+                    name="email"
+                    placeholder="Your email address"
+                    type="email"
+                    variant="bordered"
+                    value={credentials.email}
+                    onChange={handleChange}
+                    radius="none"
+                    className="bg-content1"
 
-                <div className="flex justify-between mt-4 items-center">
+                />
+                <Input
+                    label={
+                        <span className='text-xs font-bold mb-0'>
+                            Password
+                        </span>
+                    }
+                    isRequired
+                    autoComplete=""
+                    labelPlacement="outside"
+                    name="password"
+                    placeholder="Your password"
+                    type="password"
+                    variant="bordered"
+                    value={credentials.password}
+                    onChange={handleChange}
+                    radius="none"
+                    className="bg-content1"
+
+                />
+
+                <div className="flex justify-between mt-4 items-center w-full">
                     <Link
                         to={"/forgotpassword"}
-                        className="block text-xs text-neutral-400 hover:underline"
+                        className="block text-xs text-content5 hover:underline"
                     >
                         Quên mật khẩu?
                     </Link>
-                    <button
+                    <Button
                         type="submit"
-                        className="px-4 py-2 bg-blue-500 text-white text-sm font-semibold rounded-full hover:bg-blue-600"
-                        disabled={loading}
+                        color="primary"
+                        className="text-sm font-semibold "
+                        radius="full"
+                        isLoading={isPending}
                     >
-                        {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-                    </button>
+                        Login
+                    </Button>
                 </div>
-                {error && (
-                    <p className="text-red-500 text-sm mt-2">
-                        {error}
-                    </p>
-                )}
-            </form>
+            </Form>
         </div>
     );
 };

@@ -1,9 +1,11 @@
-// store/slices/userSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserState, User } from "../interfaces/userInterfaces";
+import { User, UserState } from "../interfaces/userInterfaces";
+
+const savedAuth = localStorage.getItem("auth");
+const parsedAuth = savedAuth ? JSON.parse(savedAuth) : null;
 
 const initialState: UserState = {
-    user: null,
+    user: parsedAuth?.user || null,  // 🔥 Lấy `user` từ localStorage
     isLoading: false,
     error: null,
 };
@@ -19,9 +21,16 @@ const userSlice = createSlice({
             state.user = null;
             state.isLoading = false;
             state.error = null;
+
+            // 🔥 Xóa `user` khỏi localStorage
+            const savedAuth = localStorage.getItem("auth");
+            if (savedAuth) {
+                const parsedAuth = JSON.parse(savedAuth);
+                delete parsedAuth.user;
+                localStorage.setItem("auth", JSON.stringify(parsedAuth));
+            }
         },
     },
-    // Nếu cần thêm extraReducers, bạn có thể thêm ở đây
 });
 
 export const { setUser, clearUser } = userSlice.actions;

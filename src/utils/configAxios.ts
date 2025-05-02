@@ -44,12 +44,21 @@ instance.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            // Nếu làm mới token thất bại, đăng xuất người dùng
-            store.dispatch(logout());
-            window.location.href = "/auth";        
+        if (error.response) {
+            const status = error.response.status;
+            const errorData = error.response.data;
+
+            // 🔥 Nếu token hết hạn (hoặc backend báo "Token expired"), thì mới logout
+            if (status === 401 && errorData?.message === "Token expired") {
+                if (!originalRequest._retry) {
+                    console.log("hello")
+                    originalRequest._retry = true;
+                    store.dispatch(logout());
+                    window.location.href = "/auth";
+                }
+            } 
         }
+
         return Promise.reject(error);
     }
 );

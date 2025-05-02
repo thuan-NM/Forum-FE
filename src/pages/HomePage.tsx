@@ -1,5 +1,5 @@
 import HomeReel from '../components/Home/HomeReel'
-import SpaceManage from '../components/Home/SpaceManage'
+import GroupManage from '../components/Home/GroupManage'
 import HomeLayout from '../layouts/HomeLayout'
 
 const HomePage = () => {
@@ -7,13 +7,13 @@ const HomePage = () => {
     <HomeLayout>
       <div className='flex flex-row mt-5'>
         <div className='basis-1/4 flex justify-end'>
-          <SpaceManage />
+          <GroupManage />
         </div>
         <div className='basis-2/5'>
           <HomeReel />
         </div>
-        {/* <div className='basis-1/4 bg-blue-300'>haha</div> */}
       </div>
+
     </HomeLayout>
   )
 }

@@ -3,7 +3,7 @@ export interface User {
     username: string;
     email: string;
     role: string;
-    // Không lưu trữ mật khẩu ở phía client
+    created_at: Date
 }
 
 export interface UserState {

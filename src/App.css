@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+ol,
+ul {
+    list-style-type: initial;
+    /* Hiển thị kiểu danh sách mặc định */
+    /* padding-left: 1.5rem; */
+    /* Đảm bảo danh sách không bị lệch */
+}
+
+ol {
+    list-style-type: decimal;
+    /* Đảm bảo danh sách số */
+}
+
+ul {
+    list-style-type: disc;
+    /* Đảm bảo danh sách chấm tròn */
+}
