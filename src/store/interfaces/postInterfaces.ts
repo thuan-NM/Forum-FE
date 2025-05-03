@@ -13,7 +13,6 @@ export interface PostState {
 export interface PostFormData {
     content: string;
     status: string;
-    group_id: string;
 }
 
 export interface PostItemProp {

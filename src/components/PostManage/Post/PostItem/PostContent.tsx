@@ -13,12 +13,12 @@ const PostContent: React.FC<{ post: PostItemProp }> = ({ post }) => {
   const [images, setImages] = useState<string[]>([]); // Danh sách URL của hình ảnh
   const [textContent, setTextContent] = useState(''); // Nội dung văn bản không chứa hình ảnh
   const contentRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Giả lập thời gian tải dữ liệu
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+  // useEffect(() => {
+  //   setTimeout(() => setLoading(false), 1000);
+  // }, []);
 
   // Tách nội dung văn bản và hình ảnh từ post.content
   useEffect(() => {

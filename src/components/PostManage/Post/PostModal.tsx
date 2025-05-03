@@ -7,13 +7,12 @@ import { SlClose } from "react-icons/sl";
 import { useState } from 'react';
 import MenuBar from '../../TextEditor/MenuBar';
 import { MdClear } from 'react-icons/md';
-import RangeOfPost from './RangeOfPost';
-import { Group } from '../../../store/interfaces/groupInterfaces';
 import EditorModal from '../../TextEditor/EditorModal';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CreatePost } from '../../../services/PostServices';
 import toast from 'react-hot-toast';
 import { PostFormData } from '../../../store/interfaces/postInterfaces';
+import { GrLanguage } from 'react-icons/gr';
 
 interface PostModalProps {
     setModalActive: (arg0: string) => void;
@@ -25,14 +24,9 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
     const [openImage, setOpenImage] = useState<boolean>(false)
     const [openYoutube, setOpenYoutube] = useState<boolean>(false)
     const [content, setContent] = useState<string>("")
-    const [rangeOfPost, setRangeOfPost] = useState<Group>({
-        id: "",
-        name: "Everyone",
-        description: ""
-    });
     const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
-    const queryClient = useQueryClient(); 
+    const queryClient = useQueryClient();
     const mutation = useMutation({
         mutationFn: CreatePost,
         onSuccess: (data) => {
@@ -45,11 +39,10 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
         },
     });
 
-    const onSubmit = (onClose:()=>void) => {
+    const onSubmit = (onClose: () => void) => {
         const data: PostFormData = {
             content: content,
             status: "",
-            group_id: rangeOfPost.id,
         }
         mutation.mutate(data, {
             onSuccess: () => {
@@ -71,7 +64,13 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                                 >
                                     <MdClear className='w-7 h-7' />
                                 </Button>
-                                <RangeOfPost setRangeOfPost={setRangeOfPost} rangeOfPost={rangeOfPost} />
+                                {/* <RangeOfPost setRangeOfPost={setRangeOfPost} rangeOfPost={rangeOfPost} /> 
+                                */}
+                                <Button className='bg-content2 rounded-full' variant='flat' size='sm'>
+                                    <div className='flex !items-center gap-2 text-xs font-semibold'>
+                                        <GrLanguage className='text-lg' /> Everyone
+                                    </div>
+                                </Button>
                             </div>
                         </div>
                         <ModalHeader className="flex flex-col gap-1 pt-1 relative">
@@ -128,7 +127,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                                     ) : null}
                                 </AnimatePresence>
                             </div>
-                            <Button color="primary" onPress={()=>onSubmit(onClose)}>
+                            <Button color="primary" onPress={() => onSubmit(onClose)}>
                                 Post
                             </Button>
                         </ModalFooter>
