@@ -9,9 +9,9 @@ interface AuthState {
 
 const initialState: AuthState = {
   loading: false,
-  token: null,
+  token: localStorage.getItem("authToken") || null, 
   error: null,
-  isAuth: false,
+  isAuth: !!localStorage.getItem("authToken"), 
 };
 
 const authSlice = createSlice({
@@ -22,12 +22,13 @@ const authSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
-    loginSuccess(state, action: PayloadAction<{ token: string}>) {
+    loginSuccess(state, action: PayloadAction<{ token: string }>) {
       console.log("Login Success: Token received");
       state.loading = false;
       state.token = action.payload.token;
       state.isAuth = true;
       state.error = null;
+      localStorage.setItem("authToken", action.payload.token);
     },
     loginFailure(state, action: PayloadAction<string>) {
       console.log("Login Failed:", action.payload);
@@ -35,6 +36,7 @@ const authSlice = createSlice({
       state.isAuth = false;
       state.token = null;
       state.error = action.payload;
+      localStorage.removeItem("authToken");
     },
     logout(state) {
       console.log("User Logged Out");
@@ -42,11 +44,10 @@ const authSlice = createSlice({
       state.token = null;
       state.loading = false;
       state.error = null;
+      localStorage.removeItem("authToken");
     },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } =
-  authSlice.actions;
-
+export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
 export default authSlice.reducer;

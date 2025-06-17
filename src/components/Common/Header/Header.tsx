@@ -1,9 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../store/store';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { logout } from "../../../store/actions/authActions";
-import { clearUser } from "../../../store/slices/userSlice";
+import React, { useState, } from 'react';
+import { NavLink } from 'react-router-dom';
 import ChangeTheme from '../ChangeTheme';
 import logo from "../../../assets/logo.png";
 import { MdHome } from "react-icons/md";
@@ -16,7 +12,8 @@ import HeaderDropdown from './HeaderDropdown';
 import NotificationDropdown from '../../Home/Notification';
 import { BiEdit } from 'react-icons/bi';
 
-// Định nghĩa các route và thông tin tab
+import { useLogoutMutation } from '../../../hooks/useLogoutMutation';
+
 const navItems = {
   home: { path: '/', name: 'Home', icon: <MdHome className='h-6 w-6' /> },
   following: { path: '/following', name: 'Following', icon: <BsFillPostcardHeartFill className='h-6 w-6' /> },
@@ -26,15 +23,8 @@ const navItems = {
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
 
-  // Memoize handleLogout để tránh tái tạo hàm
-  const handleLogout = useCallback(() => {
-    navigate("/auth");
-    dispatch(logout());
-    dispatch(clearUser());
-  }, [dispatch, navigate]);
+  const { logoutAccount } = useLogoutMutation()
 
   return (
     <Navbar
@@ -97,7 +87,7 @@ const Header: React.FC = () => {
           <HeaderModal />
         </NavbarItem>
         <NavbarItem>
-          <HeaderDropdown handleLogouts={handleLogout} />
+          <HeaderDropdown handleLogouts={() => logoutAccount()} />
         </NavbarItem>
         <Tooltip content="Theme" placement="bottom" offset={15}>
           <NavbarItem className="mx-2">
@@ -129,7 +119,7 @@ const Header: React.FC = () => {
         <NavbarMenuItem>
           <button
             className="w-full text-left"
-            onClick={handleLogout}
+            onClick={() => logoutAccount()}
           >
             Log Out
           </button>

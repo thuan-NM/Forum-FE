@@ -48,7 +48,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
                             name=""
                         />
                         <div className='text-lg flex !justify-between items-center !w-full'>
-                            <div className='font-semibold'>{user.username}</div>
+                            <div className='font-semibold'>{user.fullName}</div>
                             <div className='text-3xl !font-light !text-neutral-400'>
                                 <GoChevronRight />
                             </div>

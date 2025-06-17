@@ -4,40 +4,44 @@ import MainLayout from "../layouts/MainLayout";
 import AnswerPage from "../pages/AnswerPage";
 import QuestionList from "../components/PostManage/Question/QuestionList";
 import AnswerRequestsList from "../components/PostManage/Question/Answer/AnswerRequests/AnswerRequestsList";
+import PrivateRoute from "./PrivateRoute";
+import VerifyEmail from "../components/Auth/VerifyEmail";
+import ResendVerification from "../components/Auth/ResendVerification";
 
 const HomePage = lazy(() => import("../pages/HomePage"))
 const AuthPage = lazy(() => import("../pages/AuthPage"))
 
+const withPrivateRoute = (element: JSX.Element) => <PrivateRoute>{element}</PrivateRoute>;
+
+const protectedRoutes = [
+    { index: true, element: withPrivateRoute(<HomePage />) },
+    {
+        path: "answer",
+        element: withPrivateRoute(<AnswerPage />),
+        children: [
+            { index: true, element: withPrivateRoute(<QuestionList />) },
+            { path: "requests", element: withPrivateRoute(<AnswerRequestsList />) },
+        ],
+    },
+];
+const publicRoutes = [
+    {
+        path: "auth", children: [
+            { index: true, element: <AuthPage /> },
+            { path: "verify-email", element: < VerifyEmail /> },
+            { path: "resend-verification", element: < ResendVerification /> }
+
+        ]
+    }
+];
 const routes = [
     {
         path: "/",
         element: <MainLayout />,
-        children: [
-            {
-                index: true,
-                element: <HomePage />,
-            },
-            {
-                path: "answer",
-                element: <AnswerPage />,
-                children: [
-                    {
-                        index: true,
-                        element: <QuestionList />,
-                    },
-                    {
-                        path: "requests",
-                        element: <AnswerRequestsList />,
-                    },
-                ],
-            },
-        ]
+        children: protectedRoutes,
     },
-    {
-        path: "auth",
-        element: <AuthPage />,
-    }
-]
+    ...publicRoutes,
+];
 
 const router = createBrowserRouter(routes);
 

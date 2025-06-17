@@ -25,27 +25,23 @@ export const logout = () => ({
     type: LOGOUT as typeof LOGOUT,
 });
 
-// Thunk action để login
 export const loginUser = (credentials: LoginCredentials) => {
     return async (dispatch: any) => {
-        dispatch(loginRequest()); // => { loading: true }
+        dispatch(loginRequest());
 
         try {
             const data = (await Login(credentials)).data;
             const { token, user } = data;
 
             localStorage.setItem("auth", JSON.stringify({ token }));
-            dispatch(loginSuccess(token, user)); // => { loading: false, isAuth: true }
+            dispatch(loginSuccess(token, user));
 
-            // **Trả về object** cho .then(...) trong component
             return { error: null, token, user };
         } catch (error: any) {
             const errorMessage = error?.response?.data?.error || "Login failed";
-            dispatch(loginFailure(errorMessage)); // => { loading: false, error: errorMessage }
+            dispatch(loginFailure(errorMessage));
 
-            // **throw** hoặc return để .then / .catch nhận được
             throw errorMessage;
-            // hoặc: return { error: errorMessage };
         }
     };
 };

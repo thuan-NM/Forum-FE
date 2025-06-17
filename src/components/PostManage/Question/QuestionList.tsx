@@ -3,10 +3,8 @@ import { FaRegLightbulb } from "react-icons/fa6";
 import { FaChevronRight } from "react-icons/fa6";
 import QuestionItem from "./QuestionItem/QuestionItem";
 import { Question } from "../../../store/interfaces/questionInterfaces";
-import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { DeleteQuestion, GetQuestion } from "../../../services/QuestionServices";
-import { Skeleton } from "@heroui/react";
 import { QuestionSkeleton } from "../../Skeleton/QuestionSkeleton";
 import toast from "react-hot-toast";
 const QuestionList = () => {
@@ -15,23 +13,16 @@ const QuestionList = () => {
         queryFn: GetQuestion,
     });
 
-    const [questionsData, setQuestionsData] = useState<Question[]>(data)
-    useEffect(() => {
-        setQuestionsData(data);
-    }, [data]);
     const queryClient = useQueryClient();
 
     const deleteMutation = useMutation({
         mutationFn: DeleteQuestion,
         onSuccess: (data) => {
-            toast.success(data?.message);
-            setQuestionsData((prevPosts) =>
-                prevPosts.filter((question) => question.id !== data?.id)
-            );
+            toast.success(data?.message || "Question deleted successfully");
             queryClient.invalidateQueries({ queryKey: ["questions"] });
         },
         onError: (error: any) => {
-            toast.error(error?.response?.data?.message);
+            toast.error(error?.response?.data?.message || "Failed to delete question");
         },
     });
 
@@ -42,7 +33,7 @@ const QuestionList = () => {
     if (isLoading) {
         return (
             <div className="my-3 text-center">
-                <Skeleton className="w-full h-32 rounded-lg" />
+                <QuestionSkeleton />
             </div>
         );
     }
@@ -68,17 +59,15 @@ const QuestionList = () => {
                 <FaChevronRight />
             </button>
             <AnimatePresence>
-                {isLoading ?
-                    <QuestionSkeleton />
-                    : (
-                        <>
-                            {questionsData.map((question) => (
-                                <QuestionItem
-                                    key={question.id}
-                                    question={question}
-                                    onDelete={handleDelete}
-                                />
-                            ))}</>)}
+                {<>
+                    {data.map((question) => (
+                        <QuestionItem
+                            key={question.id}
+                            question={question}
+                            onDelete={handleDelete}
+                        />
+                    ))}
+                </>}
 
             </AnimatePresence>
         </div>

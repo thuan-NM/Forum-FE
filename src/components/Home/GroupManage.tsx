@@ -1,20 +1,12 @@
 import { GroupProvider } from '../../context/GroupContext'
-import Footer from '../Common/Footer'
-import GroupCreation from '../Group/GroupCreation'
-import GroupItem from '../Group/GroupItem'
+import TopicTab from '../PostManage/Question/Topic/TopicTab'
 const GroupManage = () => {
   return (
     <GroupProvider>
-      <div className='w-2/3'>
-        <div className='text-start'>
-          <GroupCreation />
-        </div>
+      <div className='w-3/4 mx-auto'>
         <div>
-          <GroupItem />
-
+          <TopicTab/>
         </div>
-        <hr className='border-b !border-neutral-600 w-11/12' />
-        <Footer position='left' />
       </div>
     </GroupProvider>
   )

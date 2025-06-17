@@ -1,33 +1,52 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import { Login } from "../services/AuthServices";
 import { loginStart, loginSuccess, loginFailure } from "../store/slices/authSlice";
 import { useAppDispatch } from "../store/hooks";
 import { setUser } from "../store/slices/userSlice";
+import { useNavigate } from "react-router-dom";
 
-export function useLoginMutation() {
+interface LoginResponse {
+  message: string;
+  token: string;
+  user: any; 
+}
+
+interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export const useLoginMutation = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: Login, // Gọi API
-    mutationKey: ["login"],
-
+  const loginMutation = useMutation<LoginResponse, Error, LoginCredentials>({
+    mutationFn: Login,
     onMutate: () => {
       dispatch(loginStart());
     },
-    onSuccess: (data:any) => {
+    onSuccess: (data) => {
+      toast.success("Login successful");
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       dispatch(loginSuccess({ token: data.token }));
-      dispatch(setUser(data.user))
+      dispatch(setUser(data.user));
+      navigate("/");
     },
     onError: (error: any) => {
-
       let message = "Login failed";
       if (error?.response?.data?.error) {
         message = error.response.data.error;
       } else if (error.message) {
         message = error.message;
       }
-
+      toast.error(message);
       dispatch(loginFailure(message));
     },
   });
-}
+
+  return {
+    ...loginMutation,
+  };
+};

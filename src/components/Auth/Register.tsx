@@ -10,6 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 type AccountData = {
     username: string | '';
     email: string | '',
+    fullName: string | ''
     password: string | '',
     confirmpassword: string | '',
 }
@@ -19,6 +20,7 @@ const RegisterComponent = () => {
     const { setRegisteredEmail } = useAuth();
     const [formData, setFormData] = useState<AccountData>({
         username: "",
+        fullName: "",
         email: "",
         password: "",
         confirmpassword: "",
@@ -42,7 +44,7 @@ const RegisterComponent = () => {
             toast.error(error.response.data.error);
         },
     });
-    const handleSubmit = async (e:FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         mutation.mutate(formData)
     }
@@ -72,7 +74,7 @@ const RegisterComponent = () => {
                 isOpen={isOpen}
                 size={"2xl"}
                 onOpenChange={onOpenChange}
-                className='rounded-md'
+                className='rounded-md '
                 isDismissable={false}
                 backdrop='blur'
                 hideCloseButton
@@ -106,6 +108,18 @@ const RegisterComponent = () => {
                                                 minLength={10}
                                                 variant="bordered"
                                                 value={formData.username}
+                                                onChange={handleInputChange}
+                                            />
+                                            <Input
+                                                autoComplete=''
+                                                isRequired
+                                                label={<span className='text-base font-semibold'>FullName</span>}
+                                                labelPlacement="outside"
+                                                name="fullName"
+                                                placeholder="Your fullName"
+                                                type="text"
+                                                variant="bordered"
+                                                value={formData.fullName}
                                                 onChange={handleInputChange}
                                             />
                                             <Input

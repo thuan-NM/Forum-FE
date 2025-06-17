@@ -1,12 +1,10 @@
-// utils/axiosConfig.ts
 
 import axios, { AxiosError } from "axios";
-import { store } from "../store/store"; // Import store
-import { logout } from "../store/slices/authSlice"; // Import logout từ authSlice
+import { store } from "../store/store"; 
+import { logout } from "../store/slices/authSlice"; 
 import { RootState } from "../store/store";
 import axiosRetry from "axios-retry";
 
-// Tạo một instance của axios
 const instance = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL,
     withCredentials: true,
@@ -15,7 +13,6 @@ const instance = axios.create({
 axiosRetry(instance, {
     retries: 3,
     retryCondition: (error) => {
-        // Thử lại nếu lỗi là do token hết hạn
         const errorres = error as AxiosError<{ code?: string }>;
         return errorres?.response?.data?.code === "ex";
     },
@@ -24,11 +21,10 @@ axiosRetry(instance, {
     },
 });
 
-// Thêm interceptor để thêm token vào header
 instance.interceptors.request.use(
     (config) => {
         const state: RootState = store.getState();
-        const token = state.auth.token; // Lấy token từ authSlice
+        const token = state.auth.token; 
         if (token) {
             config.headers["Authorization"] = `Bearer ${token}`;
         }
@@ -48,8 +44,7 @@ instance.interceptors.response.use(
             const status = error.response.status;
             const errorData = error.response.data;
 
-            // 🔥 Nếu token hết hạn (hoặc backend báo "Token expired"), thì mới logout
-            if (status === 401 && errorData?.message === "Token expired") {
+            if (status === 401 && errorData.code === "ex") {
                 if (!originalRequest._retry) {
                     console.log("hello")
                     originalRequest._retry = true;

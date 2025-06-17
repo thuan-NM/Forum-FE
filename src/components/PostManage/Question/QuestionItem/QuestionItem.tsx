@@ -90,7 +90,6 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
         },
     });
 
-    // Mutation để unfollow
     const unfollowMutation = useMutation<void, Error, number, MutationContext>({
         mutationFn: UnfollowQuestion,
         onMutate: async (questionId: number) => {

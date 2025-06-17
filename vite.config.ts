@@ -7,4 +7,7 @@ export default defineConfig({
     postcss: './postcss.config.cjs', // Hoặc './postcss.config.cjs' nếu sử dụng CommonJS
   },
   plugins: [react()],
+  server: {
+    port: 5000,
+  }
 })
