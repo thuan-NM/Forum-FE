@@ -19,7 +19,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }} // Hiệu ứng fade out và slide up khi xóa
       transition={{ duration: 0.3 }} // Thời gian animation
-      className="p-4 bg-content2 rounded-lg my-3 relative"
+      className="p-4 bg-content1 rounded-lg my-3 relative"
     >
       <PostHeader post={post} onDelete={() => onDelete?.(post.id)} />
       <PostContent post={post} />

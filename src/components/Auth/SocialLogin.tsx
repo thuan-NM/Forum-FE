@@ -1,7 +1,5 @@
 import React from "react";
-import { FaFacebook } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@heroui/react";
 import { useAuth } from "../../context/AuthContext";
 import { loginSuccess } from "../../store/slices/authSlice";
 import { setUser } from "../../store/slices/userSlice";
@@ -9,6 +7,7 @@ import { useAppDispatch } from "../../store/hooks";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
+import RegisterComponent from "./Register";
 
 const SocialLogin: React.FC = () => {
   const navigate = useNavigate();
@@ -44,11 +43,6 @@ const SocialLogin: React.FC = () => {
     toast.error("Google login failed");
   };
 
-  const handleFacebookLogin = () => {
-    // Tạm giữ nguyên cho Facebook, hoặc áp dụng cách tương tự sau
-    window.location.href = "http://localhost:8080/auth/facebook";
-  };
-
   return (
     <div className="flex flex-col space-y-2 w-1/2 px-6 mt-2">
       <p className="text-xs mb-4 text-content5">
@@ -66,6 +60,7 @@ const SocialLogin: React.FC = () => {
           auto_select={true}
         />
       </div>
+      <RegisterComponent/>
     </div>
   );
 };

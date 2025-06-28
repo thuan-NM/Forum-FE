@@ -16,7 +16,6 @@ const LogoutAccount = async () => {
 
 const VerifyEmail = async (token?: string) => {
   const response = await axios.get(`/verify-email?token=${token}`);
-  console.log(response.data);
   return response.data;
 };
 

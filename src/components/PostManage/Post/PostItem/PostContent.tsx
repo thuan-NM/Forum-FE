@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { PostContentSkeleton } from "../../../Skeleton/PostSkeleton";
 import { Image } from "@heroui/react";
 
-const MAX_LINES = 6; // Giới hạn số dòng hiển thị ban đầu
+const MAX_LINES = 6; 
 
 const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
   const [expanded, setExpanded] = useState(false);
@@ -59,7 +59,7 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
               opacity: 1,
             }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="leading-loose overflow-hidden"
+            className="leading-loose overflow-hidden bg-content1"
             dangerouslySetInnerHTML={{
               __html: expanded ? cleanContent : textContent,
             }}

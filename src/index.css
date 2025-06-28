@@ -3,8 +3,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-h1{
+
+h1 {
     font-family: "Dancing Script", serif;
     font-optical-sizing: auto;
     font-weight: 700;
+}
+
+html {
+    background-color: #f4f4f5 !important;
+}
+
+
+.dark {
+    background-color: #27272a !important;
 }

@@ -8,7 +8,7 @@ import router from "./routes";
 const App: React.FC = () => {
 
   return (
-    <HeroUIProvider>
+    <HeroUIProvider className='!bg-content1'>
       <Suspense fallback={<div>Loading...</div>}>
         <NextThemesProvider attribute="class" defaultTheme="dark">
           <RouterProvider router={router} />
