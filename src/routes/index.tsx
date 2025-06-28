@@ -26,24 +26,6 @@ const protectedRoutes = [
       { path: "requests", element: withPrivateRoute(<AnswerRequestsList />) },
     ],
   },
-  // {
-  //   path: "topics",
-  //   element: withPrivateRoute(<TopicsPage />),
-  //   // children: [
-  //   //     { index: true, element: withPrivateRoute(<QuestionList />) },
-  //   //     { path: "requests", element: withPrivateRoute(<AnswerRequestsList />) },
-  //   // ],
-  // },
-];
-const publicRoutes = [
-  {
-    path: "auth",
-    children: [
-      { index: true, element: <AuthPage /> },
-      { path: "verify-email", element: <VerifyEmail /> },
-      { path: "resend-verification", element: <ResendVerification /> },
-    ],
-  },
   {
     path: "topics",
     element: withPrivateRoute(<TopicsPage />),
@@ -51,6 +33,24 @@ const publicRoutes = [
     //     { index: true, element: withPrivateRoute(<QuestionList />) },
     //     { path: "requests", element: withPrivateRoute(<AnswerRequestsList />) },
     // ],
+  },
+];
+const publicRoutes = [
+  {
+    path: "auth",
+    children: [
+      { index: true, element: <AuthPage /> },
+      // { path: "verify-email", element: <VerifyEmail /> },
+      { path: "resend-verification", element: <ResendVerification /> },
+    ],
+  },
+  {
+    path: "api",
+    children: [
+      // { index: true, element: <AuthPage /> },
+      { path: "verify-email", element: <VerifyEmail /> },
+      // { path: "resend-verification", element: <ResendVerification /> },
+    ],
   },
 ];
 const routes = [
