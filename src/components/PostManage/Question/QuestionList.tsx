@@ -10,6 +10,9 @@ import {
 } from "../../../services/QuestionServices";
 import { QuestionSkeleton } from "../../Skeleton/QuestionSkeleton";
 import toast from "react-hot-toast";
+import NotFind from "../../Common/NotFind";
+import { Button } from "@heroui/react";
+import { useNavigate } from "react-router-dom";
 const QuestionList = () => {
   const { data, isLoading, isError, error } = useQuery<{
     questions: QuestionResponse[];
@@ -20,6 +23,7 @@ const QuestionList = () => {
   });
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const deleteMutation = useMutation({
     mutationFn: DeleteQuestion,
@@ -56,7 +60,11 @@ const QuestionList = () => {
 
   return (
     <div className="bg-content1 mt-3 !rounded-lg my-3 relative">
-      <button className="flex items-center justify-between w-full !rounded-t-lg hover:bg-content3 transition duration-200 ease-in-out p-3 py-2">
+      <Button
+        onPress={() => navigate("/answer")}
+        variant="ghost"
+        className="!border-0 rounded-b-none flex items-center justify-between w-full !rounded-t-lg hover:bg-content3 transition duration-200 ease-in-out p-3 py-2"
+      >
         <div className="flex items-center gap-x-2">
           <div className="bg-red-500 w-6 h-6 flex items-center justify-center rounded-md text-white !p-0">
             <FaRegLightbulb className="text-base !p-0" />
@@ -64,19 +72,23 @@ const QuestionList = () => {
           <span className="text-xs">Questions for you </span>
         </div>
         <FaChevronRight />
-      </button>
+      </Button>
       <AnimatePresence>
-        {
-          <>
-            {data?.questions.map((question) => (
-              <QuestionItem
-                key={question.id}
-                question={question}
-                onDelete={handleDelete}
-              />
-            ))}
-          </>
-        }
+        {data?.questions && data.questions.length > 0 ? (
+          data.questions.map((question) => (
+            <QuestionItem
+              key={question.id}
+              question={question}
+              onDelete={handleDelete}
+            />
+          ))
+        ) : (
+          <NotFind
+            title="questions"
+            className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6"
+            icon={<FaRegLightbulb className="size-10 !text-foreground/20" />}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
