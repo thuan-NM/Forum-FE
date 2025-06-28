@@ -1,17 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { Login } from "../services/AuthServices";
-import { loginStart, loginSuccess, loginFailure } from "../store/slices/authSlice";
-import { useAppDispatch } from "../store/hooks";
-import { setUser } from "../store/slices/userSlice";
+import { Login } from "../../services/AuthServices";
+import { loginStart, loginSuccess, loginFailure } from "../../store/slices/authSlice";
+import { useAppDispatch } from "../../store/hooks";
+import { setUser } from "../../store/slices/userSlice";
 import { useNavigate } from "react-router-dom";
 
+// Định nghĩa kiểu dữ liệu cho phản hồi của Login
 interface LoginResponse {
   message: string;
   token: string;
-  user: any; 
+  user: any; // Thay bằng kiểu dữ liệu cụ thể của user nếu có
 }
 
+// Định nghĩa kiểu dữ liệu cho credentials
 interface LoginCredentials {
   email: string;
   password: string;
@@ -47,6 +49,6 @@ export const useLoginMutation = () => {
   });
 
   return {
-    ...loginMutation,
+    ...loginMutation, 
   };
 };

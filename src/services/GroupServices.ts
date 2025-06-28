@@ -1,5 +1,5 @@
 import { GroupFormData } from '../store/interfaces/groupInterfaces'
-import axios from '../utils/configAxios'
+import axios from '../utils/configAxios.ts'
 
 const CreateGroup = async (formdata:GroupFormData) =>{
     return (await axios.post('/groups/',formdata,{ withCredentials: true })).data

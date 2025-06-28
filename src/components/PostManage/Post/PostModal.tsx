@@ -11,7 +11,7 @@ import EditorModal from '../../TextEditor/EditorModal';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CreatePost } from '../../../services/PostServices';
 import toast from 'react-hot-toast';
-import { PostFormData } from '../../../store/interfaces/postInterfaces';
+import { PostCreateDto } from '../../../store/interfaces/postInterfaces';
 import { GrLanguage } from 'react-icons/gr';
 
 interface PostModalProps {
@@ -40,9 +40,10 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
     });
 
     const onSubmit = (onClose: () => void) => {
-        const data: PostFormData = {
+        const data: PostCreateDto = {
             content: content,
-            status: "",
+            title: "",
+            tags: [],
         }
         mutation.mutate(data, {
             onSuccess: () => {

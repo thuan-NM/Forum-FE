@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useLoginMutation } from "../../hooks/useLoginMutation";
-import { Link, useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../../hooks/users/useLoginMutation";
+import { Link } from "react-router-dom";
 import { Button, Form, Input } from "@heroui/react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -11,7 +11,6 @@ type CredentialsType = {
 
 const Login = () => {
     const { registeredEmail } = useAuth();
-    const navigate = useNavigate();
 
     const [credentials, setCredentials] = useState<CredentialsType>({
         email: registeredEmail || "",

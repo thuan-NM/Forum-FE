@@ -1,27 +1,36 @@
-export interface Post {
-    id: string;
-    content: string;
-    status: string;
+import type { UserResponse } from "./userInterfaces";
+import type { TagResponse } from "./tagInterfaces";
+
+export interface PostCreateDto {
+  title: string;
+  content: string;
+  tags: number[];
 }
 
-export interface PostState {
-    post: Post | null;
-    isLoading: boolean;
-    error: string | null;
+export interface PostUpdateDto {
+  title?: string;
+  content?: string;
+  tags?: string[];
+  status?: "published" | "draft" | "archived";
 }
 
-export interface PostFormData {
-    content: string;
-    status: string;
+export interface PostResponse {
+  id: string;
+  title: string;
+  content: string;
+  author: UserResponse;
+  tags: TagResponse[];
+  status: "approved" | "pending" | "rejected";
+  ReactionCount: number;
+  comments: Comment[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface PostItemProp {
-    post_id: number;  // API trả về post_id, không phải id
-    content: string;
-    status: string;
-    group_id: number;
-    user_id: number;
-    created_at: string;  // API trả về string, không phải Date
-    updated_at: string;
+export interface PostListResponse {
+  posts: PostResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
-

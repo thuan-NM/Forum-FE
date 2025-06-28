@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
-import { LogoutAccount } from "../services/AuthServices";
+import { LogoutAccount } from "../../services/AuthServices";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { AppDispatch } from "../store/store";
-import { logout } from "../store/slices/authSlice";
-import { clearUser } from "../store/slices/userSlice";
+import { logout } from "../../store/slices/authSlice";
+import { clearUser } from "../../store/slices/userSlice";
+import type { AppDispatch } from "../../store/store";
 
 export const useLogoutMutation = () => {
     const dispatch = useDispatch<AppDispatch>();

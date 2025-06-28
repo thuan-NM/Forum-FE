@@ -1,14 +1,14 @@
 import PostHeader from "./PostHeader";
-import { PostItemProp } from "../../../../store/interfaces/postInterfaces";
+import { PostResponse } from "../../../../store/interfaces/postInterfaces";
 import PostContent from "./PostContent";
 import PostFooter from "./PostFooter";
 import CommentList from "../Comment/CommentList";
 import { useState } from "react";
-import { AnimatePresence, motion } from 'framer-motion'; // Import Framer Motion
+import { AnimatePresence, motion } from "framer-motion"; // Import Framer Motion
 
 interface PostItemProps {
-  post: PostItemProp;
-  onDelete?: (postId: number) => void;
+  post: PostResponse;
+  onDelete?: (postId: string) => void;
 }
 
 const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
@@ -21,9 +21,12 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
       transition={{ duration: 0.3 }} // Thời gian animation
       className="p-4 bg-content2 rounded-lg my-3 relative"
     >
-      <PostHeader post={post} onDelete={() => onDelete?.(post.post_id)} />
+      <PostHeader post={post} onDelete={() => onDelete?.(post.id)} />
       <PostContent post={post} />
-      <PostFooter setIsShowComment={setIsShowComment} isShowComment={isShowComment} />
+      <PostFooter
+        setIsShowComment={setIsShowComment}
+        isShowComment={isShowComment}
+      />
       <AnimatePresence>
         {isShowComment && (
           <motion.div
