@@ -1,4 +1,4 @@
-import axios from "../utils/configAxios"
+import axios from "../utils/configAxios.ts"
 
 const PassQuestion = async (id: number) => {
     return (await axios.put(`/passes/${id}/pass`)).data

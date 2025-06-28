@@ -1,16 +1,56 @@
-import { PostFormData } from "../store/interfaces/postInterfaces"
-import axios from "../utils/configAxios"
+import type { PostResponse } from "../store/interfaces/postInterfaces.ts";
+import axios from "../utils/configAxios.ts";
 
-const CreatePost = async (data: PostFormData) => {
-    return (await axios.post('/posts/', data, { withCredentials: true })).data
-}
+const GetPost = async (id: string): Promise<PostResponse> => {
+  if (!id) throw new Error("Post ID is required");
+  const response = await axios.get(`/posts/${id}`, { withCredentials: true });
+  if (!response.data?.post) throw new Error("Post not found");
+  return response.data.post;
+};
 
-const GetAllPost= async () =>{
-    return (await axios.get('/posts/',{ withCredentials: true })).data.posts || []
-}
+const DeletePost = async (id: string) => {
+  return (await axios.delete(`/posts/${id}`, { withCredentials: true })).data;
+};
+const ListPosts = async (
+  questionId: string,
+  limit: number = 10,
+  page: number = 1
+): Promise<{ posts: PostResponse[]; total: number }> => {
+  try {
+    const response = await axios.get(
+      `/posts/questions?question_id=${questionId}`,
+      {
+        params: { limit, page },
+        withCredentials: true,
+      }
+    );
+    return {
+      posts: response.data.posts || [],
+      total: response.data.total || 0,
+    };
+  } catch (error) {
+    throw new Error("Failed to fetch posts");
+  }
+};
+const GetAllPosts = async (filters: any) => {
+  const response = await axios.get("/posts/all", { params: filters });
+  return response.data;
+};
 
-const DeletePost = async (data: number) => {
-    return (await axios.delete(`/posts/${data}`, { withCredentials: true })).data
-}
+const UpdatePostStatus = async (id: string, status: string) => {
+  const response = await axios.put(`/posts/${id}/status`, { status });
+  return response.data;
+};
 
-export {CreatePost,GetAllPost,DeletePost}
+const AcceptPost = async (id: string) => {
+  const response = await axios.put(`/posts/${id}/accept`);
+  return response.data;
+};
+export {
+  GetPost,
+  DeletePost,
+  ListPosts,
+  GetAllPosts,
+  UpdatePostStatus,
+  AcceptPost,
+};

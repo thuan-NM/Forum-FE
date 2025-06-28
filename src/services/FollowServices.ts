@@ -1,4 +1,4 @@
-import axios from "../utils/configAxios"
+import axios from "../utils/configAxios.ts"
 
 const FollowQuestion = async (id: number) => {
     return (await axios.put(`/follows/${id}/follow`)).data
