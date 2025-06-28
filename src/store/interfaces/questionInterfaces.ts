@@ -21,7 +21,7 @@ export interface Question {
 
 export interface QuestionCreateDto {
   title: string;
-  content: string;
+  description: string;
   topicId: string;
 }
 

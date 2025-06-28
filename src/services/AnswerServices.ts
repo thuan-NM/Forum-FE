@@ -17,10 +17,13 @@ const ListAnswers = async (
   page: number = 1
 ): Promise<{ answers: AnswerResponse[]; total: number }> => {
   try {
-    const response = await axios.get(`/answers/questions?question_id=${questionId}`, {
-      params: { limit, page },
-      withCredentials: true,
-    });
+    const response = await axios.get(
+      `/answers/questions?question_id=${questionId}`,
+      {
+        params: { limit, page },
+        withCredentials: true,
+      }
+    );
     return {
       answers: response.data.answers || [],
       total: response.data.total || 0,
@@ -43,6 +46,12 @@ const AcceptAnswer = async (id: string) => {
   const response = await axios.put(`/answers/${id}/accept`);
   return response.data;
 };
+const CreateAnswer = async (data: any) => {
+  const response = await axios.post("/answers", data, {
+    withCredentials: true,
+  });
+  return response.data;
+};
 export {
   GetAnswer,
   DeleteAnswer,
@@ -50,4 +59,5 @@ export {
   GetAllAnswers,
   UpdateAnswerStatus,
   AcceptAnswer,
+  CreateAnswer,
 };

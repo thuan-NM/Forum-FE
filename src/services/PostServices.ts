@@ -1,4 +1,4 @@
-import type { PostResponse } from "../store/interfaces/postInterfaces.ts";
+import type { PostCreateDto, PostResponse } from "../store/interfaces/postInterfaces.ts";
 import axios from "../utils/configAxios.ts";
 
 const GetPost = async (id: string): Promise<PostResponse> => {
@@ -46,6 +46,11 @@ const AcceptPost = async (id: string) => {
   const response = await axios.put(`/posts/${id}/accept`);
   return response.data;
 };
+
+const CreatePost= async (post: PostCreateDto) => {
+  const response = await axios.post("/posts", post);
+  return response.data;
+};
 export {
   GetPost,
   DeletePost,
@@ -53,4 +58,5 @@ export {
   GetAllPosts,
   UpdatePostStatus,
   AcceptPost,
+  CreatePost
 };

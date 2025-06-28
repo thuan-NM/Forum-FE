@@ -60,19 +60,11 @@ const SocialLogin: React.FC = () => {
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={handleGoogleError}
-          text="signin_with"
-          shape="rectangular"
-          width="300"
+          text="continue_with"
+          shape="pill"
+          width="auto"
+          auto_select={true}
         />
-        <Button
-          onClick={handleFacebookLogin}
-          className="bg-content1 w-full"
-          variant="bordered"
-          radius="none"
-        >
-          <FaFacebook className="w-5 h-5" />
-          <span className="ml-3 text-sm">Sign in with Facebook</span>
-        </Button>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ import { Link } from "react-router-dom";
 // Định nghĩa interface cho props
 interface QuestionItemProps {
   question: QuestionResponse;
-  onDelete: (questionId: number) => void;
+  onDelete: (questionId: string) => void;
 }
 
 // Định nghĩa interface cho dữ liệu trả về từ CheckFollowStatus
@@ -54,27 +54,26 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
     FollowStatus,
     Error,
     boolean,
-    ["followStatus", number]
+    ["follows", string]
   >({
     queryKey: ["follows", question.id],
     queryFn: () => CheckFollowStatus(question.id),
     select: (data: FollowStatus) => data.isFollowing,
   });
 
-  // Mutation để follow
-  const followMutation = useMutation<void, Error, number, MutationContext>({
+  const followMutation = useMutation<void, Error, string, MutationContext>({
     mutationFn: FollowQuestion,
-    onMutate: async (questionId: number) => {
+    onMutate: async (questionId: string) => {
       await queryClient.cancelQueries({
-        queryKey: ["followStatus", questionId],
+        queryKey: ["follows", questionId],
       });
       await queryClient.cancelQueries({ queryKey: ["questions"] });
 
       const previousFollowStatus = queryClient.getQueryData<FollowStatus>([
-        "followStatus",
+        "follows",
         questionId,
       ]);
-      const previousQuestions = queryClient.getQueryData<Question[]>([
+      const previousQuestions = queryClient.getQueryData<QuestionResponse[]>([
         "questions",
       ]);
 
@@ -86,7 +85,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
       // Optimistic update cho question trong danh sách
       queryClient.setQueryData<QuestionResponse[]>(["questions"], (old) =>
         old?.map((q) =>
-          q.id === questionId ? { ...q, followCount: q.followCount + 1 } : q
+          q.id === questionId ? { ...q, followCount: q.followsCount + 1 } : q
         )
       );
 
@@ -95,7 +94,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
     onError: (error, _questionId, context) => {
       if (context) {
         queryClient.setQueryData(
-          ["followStatus", question.id],
+          ["follows", question.id],
           context.previousFollowStatus
         );
         queryClient.setQueryData(["questions"], context.previousQuestions);
@@ -104,18 +103,18 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["followStatus", question.id],
+        queryKey: ["follows", question.id],
       });
       queryClient.invalidateQueries({ queryKey: ["follows", "questions"] });
       queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
   });
 
-  const unfollowMutation = useMutation<void, Error, number, MutationContext>({
+  const unfollowMutation = useMutation<void, Error, string, MutationContext>({
     mutationFn: UnfollowQuestion,
-    onMutate: async (questionId: number) => {
+    onMutate: async (questionId: string) => {
       await queryClient.cancelQueries({
-        queryKey: ["followStatus", questionId],
+        queryKey: ["follows", questionId],
       });
       await queryClient.cancelQueries({ queryKey: ["questions"] });
 
@@ -123,7 +122,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
         "followStatus",
         questionId,
       ]);
-      const previousQuestions = queryClient.getQueryData<Question[]>([
+      const previousQuestions = queryClient.getQueryData<QuestionResponse[]>([
         "questions",
       ]);
 
@@ -131,9 +130,9 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
         isFollowing: false,
       });
 
-      queryClient.setQueryData<Question[]>(["questions"], (old) =>
+      queryClient.setQueryData<QuestionResponse[]>(["questions"], (old) =>
         old?.map((q) =>
-          q.id === questionId ? { ...q, followCount: q.followCount - 1 } : q
+          q.id === questionId.toString() ? { ...q, followCount: q.followsCount - 1 } : q
         )
       );
 
@@ -168,7 +167,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
   };
 
   // Mutation để pass question
-  const passMutation = useMutation<void, Error, number>({
+  const passMutation = useMutation<void, Error, string>({
     mutationFn: PassQuestion,
     onSuccess: () => {
       toast.success("Question passed successfully");
@@ -207,7 +206,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
         </div>
         <div className="flex items-center gap-x-1 opacity-80 text-xs flex-wrap !items-center mt-1 ">
           <button className="font-bold hover:underline">
-            {question.answerCount} answers
+            {question.answersCount} answers
           </button>
           <GoDotFill className="w-1 h-1 hidden sm:block" />
           <span>
@@ -242,7 +241,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
               <FaRss className="w-4 h-4" />
               {isFollowing ? "Following" : "Follow"}
               <GoDotFill className="w-1 h-1 hidden sm:block" />
-              {question.followCount}
+              {question.followsCount}
             </Button>
             <Button
               size="sm"

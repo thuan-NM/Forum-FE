@@ -5,6 +5,7 @@ import type { UserResponse } from "./userInterfaces";
 
 export interface AnswerResponse {
   id: string;
+  title: string;
   content: string;
   status: "approved" | "pending" | "rejected";
   isAccepted: boolean;
@@ -21,6 +22,7 @@ export interface AnswerResponse {
 
 export interface AnswerCreateDto {
   content: string;
+  tag?: number[];
   questionId: string;
 }
 
