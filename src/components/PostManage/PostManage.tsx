@@ -17,7 +17,7 @@ const PostManage = () => {
     }
 
     return (
-        <div className='w-full h-fit py-2 bg-content2 flex border border-transparent flex-col rounded-lg px-4 hover:border hover:border-content3'>
+        <div className='w-full h-fit bg-content1 flex border border-transparent flex-col rounded-lg p-4 hover:border hover:border-content3'>
             <div className='flex w-full'>
                 <User
                     avatarProps={{
@@ -30,17 +30,17 @@ const PostManage = () => {
                 <Input placeholder='What do you want to ask or share?' readOnly variant='bordered' disabled />
             </div>
             <div className="flex h-5 items-center space-x-2 text-small mt-3">
-                <Button className='bg-content2 py-3 hover:bg-content3 w-full' size='sm' onPress={() => handleModalOpen("Ask")}>
+                <Button className='bg-content1 py-3 hover:bg-content3 w-full' size='sm' onPress={() => handleModalOpen("Ask")}>
                     <TbMessageQuestion />
                     Ask
                 </Button>
                 <Divider orientation="vertical" />
-                <Button className='bg-content2 py-3 hover:bg-content3 w-full' size='sm'>
+                <Button className='bg-content1 py-3 hover:bg-content3 w-full' size='sm'>
                     <BiMessageAltEdit />
                     Answer
                 </Button>
                 <Divider orientation="vertical" />
-                <Button className='bg-content2 py-3 hover:bg-content3 w-full' size='sm' onPress={() => handleModalOpen("Post")}>
+                <Button className='bg-content1 py-3 hover:bg-content3 w-full' size='sm' onPress={() => handleModalOpen("Post")}>
                     <GrEdit />
                     Post
                 </Button>

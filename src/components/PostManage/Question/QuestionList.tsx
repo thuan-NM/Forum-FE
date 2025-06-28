@@ -55,7 +55,7 @@ const QuestionList = () => {
   }
 
   return (
-    <div className="bg-content2 mt-3 bg-content2 !rounded-lg my-3 relative">
+    <div className="bg-content1 mt-3 !rounded-lg my-3 relative">
       <button className="flex items-center justify-between w-full !rounded-t-lg hover:bg-content3 transition duration-200 ease-in-out p-3 py-2">
         <div className="flex items-center gap-x-2">
           <div className="bg-red-500 w-6 h-6 flex items-center justify-center rounded-md text-white !p-0">
