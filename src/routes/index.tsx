@@ -40,8 +40,16 @@ const publicRoutes = [
     path: "auth",
     children: [
       { index: true, element: <AuthPage /> },
-      { path: "verify-email", element: <VerifyEmail /> },
+      // { path: "verify-email", element: <VerifyEmail /> },
       { path: "resend-verification", element: <ResendVerification /> },
+    ],
+  },
+  {
+    path: "api",
+    children: [
+      // { index: true, element: <AuthPage /> },
+      { path: "verify-email", element: <VerifyEmail /> },
+      // { path: "resend-verification", element: <ResendVerification /> },
     ],
   },
 ];
