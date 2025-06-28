@@ -44,14 +44,14 @@ const publicRoutes = [
       { path: "resend-verification", element: <ResendVerification /> },
     ],
   },
-  {
-    path: "topics",
-    element: withPrivateRoute(<TopicsPage />),
-    // children: [
-    //     { index: true, element: withPrivateRoute(<QuestionList />) },
-    //     { path: "requests", element: withPrivateRoute(<AnswerRequestsList />) },
-    // ],
-  },
+  // {
+  //   path: "topics",
+  //   element: withPrivateRoute(<TopicsPage />),
+  //   // children: [
+  //   //     { index: true, element: withPrivateRoute(<QuestionList />) },
+  //   //     { path: "requests", element: withPrivateRoute(<AnswerRequestsList />) },
+  //   // ],
+  // },
 ];
 const routes = [
   {
