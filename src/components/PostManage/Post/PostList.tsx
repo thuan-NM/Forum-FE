@@ -14,7 +14,7 @@ const PostList: React.FC = () => {
     total: number;
   }>({
     queryKey: ["posts"],
-    queryFn: () => GetAllPosts({}),
+    queryFn: () => GetAllPosts({ limit: 10 }),
   });
 
   const { DeletePost } = useDeletePost();
@@ -46,7 +46,9 @@ const PostList: React.FC = () => {
           <NotFind
             className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
             title="post"
-            icon={<BsFileEarmarkPostFill className="size-10 !text-foreground/20" />}
+            icon={
+              <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
+            }
           />
         )}
       </AnimatePresence>

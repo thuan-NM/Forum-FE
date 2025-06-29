@@ -4,7 +4,7 @@ import type { TagResponse } from "./tagInterfaces";
 export interface PostCreateDto {
   title: string;
   content: string;
-  tags: number[];
+  tags: string[];
 }
 
 export interface PostUpdateDto {

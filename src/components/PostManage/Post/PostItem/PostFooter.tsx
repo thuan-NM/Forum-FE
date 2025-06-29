@@ -11,10 +11,12 @@ import { PiWarningBold } from "react-icons/pi";
 interface PostFooterProps {
   setIsShowComment?: (show: boolean) => void;
   isShowComment?: boolean;
+  totalComment?: number;
 }
 const PostFooter: React.FC<PostFooterProps> = ({
   setIsShowComment,
   isShowComment,
+  totalComment
 }) => {
   const [loading, setLoading] = useState(true);
 
@@ -31,6 +33,7 @@ const PostFooter: React.FC<PostFooterProps> = ({
       <UpVote
         setIsShowComment={setIsShowComment}
         isShowComment={isShowComment}
+        totalComment={totalComment}
       />
       <Popover placement="top-start">
         <PopoverTrigger>

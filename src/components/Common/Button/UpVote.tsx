@@ -7,21 +7,18 @@ import { FaRegShareFromSquare } from "react-icons/fa6";
 interface PostFooterProps {
   setIsShowComment?: (show: boolean) => void;
   isShowComment?: boolean;
+  totalComment?: number;
 }
 
 const UpVote: React.FC<PostFooterProps> = ({
   setIsShowComment,
   isShowComment,
+  totalComment,
 }) => {
   return (
     <div className="flex flex-col gap-y-4">
       <div className="flex gap-x-2 items-center">
-        <Tooltip
-          content="Like"
-          placement={"top"}
-          offset={5}
-          closeDelay={100}
-        >
+        <Tooltip content="Like" placement={"top"} offset={5} closeDelay={100}>
           <div className="rounded-full p-1 px-3  flex items-center !text-sm gap-x-2 group ">
             <Button
               size="sm"
@@ -48,7 +45,7 @@ const UpVote: React.FC<PostFooterProps> = ({
               <FaRegComment className="size-5" />
               <span className="text-xs">Comments</span>
             </Button>
-            <span className="text-xs">1</span>
+            <span className="text-xs">{totalComment}</span>
           </div>
         </Tooltip>
       </div>

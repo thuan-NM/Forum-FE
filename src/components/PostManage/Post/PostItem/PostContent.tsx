@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { PostContentSkeleton } from "../../../Skeleton/PostSkeleton";
 import { Image } from "@heroui/react";
 
-const MAX_LINES = 6; 
+const MAX_LINES = 6;
 
 const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
   const [expanded, setExpanded] = useState(false);
@@ -15,7 +15,6 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
 
-  
   useEffect(() => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(post.content, "text/html");
@@ -50,7 +49,7 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
         <PostContentSkeleton />
       ) : (
         <>
-          {/* Nội dung bài viết */}
+          <h2 className="font-bold mt-5 text-lg">{post.title}</h2>
           <motion.div
             ref={contentRef}
             initial={{ height: `${MAX_LINES * 2}rem`, opacity: 0 }}

@@ -1,6 +1,5 @@
 import { AnimatePresence } from "framer-motion";
-import { FaRegLightbulb } from "react-icons/fa6";
-import { FaChevronRight } from "react-icons/fa6";
+import { FaRegLightbulb, FaChevronRight } from "react-icons/fa6";
 import QuestionItem from "./QuestionItem/QuestionItem";
 import { QuestionResponse } from "../../../store/interfaces/questionInterfaces";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +12,7 @@ import toast from "react-hot-toast";
 import NotFind from "../../Common/NotFind";
 import { Button } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
+
 const QuestionList = () => {
   const { data, isLoading, isError, error } = useQuery<{
     questions: QuestionResponse[];
@@ -69,7 +69,7 @@ const QuestionList = () => {
           <div className="bg-red-500 w-6 h-6 flex items-center justify-center rounded-md text-white !p-0">
             <FaRegLightbulb className="text-base !p-0" />
           </div>
-          <span className="text-xs">Questions for you </span>
+          <span className="text-xs">Questions for you</span>
         </div>
         <FaChevronRight />
       </Button>

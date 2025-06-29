@@ -1,65 +1,69 @@
+// ✅ CommentList.tsx
 import { useState } from "react";
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { FaChevronDown } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 import CommentCreation from "./CommentCreation";
 import CommentItem from "./CommentItem";
-import { getAllComments } from "../../../../services";
 import { CommentResponse } from "../../../../store/interfaces/commentInterfaces";
-import { useQuery } from "@tanstack/react-query";
 import LoadingState from "../../../Common/LoadingState";
 import ErrorState from "../../../Common/ErrorState";
+import NotFind from "../../../Common/NotFind";
+import { FaRegComment } from "react-icons/fa6";
 
 type SortType = "recommended" | "most" | "least";
 
 interface CommentListProps {
-  comment: CommentResponse[];
+  comments: CommentResponse[];
+  fetchNextPage: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage: boolean;
+  isLoading: boolean;
+  isError: boolean;
+  error: any;
 }
 
-const CommentList = () => {
+const CommentList: React.FC<CommentListProps> = ({
+  comments,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+  isLoading,
+  isError,
+  error,
+}) => {
   const [typeOfComment, setTypeOfComment] = useState<SortType>("recommended");
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
-  const [limit, setLimit] = useState<number>(5);
 
   const handleChange = (commentType: SortType) => {
     setTypeOfComment(commentType);
     setIsPopoverOpen(false);
   };
 
-  const { data, isLoading, isError, error } = useQuery<{
-    comments: CommentResponse[];
-    total: number;
-  }>({
-    queryKey: ["comments", limit],
-    queryFn: () => getAllComments({ limit: limit }),
-  });
-
-  const sortedComments = data?.comments
-    ? [...data.comments].sort((a, b) => {
-        if (typeOfComment === "most")
-          return (
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          );
-        if (typeOfComment === "least")
-          return (
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-        return 0;
-      })
-    : [];
-
-  const commentVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0 },
-  };
+  const sortedComments = comments
+    .filter(
+      (comment): comment is CommentResponse =>
+        comment !== null && comment !== undefined
+    )
+    .sort((a, b) => {
+      if (typeOfComment === "most")
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      if (typeOfComment === "least")
+        return (
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+      return 0;
+    });
 
   return (
     <div>
       <CommentCreation />
 
       <div className="flex justify-between items-center my-3">
-        <div className="font-semibold">Comments {limit}</div>
+        <div className="font-semibold">Comments</div>
         <Popover
           showArrow
           offset={20}
@@ -102,50 +106,47 @@ const CommentList = () => {
         </Popover>
       </div>
 
-      {isLoading && <LoadingState message="Loading comments..." />}
+      {sortedComments.length === 0 && (
+        <NotFind
+          className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
+          title="comments"
+          icon={<FaRegComment className="size-10 !text-foreground/20" />}
+        />
+      )}
       {isError && (
         <ErrorState message={error?.message || "Error loading comments."} />
       )}
 
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={{
-          visible: {
-            transition: {
-              staggerChildren: 0.1,
-            },
-          },
-        }}
-      >
-        <AnimatePresence>
-          {sortedComments.map((comment) => (
-            <motion.div
-              key={comment.id}
-              variants={commentVariants}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              transition={{ duration: 0.3 }}
-              className="border-t border-content3 py-4"
-            >
-              <CommentItem comment={comment} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      <motion.div layout>
+        {sortedComments.map((comment) => (
+          <motion.div
+            key={comment.id}
+            layout
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="border-t border-content3 py-4"
+          >
+            <CommentItem comment={comment} />
+          </motion.div>
+        ))}
 
-      {sortedComments.length > 0 && (
-        <Button
-          className="w-full font-semibold mt-4"
-          size="sm"
-          variant="bordered"
-          radius="full"
-          onPress={() => setLimit(limit + 5)}
-        >
-          View more comments <FaChevronDown className="ml-2" />
-        </Button>
-      )}
+        {isFetchingNextPage && (
+          <LoadingState message="Loading more comments..." />
+        )}
+
+        {hasNextPage && !isFetchingNextPage && (
+          <Button
+            className="w-full font-semibold mt-4"
+            size="sm"
+            variant="bordered"
+            radius="full"
+            onPress={fetchNextPage}
+          >
+            View more comments <FaChevronDown className="ml-2" />
+          </Button>
+        )}
+      </motion.div>
     </div>
   );
 };

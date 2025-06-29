@@ -88,7 +88,7 @@ const TiptapEditor = memo(function TiptapEditor({
     >
 
       {/* Khu vực soạn thảo */}
-      <div className="p-4 min-h-80">
+      <div className="p-4 min-h-[65vh]">
         <EditorContent editor={editor} />
       </div>
     </div>

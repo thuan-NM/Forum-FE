@@ -7,6 +7,10 @@ import { GoDotFill } from "react-icons/go";
 import { format } from "timeago.js"; // Import timeago.js
 import { PostHeaderSkeleton } from "../../../Skeleton/PostSkeleton";
 import { MdClear } from "react-icons/md";
+import { useAuth } from "../../../../context/AuthContext";
+import { useDispatch } from "react-redux";
+import { useAppSelector } from "../../../../store/hooks";
+import { RootState } from "../../../../store/store";
 
 interface PostHeaderProps {
   post: PostResponse;
@@ -14,6 +18,7 @@ interface PostHeaderProps {
 }
 
 const PostHeader: React.FC<PostHeaderProps> = ({ post, onDelete }) => {
+  const userData = useAppSelector((state: RootState) => state.user.user);
   const {
     data: user,
     isLoading,
@@ -61,14 +66,16 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDelete }) => {
           </div>
         </div>
       </div>
-      <Button
-        isIconOnly
-        className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
-        size="sm"
-        onPress={onDelete} // Gọi hàm onDelete từ props
-      >
-        <MdClear className="w-3 h-3" />
-      </Button>
+      {post.author.id === userData?.id && (
+        <Button
+          isIconOnly
+          className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
+          size="sm"
+          onPress={onDelete} // Gọi hàm onDelete từ props
+        >
+          <MdClear className="w-3 h-3" />
+        </Button>
+      )}
     </div>
   );
 };
