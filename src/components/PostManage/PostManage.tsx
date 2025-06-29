@@ -3,7 +3,7 @@ import { TbMessageQuestion } from "react-icons/tb";
 import { BiMessageAltEdit } from "react-icons/bi";
 import { GrEdit } from "react-icons/gr";
 import {  useState } from 'react';
-import PostModal from './Post/PostModal';
+import PostModal from './Post/PostCreation/PostModal';
 import QuestionModal from './Question/QuestionModal';
 
 const PostManage = () => {

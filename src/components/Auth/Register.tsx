@@ -67,7 +67,7 @@ const RegisterComponent = () => {
 
     return (
         <div className='px-3'>
-            <Button size='sm' variant="flat" className='mr-2 bg-content2 w-full' onPress={onOpen}>
+            <Button size='sm' variant="flat" className='mr-2 bg-content1 w-full' onPress={onOpen}>
                 Sign up with email
             </Button>
             <Modal

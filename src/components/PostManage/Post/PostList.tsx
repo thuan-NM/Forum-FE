@@ -5,6 +5,8 @@ import { AnimatePresence } from "framer-motion"; // Import AnimatePresence
 import PostItem from "./PostItem/PostItem";
 import { useDeletePost } from "../../../hooks/posts/useDeletePost";
 import { PostResponse } from "../../../store/interfaces/postInterfaces";
+import NotFind from "../../Common/NotFind";
+import { BsFileEarmarkPostFill } from "react-icons/bs";
 
 const PostList: React.FC = () => {
   const { data, isLoading, isError, error } = useQuery<{
@@ -12,7 +14,7 @@ const PostList: React.FC = () => {
     total: number;
   }>({
     queryKey: ["posts"],
-    queryFn: () => GetAllPosts({}),
+    queryFn: () => GetAllPosts({ limit: 10 }),
   });
 
   const { DeletePost } = useDeletePost();
@@ -36,9 +38,19 @@ const PostList: React.FC = () => {
   return (
     <div className="mt-3">
       <AnimatePresence>
-        {data?.posts.map((post) => (
-          <PostItem key={post.id} post={post} onDelete={DeletePost} />
-        ))}
+        {data?.posts && data.posts.length > 0 ? (
+          data.posts.map((post) => (
+            <PostItem key={post.id} post={post} onDelete={DeletePost} />
+          ))
+        ) : (
+          <NotFind
+            className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
+            title="post"
+            icon={
+              <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
+            }
+          />
+        )}
       </AnimatePresence>
     </div>
   );

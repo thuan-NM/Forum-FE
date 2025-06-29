@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  Question,
-  QuestionResponse,
-} from "../../../../store/interfaces/questionInterfaces";
+import { QuestionResponse } from "../../../../store/interfaces/questionInterfaces";
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { MdClear, MdOutlineEditOff } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
@@ -10,7 +7,7 @@ import { BiEdit } from "react-icons/bi";
 import { FaLink, FaRss } from "react-icons/fa6";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { GrUnorderedList } from "react-icons/gr";
-import { PiWarningBold } from "react-icons/pi";
+import { PiWarningBold } from "react-icons/pi"; // Chỉ giữ PiWarningBold vì nó được sử dụng
 import { IoPersonAddSharp } from "react-icons/io5";
 import { PiClockCountdownFill } from "react-icons/pi";
 import { HiOutlineBell } from "react-icons/hi";
@@ -20,10 +17,11 @@ import { motion } from "framer-motion";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import {
-  FollowQuestion,
-  UnfollowQuestion,
   CheckFollowStatus,
-} from "../../../../services/FollowServices";
+  FollowQuestion,
+  FollowResponse,
+  UnfollowQuestion,
+} from "../../../../services/FollowServices"; // Chỉ giữ CheckFollowStatus vì nó được sử dụng
 import { format } from "timeago.js";
 import { PassQuestion } from "../../../../services/PassQuestionServices";
 import { Link } from "react-router-dom";
@@ -48,8 +46,6 @@ interface MutationContext {
 const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const queryClient = useQueryClient();
-
-  // Query để kiểm tra trạng thái follow
   const { data: isFollowing, isLoading: isCheckingFollow } = useQuery<
     FollowStatus,
     Error,
@@ -57,16 +53,23 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
     ["follows", string]
   >({
     queryKey: ["follows", question.id],
-    queryFn: () => CheckFollowStatus(question.id),
+    queryFn: async () => {
+      const res = await CheckFollowStatus(question.id, "questions");
+      console.log(res);
+      return { isFollowing: res.isFollowing };
+    },
     select: (data: FollowStatus) => data.isFollowing,
+    enabled: !!question.id, // Chỉ chạy query khi question.id có giá trị
   });
-
-  const followMutation = useMutation<void, Error, string, MutationContext>({
-    mutationFn: FollowQuestion,
-    onMutate: async (questionId: string) => {
-      await queryClient.cancelQueries({
-        queryKey: ["follows", questionId],
-      });
+  const followMutation = useMutation<
+    FollowResponse,
+    Error,
+    { id: string; type: string },
+    MutationContext
+  >({
+    mutationFn: ({ id, type }) => FollowQuestion(id, type),
+    onMutate: async ({ id: questionId }) => {
+      await queryClient.cancelQueries({ queryKey: ["follows", questionId] });
       await queryClient.cancelQueries({ queryKey: ["questions"] });
 
       const previousFollowStatus = queryClient.getQueryData<FollowStatus>([
@@ -77,24 +80,26 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
         "questions",
       ]);
 
-      // Optimistic update cho follow status
-      queryClient.setQueryData<FollowStatus>(["followStatus", questionId], {
+      queryClient.setQueryData<FollowStatus>(["follows", questionId], {
         isFollowing: true,
       });
 
-      // Optimistic update cho question trong danh sách
       queryClient.setQueryData<QuestionResponse[]>(["questions"], (old) =>
-        old?.map((q) =>
-          q.id === questionId ? { ...q, followCount: q.followsCount + 1 } : q
-        )
+        Array.isArray(old)
+          ? old.map((q) =>
+              q.id === questionId
+                ? { ...q, followsCount: (q.followsCount || 0) + 1 }
+                : q
+            )
+          : old || []
       );
 
       return { previousFollowStatus, previousQuestions };
     },
-    onError: (error, _questionId, context) => {
+    onError: (error, _variables, context) => {
       if (context) {
         queryClient.setQueryData(
-          ["follows", question.id],
+          ["follows", _variables.id],
           context.previousFollowStatus
         );
         queryClient.setQueryData(["questions"], context.previousQuestions);
@@ -102,46 +107,52 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
       toast.error(error.message || "Failed to follow question");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["follows", question.id],
-      });
-      queryClient.invalidateQueries({ queryKey: ["follows", "questions"] });
+      queryClient.invalidateQueries({ queryKey: ["follows", question.id] });
       queryClient.invalidateQueries({ queryKey: ["questions"] });
+      toast.success("Question followed successfully");
     },
   });
 
-  const unfollowMutation = useMutation<void, Error, string, MutationContext>({
-    mutationFn: UnfollowQuestion,
-    onMutate: async (questionId: string) => {
-      await queryClient.cancelQueries({
-        queryKey: ["follows", questionId],
-      });
+  // Mutation để unfollow question
+  const unfollowMutation = useMutation<
+    FollowResponse,
+    Error,
+    { id: string; type: string },
+    MutationContext
+  >({
+    mutationFn: ({ id, type }) => UnfollowQuestion(id, type),
+    onMutate: async ({ id: questionId }) => {
+      await queryClient.cancelQueries({ queryKey: ["follows", questionId] });
       await queryClient.cancelQueries({ queryKey: ["questions"] });
 
       const previousFollowStatus = queryClient.getQueryData<FollowStatus>([
-        "followStatus",
+        "follows",
         questionId,
       ]);
       const previousQuestions = queryClient.getQueryData<QuestionResponse[]>([
         "questions",
       ]);
 
-      queryClient.setQueryData<FollowStatus>(["followStatus", questionId], {
+      queryClient.setQueryData<FollowStatus>(["follows", questionId], {
         isFollowing: false,
       });
 
       queryClient.setQueryData<QuestionResponse[]>(["questions"], (old) =>
-        old?.map((q) =>
-          q.id === questionId.toString() ? { ...q, followCount: q.followsCount - 1 } : q
-        )
+        Array.isArray(old)
+          ? old.map((q) =>
+              q.id === questionId
+                ? { ...q, followsCount: (q.followsCount || 0) - 1 }
+                : q
+            )
+          : old || []
       );
 
       return { previousFollowStatus, previousQuestions };
     },
-    onError: (error, _questionId, context) => {
+    onError: (error, _variables, context) => {
       if (context) {
         queryClient.setQueryData(
-          ["followStatus", question.id],
+          ["follows", _variables.id],
           context.previousFollowStatus
         );
         queryClient.setQueryData(["questions"], context.previousQuestions);
@@ -149,22 +160,11 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
       toast.error(error.message || "Failed to unfollow question");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["followStatus", question.id],
-      });
-      queryClient.invalidateQueries({ queryKey: ["follows", "questions"] });
+      queryClient.invalidateQueries({ queryKey: ["follows", question.id] });
       queryClient.invalidateQueries({ queryKey: ["questions"] });
+      toast.success("Question unfollowed successfully");
     },
   });
-
-  // Xử lý toggle follow/unfollow
-  const handleFollowToggle = () => {
-    if (isFollowing) {
-      unfollowMutation.mutate(question.id);
-    } else {
-      followMutation.mutate(question.id);
-    }
-  };
 
   // Mutation để pass question
   const passMutation = useMutation<void, Error, string>({
@@ -178,11 +178,25 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
     },
   });
 
+  // Xử lý toggle follow/unfollow
+  const handleFollowToggle = () => {
+    if (isFollowing) {
+      unfollowMutation.mutate({ id: question.id, type: "questions" });
+    } else {
+      followMutation.mutate({ id: question.id, type: "questions" });
+    }
+  };
+
+  // Xử lý pass question
   const handlePass = () => {
     passMutation.mutate(question.id);
   };
 
-  const date = new Date(question.lastFollowed).getTime();
+  // Format thời gian
+  const date = question.lastFollowed
+    ? new Date(question.lastFollowed).getTime()
+    : null;
+
   return (
     <motion.div
       initial={{ opacity: 1, y: 0 }}
@@ -190,9 +204,12 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="border-t border-content3 p-4 relative ">
+      <div className="border-t border-content3 p-4 relative">
         <div className="flex items-center justify-between">
-          <Link to={"/"} className="text-md font-bold hover:underline">
+          <Link
+            to={`/question/${question.id}`}
+            className="text-md font-bold hover:underline"
+          >
             {question.title}
           </Link>
           <Button
@@ -204,19 +221,17 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
             <MdClear className="w-3 h-3" />
           </Button>
         </div>
-        <div className="flex items-center gap-x-1 opacity-80 text-xs flex-wrap !items-center mt-1 ">
+        <div className="flex gap-x-1 opacity-80 text-xs flex-wrap !items-center mt-1">
           <button className="font-bold hover:underline">
             {question.answersCount} answers
           </button>
           <GoDotFill className="w-1 h-1 hidden sm:block" />
           <span>
-            {question.lastFollowed
-              ? `Last followed ${format(date)}`
-              : `No one followed`}
+            {date ? `Last followed ${format(date)}` : `No one followed`}
           </span>
         </div>
         <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center gap-x-1 ">
+          <div className="flex items-center gap-x-1">
             <Button
               size="sm"
               variant="bordered"
@@ -241,7 +256,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
               <FaRss className="w-4 h-4" />
               {isFollowing ? "Following" : "Follow"}
               <GoDotFill className="w-1 h-1 hidden sm:block" />
-              {question.followsCount}
+              {question.followsCount || 0}
             </Button>
             <Button
               size="sm"
@@ -268,7 +283,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
             </PopoverTrigger>
             <PopoverContent className="p-0 rounded-sm bg-content1 w-min">
               <Button
-                className="hover:bg-content3 bg-transparent text-md font-light w-full !justify-start text-xs font-semibold"
+                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
               >
@@ -276,7 +291,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
                 Copy link
               </Button>
               <Button
-                className="hover:bg-content3 bg-transparent text-md font-light w-full !justify-start text-xs font-semibold"
+                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
               >
@@ -284,7 +299,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
                 Request answers
               </Button>
               <Button
-                className="hover:bg-content3 bg-transparent text-md font-light w-full !justify-start text-xs font-semibold"
+                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
                 onClick={handlePass}
@@ -294,7 +309,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
                 Pass question
               </Button>
               <Button
-                className="hover:bg-content3 bg-transparent text-md font-light w-full !justify-start text-xs font-semibold"
+                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
               >
@@ -302,7 +317,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
                 Answer later
               </Button>
               <Button
-                className="hover:bg-content3 bg-transparent text-md font-light w-full !justify-start text-xs font-semibold"
+                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
               >
@@ -310,7 +325,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
                 Notify me about edits
               </Button>
               <Button
-                className="hover:bg-content3 bg-transparent text-md font-light w-full !justify-start text-xs font-semibold"
+                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
               >
@@ -318,7 +333,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
                 View question log
               </Button>
               <Button
-                className="hover:bg-content3 bg-transparent text-md font-light w-full !justify-start text-xs font-semibold"
+                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
               >
