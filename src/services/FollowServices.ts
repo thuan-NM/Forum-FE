@@ -76,7 +76,7 @@ const checkFollowStatus = async (
   type: string
 ): Promise<FollowResponse> => {
   try {
-    const response = await axios.get(`/follows/${type}/${id}/follows`, {
+    const response = await axios.get(`/follows/${type}/${id}/status`, {
       withCredentials: true,
     });
     return response.data;

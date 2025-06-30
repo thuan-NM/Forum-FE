@@ -14,14 +14,34 @@ import { TbBlockquote } from "react-icons/tb";
 import { RxUnderline } from "react-icons/rx";
 import { IoImageOutline } from "react-icons/io5";
 import { BsYoutube, BsEmojiSmile } from "react-icons/bs";
-
 import ToolbarButton from "./ToolbarButton";
+
+// Các loại công cụ hỗ trợ
+export type ToolbarItemKey =
+  | "bold"
+  | "italic"
+  | "strike"
+  | "underline"
+  | "highlight"
+  | "orderedList"
+  | "bulletList"
+  | "blockquote"
+  | "code"
+  | "emoji"
+  | "youtube"
+  | "image"
+  | "link"
+  | "h1"
+  | "h2"
+  | "h3";
 
 interface MenuBarProps {
   editor: Editor | null;
   onAddImage?: () => void;
   onAddYoutube?: () => void;
   setShowEmojiPicker?: () => void;
+  include?: ToolbarItemKey[]; // chỉ render các item được truyền
+  className?: string;
 }
 
 enum Level {
@@ -35,6 +55,8 @@ export default function MenuBar({
   onAddImage,
   onAddYoutube,
   setShowEmojiPicker,
+  include = [],
+  className = "",
 }: MenuBarProps) {
   const [activeStates, setActiveStates] = useState({
     bold: false,
@@ -49,7 +71,6 @@ export default function MenuBar({
     link: false,
   });
 
-  // Cập nhật trạng thái active
   const updateActiveStates = useCallback(() => {
     if (editor) {
       setActiveStates({
@@ -67,124 +88,130 @@ export default function MenuBar({
     }
   }, [editor]);
 
-
   useEffect(() => {
-    if (editor) {
-      updateActiveStates();
-      editor.on("transaction", updateActiveStates);
-      return () => {
-        editor.off("transaction", updateActiveStates);
-      };
-    }
+    if (!editor) return;
+
+    updateActiveStates();
+
+    const handler = () => updateActiveStates();
+    editor.on("transaction", handler);
+
+    return () => {
+      editor?.off("transaction", handler);
+    };
   }, [editor, updateActiveStates]);
 
-  // Toggle heading
   const toggleHeading = (level: Level) => {
-    if (!editor) return;
-    editor.chain().focus().toggleHeading({ level }).run();
+    editor?.chain().focus().toggleHeading({ level }).run();
   };
 
-  // Mảng toolbar items
-  const toolbarItems = [
+  const toolbarMap: Record<
+    ToolbarItemKey,
     {
+      icon: React.ReactNode;
+      onClick: () => void;
+      isActive: boolean;
+    }
+  > = {
+    bold: {
       icon: <FaBold />,
       onClick: () => editor?.chain().focus().toggleBold().run(),
       isActive: activeStates.bold,
     },
-    {
+    italic: {
       icon: <FaItalic />,
       onClick: () => editor?.chain().focus().toggleItalic().run(),
       isActive: activeStates.italic,
     },
-    {
+    strike: {
       icon: <FaStrikethrough />,
       onClick: () => editor?.chain().focus().toggleStrike().run(),
       isActive: activeStates.strike,
     },
-    {
+    underline: {
       icon: <RxUnderline />,
       onClick: () => editor?.chain().focus().toggleUnderline().run(),
       isActive: activeStates.underline,
     },
-    {
+    highlight: {
       icon: <FaHighlighter />,
       onClick: () => editor?.chain().focus().toggleHighlight().run(),
       isActive: activeStates.highlight,
     },
-    {
+    orderedList: {
       icon: <LuListOrdered />,
       onClick: () => editor?.chain().focus().toggleOrderedList().run(),
       isActive: activeStates.orderedList,
     },
-    {
+    bulletList: {
       icon: <MdOutlineFormatListBulleted />,
       onClick: () => editor?.chain().focus().toggleBulletList().run(),
       isActive: activeStates.bulletList,
     },
-    {
+    blockquote: {
       icon: <TbBlockquote />,
       onClick: () => editor?.chain().focus().toggleBlockquote().run(),
       isActive: activeStates.blockquote,
     },
-    {
+    code: {
       icon: <FaCode />,
       onClick: () => editor?.chain().focus().toggleCode().run(),
       isActive: activeStates.code,
     },
-    // Nút mở emoji picker
-    {
+    emoji: {
       icon: <BsEmojiSmile />,
-      onClick: setShowEmojiPicker, isActive: false,
+      onClick: () => setShowEmojiPicker?.(),
+      isActive: false,
     },
-    {
+    youtube: {
       icon: <BsYoutube />,
-      onClick: onAddYoutube,
+      onClick: () => onAddYoutube?.(),
       isActive: false,
     },
-    {
+    image: {
       icon: <IoImageOutline />,
-      onClick: onAddImage,
+      onClick: () => onAddImage?.(),
       isActive: false,
     },
-    {
+    link: {
       icon: <FaLink />,
       onClick: () => {
         const url = window.prompt("Nhập URL:");
-        if (url) {
-          editor?.chain().focus().setLink({ href: url }).run();
-        }
+        if (url) editor?.chain().focus().setLink({ href: url }).run();
       },
       isActive: activeStates.link,
     },
-    {
+    h1: {
       icon: "H1",
       onClick: () => toggleHeading(Level.One),
-      isActive: false,
+      isActive: editor?.isActive("heading", { level: 1 }) ?? false,
     },
-    {
+    h2: {
       icon: "H2",
       onClick: () => toggleHeading(Level.Two),
-      isActive: false,
+      isActive: editor?.isActive("heading", { level: 2 }) ?? false,
     },
-    {
+    h3: {
       icon: "H3",
       onClick: () => toggleHeading(Level.Three),
-      isActive: false,
+      isActive: editor?.isActive("heading", { level: 3 }) ?? false,
     },
-  ];
+  };
 
   return (
-    <div className="flex flex-wrap">
-
-      {/* Toolbar Items */}
-      {toolbarItems.map((item, index) => (
-        <ToolbarButton
-          key={index}
-          icon={item.icon}
-          onClick={item.onClick}
-          isActive={item.isActive}
-        />
-      ))}
+    <div className={`flex flex-wrap gap-1 ${className}`}>
+      {include.map((key) => {
+        const item = toolbarMap[key];
+        if (!item) return null;
+        return (
+          <ToolbarButton
+            key={key}
+            icon={item.icon}
+            onClick={item.onClick}
+            isActive={item.isActive}
+          />
+        );
+      })}
     </div>
   );
 }

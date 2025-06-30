@@ -14,6 +14,8 @@ import { CommentResponse } from "../../../../store/interfaces/commentInterfaces"
 import { useQuery } from "@tanstack/react-query";
 import { ListReplies } from "../../../../services";
 import { useState } from "react";
+import DOMPurify from "dompurify";
+import CommentCreation from "./CommentCreation";
 
 interface CommentItemProps {
   comment: CommentResponse;
@@ -22,12 +24,10 @@ interface CommentItemProps {
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
   const [showReplies, setShowReplies] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [hasReplies, setHasReplies] = useState(comment.has_replies || false);
 
-  const {
-    data: reply,
-    isLoading,
-    isError,
-  } = useQuery<{
+  const { data: reply } = useQuery<{
     replies: CommentResponse[];
     total: number;
   }>({
@@ -59,7 +59,12 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
           </div>
         </div>
         <div>
-          <div className="text-sm">{comment.content}</div>
+          <div
+            className="text-sm ml-2"
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(comment.content),
+            }}
+          />
           <div className="flex justify-between items-center">
             <div className="w-fit mt-2 flex gap-x-2 flex-row items-center">
               <Tooltip
@@ -68,7 +73,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
                 offset={5}
                 closeDelay={100}
               >
-                <div className="rounded-full px-3  flex items-center !text-sm gap-x-2 group ">
+                <div className="rounded-full flex items-center !text-sm gap-x-2 group ">
                   <Button
                     size="sm"
                     className="rounded-full bg-transparent group-hover:bg-content3 cursor-pointer"
@@ -79,8 +84,13 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
                   <span className="text-xs">1</span>
                 </div>
               </Tooltip>
-              <Button size="sm" variant="light" radius="full">
-                Reply
+              <Button
+                size="sm"
+                variant="light"
+                radius="full"
+                onPress={() => setShowReplyForm((prev) => !prev)}
+              >
+                {showReplyForm ? "Cancel" : "Reply"}
               </Button>
             </div>
             <Popover placement="top-start">
@@ -108,12 +118,44 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
               </PopoverContent>
             </Popover>
           </div>
-          {/* Render các reply comment (đệ quy) */}
-          {comment.has_replies && reply && reply?.replies.length > 0 && (
-            <div className="reply-comment mt-4">
-              {reply.replies.map((reply) => (
-                <CommentItem key={reply.id} comment={reply} level={level + 1} />
-              ))}
+          {showReplyForm && (
+            <div className="mt-2 ml-2">
+              <CommentCreation
+                id={comment.id}
+                type="parent_id"
+                onSuccess={() => {
+                  setHasReplies(true);
+                  setShowReplyForm(false);
+                }}
+              />
+            </div>
+          )}
+
+          {hasReplies && (
+            <div className="mt-2 ml-2">
+              <Button
+                variant="light"
+                size="sm"
+                radius="full"
+                onPress={() => setShowReplies(!showReplies)}
+                className="text-xs font-semibold"
+              >
+                {showReplies
+                  ? "Hide replies"
+                  : `Show ${reply?.total || ""} replies`}
+              </Button>
+
+              {showReplies && reply && reply?.total > 0 && (
+                <div className="reply-comment mt-4">
+                  {reply.replies.map((reply) => (
+                    <CommentItem
+                      key={reply.id}
+                      comment={reply}
+                      level={level + 1}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -16,6 +16,7 @@ type SortType = "recommended" | "most" | "least";
 
 interface CommentListProps {
   comments: CommentResponse[];
+  postId: string;
   fetchNextPage: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage: boolean;
@@ -27,9 +28,9 @@ interface CommentListProps {
 const CommentList: React.FC<CommentListProps> = ({
   comments,
   fetchNextPage,
+  postId,
   hasNextPage,
   isFetchingNextPage,
-  isLoading,
   isError,
   error,
 }) => {
@@ -60,7 +61,7 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <div>
-      <CommentCreation />
+      <CommentCreation id={postId} type="post_id" />
 
       <div className="flex justify-between items-center my-3">
         <div className="font-semibold">Comments</div>

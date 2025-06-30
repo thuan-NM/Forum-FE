@@ -166,8 +166,8 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
               ))}
               <Button
                 size="sm"
-                variant="flat"
-                color="primary"
+                variant="bordered"
+                color="default"
                 onPress={onOpen}
                 startContent={<Icon icon="lucide:plus" />}
               >
@@ -183,7 +183,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 >
                   {isVisible ? (
                     <Button
-                      className="text-2xl !p-1"
+                      className="!text-base !p-1"
                       size="sm"
                       onPress={() => setIsVisible(!isVisible)}
                       variant="flat"
@@ -193,7 +193,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                     </Button>
                   ) : (
                     <Button
-                      className="text-2xl !px-1"
+                      className="!text-base !px-1"
                       size="sm"
                       onPress={() => setIsVisible(!isVisible)}
                       variant="bordered"
@@ -214,6 +214,23 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                         editor={editor}
                         onAddImage={() => setOpenImage(true)}
                         onAddYoutube={() => setOpenYoutube(true)}
+                        include={[
+                          "bold",
+                          "italic",
+                          "strike",
+                          "underline",
+                          "code",
+                          "h1",
+                          "h2",
+                          "h3",
+                          "emoji",
+                          "youtube",
+                          "bulletList",
+                          "orderedList",
+                          "blockquote",
+                          "link",
+                          "image",
+                        ]}
                         setShowEmojiPicker={() =>
                           setShowEmojiPicker(!showEmojiPicker)
                         }
@@ -225,9 +242,11 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
               <Button
                 isLoading={isPending}
                 color="primary"
+                size="sm"
                 onPress={() => onSubmit(onClose)}
+                className="!px-6 !py-4"
               >
-                Post
+                Đăng bài
               </Button>
             </ModalFooter>
             <EditorModal

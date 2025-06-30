@@ -7,7 +7,7 @@ import { BiEdit } from "react-icons/bi";
 import { FaLink, FaRss } from "react-icons/fa6";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { GrUnorderedList } from "react-icons/gr";
-import { PiWarningBold } from "react-icons/pi"; // Chỉ giữ PiWarningBold vì nó được sử dụng
+import { PiWarningBold } from "react-icons/pi";
 import { IoPersonAddSharp } from "react-icons/io5";
 import { PiClockCountdownFill } from "react-icons/pi";
 import { HiOutlineBell } from "react-icons/hi";
@@ -21,7 +21,7 @@ import {
   FollowQuestion,
   FollowResponse,
   UnfollowQuestion,
-} from "../../../../services/FollowServices"; // Chỉ giữ CheckFollowStatus vì nó được sử dụng
+} from "../../../../services/FollowServices";
 import { format } from "timeago.js";
 import { PassQuestion } from "../../../../services/PassQuestionServices";
 import { Link } from "react-router-dom";
@@ -46,21 +46,25 @@ interface MutationContext {
 const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const queryClient = useQueryClient();
-  const { data: isFollowing, isLoading: isCheckingFollow } = useQuery<
+
+  // Query để kiểm tra trạng thái follow
+  const { data: isFollowing, isLoading: isCheckingFollow, refetch } = useQuery<
     FollowStatus,
     Error,
     boolean,
     ["follows", string]
   >({
     queryKey: ["follows", question.id],
-    queryFn: async () => {
-      const res = await CheckFollowStatus(question.id, "questions");
-      console.log(res);
-      return { isFollowing: res.isFollowing };
-    },
+    queryFn: () =>
+      CheckFollowStatus(question.id, "questions").then((data) => ({
+        isFollowing: data.isFollowing,
+      })),
     select: (data: FollowStatus) => data.isFollowing,
-    enabled: !!question.id, // Chỉ chạy query khi question.id có giá trị
+    enabled: !!question.id,
+    refetchOnWindowFocus: false, // Tránh refetch không cần thiết
   });
+
+  // Mutation để follow question
   const followMutation = useMutation<
     FollowResponse,
     Error,
@@ -107,7 +111,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
       toast.error(error.message || "Failed to follow question");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["follows", question.id] });
+      refetch(); // Làm mới query sau khi mutation thành công
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       toast.success("Question followed successfully");
     },
@@ -160,7 +164,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
       toast.error(error.message || "Failed to unfollow question");
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["follows", question.id] });
+      refetch(); // Làm mới query sau khi mutation thành công
       queryClient.invalidateQueries({ queryKey: ["questions"] });
       toast.success("Question unfollowed successfully");
     },
@@ -243,9 +247,9 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
             </Button>
             <Button
               size="sm"
-              variant={isFollowing ? "solid" : "light"}
+              variant={isFollowing ? "bordered" : "light"}
               radius="full"
-              className={`gap-x-[4px] !font-semibold transition-all duration-200 ${isFollowing ? "shadow-md" : ""}`}
+              className={`gap-x-[4px] !font-semibold transition-all duration-200 ${isFollowing ? "shadow-md bg-content1" : ""}`}
               onPress={handleFollowToggle}
               isLoading={
                 followMutation.isPending ||
