@@ -8,8 +8,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { CommentResponse } from "../../../../store/interfaces/commentInterfaces";
-import { getAllComments, ListComments } from "../../../../services";
-import NotFind from "../../../Common/NotFind";
+import { ListComments } from "../../../../services";
 
 interface PostItemProps {
   post: PostResponse;
@@ -65,15 +64,18 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
         totalComment={data?.pages?.[0]?.total ?? 0}
       />
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait" initial={false}>
         {isShowComment && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
+            key="comment-list"
+            layout
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
             <CommentList
+              postId={post.id}
               comments={allComments}
               fetchNextPage={fetchNextPage}
               hasNextPage={hasNextPage}

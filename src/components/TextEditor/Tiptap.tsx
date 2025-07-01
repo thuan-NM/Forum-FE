@@ -14,12 +14,15 @@ import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import { useTheme } from "next-themes";
+import { cn } from "../../lib/utils";
 
 interface TiptapEditorProps {
   initialContent?: string;
   onChange?: (value: string) => void;
   isDisabled?: boolean;
   setEditor?: (editor: any) => void;
+  className?: string;
+  containerClassName?: string;
 }
 
 const TiptapEditor = memo(function TiptapEditor({
@@ -27,6 +30,8 @@ const TiptapEditor = memo(function TiptapEditor({
   onChange = () => {},
   isDisabled = false,
   setEditor,
+  className,
+  containerClassName,
 }: TiptapEditorProps) {
   const { theme } = useTheme();
 
@@ -40,7 +45,10 @@ const TiptapEditor = memo(function TiptapEditor({
     TextStyle,
     Underline,
     Link.configure({ openOnClick: true }),
-    TextAlign.configure({ types: ["heading", "paragraph"], defaultAlignment: "left" }),
+    TextAlign.configure({
+      types: ["heading", "paragraph"],
+      defaultAlignment: "left",
+    }),
     Placeholder.configure({ placeholder: "Hãy chia sẻ điều gì đó..." }),
     BulletList,
     OrderedList,
@@ -51,10 +59,9 @@ const TiptapEditor = memo(function TiptapEditor({
   const editorProps = {
     attributes: {
       class: [
-        "prose", // Sử dụng kiểu chữ mặc định của Tailwind Typography
+        "prose",
         theme?.includes("dark") ? "prose-invert" : "",
         "focus:outline-none",
-        "min-h-80",
       ]
         .filter(Boolean)
         .join(" "),
@@ -82,13 +89,14 @@ const TiptapEditor = memo(function TiptapEditor({
 
   return (
     <div
-      className={`w-full max-w-full rounded bg-white dark:bg-content2 shadow-lg ${
-        isDisabled ? "opacity-50 pointer-events-none" : ""
-      }`}
+      className={cn(
+        "w-full max-w-full rounded bg-white dark:bg-content2 shadow-lg",
+        isDisabled && "opacity-50 pointer-events-none",
+        containerClassName
+      )}
     >
-
       {/* Khu vực soạn thảo */}
-      <div className="p-4 min-h-[65vh]">
+      <div className={cn("p-4 min-h-[65vh]", className)}>
         <EditorContent editor={editor} />
       </div>
     </div>
