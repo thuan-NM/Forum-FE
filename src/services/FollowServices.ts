@@ -1,3 +1,4 @@
+import { TopicResponse } from "../store/interfaces/topicInterfaces.ts";
 import axios from "../utils/configAxios.ts";
 
 // Interface để định nghĩa kiểu dữ liệu trả về từ API
@@ -57,7 +58,7 @@ const getFollows = async (id: string, type: string): Promise<any[]> => {
 };
 
 // Hàm lấy danh sách topics mà user đã follow
-const getFollowedTopics = async (): Promise<any[]> => {
+const getFollowedTopics = async (): Promise<TopicResponse[]> => {
   try {
     const response = await axios.get(`/follows/me/topics`, {
       withCredentials: true,

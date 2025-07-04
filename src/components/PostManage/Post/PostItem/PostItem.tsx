@@ -59,6 +59,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
       <PostHeader post={post} onDelete={() => onDelete?.(post.id)} />
       <PostContent post={post} />
       <PostFooter
+        post={post}
         setIsShowComment={setIsShowComment}
         isShowComment={isShowComment}
         totalComment={data?.pages?.[0]?.total ?? 0}

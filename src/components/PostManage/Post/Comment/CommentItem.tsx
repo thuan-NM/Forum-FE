@@ -6,7 +6,7 @@ import {
   PopoverTrigger,
   Tooltip,
 } from "@heroui/react";
-import { AiFillLike } from "react-icons/ai";
+import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { GoDotFill } from "react-icons/go";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { format } from "timeago.js";
@@ -16,10 +16,11 @@ import { ListReplies } from "../../../../services";
 import { useState } from "react";
 import DOMPurify from "dompurify";
 import CommentCreation from "./CommentCreation";
+import { useReactItem } from "../../../../hooks/reactions/useReactItem";
 
 interface CommentItemProps {
   comment: CommentResponse;
-  level?: number; // Thêm level để kiểm soát độ lồng (indentation)
+  level?: number;
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
@@ -27,19 +28,28 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [hasReplies, setHasReplies] = useState(comment.has_replies || false);
 
-  const { data: reply } = useQuery<{
+  const { data: reply, isLoading: isLoadingReplies } = useQuery<{
     replies: CommentResponse[];
     total: number;
   }>({
     queryKey: ["replies", comment.id],
     queryFn: () => ListReplies({ comment_id: comment.id, limit: 5 }),
-    enabled: showReplies, // Only fetch when showReplies is true
+    enabled: showReplies,
   });
+
+  const {
+    hasReacted,
+    reactionsCount,
+    isCheckingReaction,
+    handleToggleReaction,
+    isPending,
+  } = useReactItem<{ id: string; reactionsCount?: number }>(
+    comment.id.toString(),
+    "comments"
+  );
+
   return (
-    <div
-      className="flex mt-4 "
-      style={{ marginLeft: `${level * 5}px` }} // Thụt lề cho các comment con
-    >
+    <div className="flex mt-4" style={{ marginLeft: `${level * 5}px` }}>
       <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full overflow-hidden">
         <Avatar
           size="sm"
@@ -68,20 +78,33 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
           <div className="flex justify-between items-center">
             <div className="w-fit mt-2 flex gap-x-2 flex-row items-center">
               <Tooltip
-                content="Like"
-                placement={"top"}
+                content={hasReacted ? "Unlike" : "Like"}
+                placement="top"
                 offset={5}
                 closeDelay={100}
               >
-                <div className="rounded-full flex items-center !text-sm gap-x-2 group ">
+                <div className="rounded-full p-1 px-3 flex items-center !text-sm gap-x-2 group">
                   <Button
                     size="sm"
-                    className="rounded-full bg-transparent group-hover:bg-content3 cursor-pointer"
+                    isLoading={isCheckingReaction || isPending}
+                    className={`rounded-full bg-transparent group-hover:bg-content3 cursor-pointer ${
+                      isPending || isCheckingReaction
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                    onPress={handleToggleReaction}
+                    disabled={isPending || isCheckingReaction}
                   >
-                    <AiFillLike className="size-5 text-foreground" />
-                    <span className="text-xs">Like</span>
+                    {hasReacted ? (
+                      <AiFillLike className="size-5 text-primary" />
+                    ) : (
+                      <AiOutlineLike className="size-5 text-foreground" />
+                    )}
+                    <span className="text-xs">
+                      {hasReacted ? "Unlike" : "Like"}
+                    </span>
                   </Button>
-                  <span className="text-xs">1</span>
+                  <span className="text-xs">{reactionsCount}</span>
                 </div>
               </Tooltip>
               <Button
@@ -139,10 +162,13 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
                 radius="full"
                 onPress={() => setShowReplies(!showReplies)}
                 className="text-xs font-semibold"
+                isLoading={isLoadingReplies}
               >
-                {showReplies
-                  ? "Hide replies"
-                  : `Show ${reply?.total || ""} replies`}
+                {isLoadingReplies
+                  ? "Loading..."
+                  : showReplies
+                    ? "Hide replies"
+                    : `Show ${reply?.total || ""} replies`}
               </Button>
 
               {showReplies && reply && reply?.total > 0 && (
