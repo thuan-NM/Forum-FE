@@ -22,7 +22,7 @@ export interface Question {
 export interface QuestionCreateDto {
   title: string;
   description: string;
-  topicId: string;
+  topicId: number;
 }
 
 export interface QuestionUpdateDto {

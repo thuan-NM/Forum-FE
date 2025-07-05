@@ -1,6 +1,6 @@
 import HomeReel from "../components/Home/HomeReel";
+import TopicTab from "../components/Topic/TopicTab";
 import HomeLayout from "../layouts/HomeLayout";
-import TopicTab from "../components/PostManage/Question/Topic/TopicTab";
 
 const HomePage = () => {
   return (

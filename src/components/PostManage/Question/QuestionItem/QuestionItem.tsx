@@ -14,189 +14,30 @@ import { HiOutlineBell } from "react-icons/hi";
 import { useDisclosure } from "@heroui/react";
 import AnswerModal from "../Answer/AnswerModal";
 import { motion } from "framer-motion";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
-import {
-  CheckFollowStatus,
-  FollowQuestion,
-  FollowResponse,
-  UnfollowQuestion,
-} from "../../../../services/FollowServices";
 import { format } from "timeago.js";
-import { PassQuestion } from "../../../../services/PassQuestionServices";
 import { Link } from "react-router-dom";
 
-// Định nghĩa interface cho props
+// ✅ Custom hooks
+import { usePassQuestion } from "../../../../hooks/questions/usePassQuestion";
+import { useFollowItem } from "../../../../hooks/follows/useFollowItem";
+
 interface QuestionItemProps {
   question: QuestionResponse;
   onDelete: (questionId: string) => void;
 }
 
-// Định nghĩa interface cho dữ liệu trả về từ CheckFollowStatus
-interface FollowStatus {
-  isFollowing: boolean;
-}
-
-// Định nghĩa context cho optimistic updates
-interface MutationContext {
-  previousFollowStatus: FollowStatus | undefined;
-  previousQuestions: QuestionResponse[] | undefined;
-}
-
 const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const queryClient = useQueryClient();
 
-  // Query để kiểm tra trạng thái follow
-  const { data: isFollowing, isLoading: isCheckingFollow, refetch } = useQuery<
-    FollowStatus,
-    Error,
-    boolean,
-    ["follows", string]
-  >({
-    queryKey: ["follows", question.id],
-    queryFn: () =>
-      CheckFollowStatus(question.id, "questions").then((data) => ({
-        isFollowing: data.isFollowing,
-      })),
-    select: (data: FollowStatus) => data.isFollowing,
-    enabled: !!question.id,
-    refetchOnWindowFocus: false, // Tránh refetch không cần thiết
-  });
+  const { passQuestion, isPassing } = usePassQuestion();
 
-  // Mutation để follow question
-  const followMutation = useMutation<
-    FollowResponse,
-    Error,
-    { id: string; type: string },
-    MutationContext
-  >({
-    mutationFn: ({ id, type }) => FollowQuestion(id, type),
-    onMutate: async ({ id: questionId }) => {
-      await queryClient.cancelQueries({ queryKey: ["follows", questionId] });
-      await queryClient.cancelQueries({ queryKey: ["questions"] });
+  const {
+    isFollowing,
+    isCheckingFollow,
+    handleToggleFollow,
+    isPending: isFollowPending,
+  } = useFollowItem<QuestionResponse>(question.id, "questions");
 
-      const previousFollowStatus = queryClient.getQueryData<FollowStatus>([
-        "follows",
-        questionId,
-      ]);
-      const previousQuestions = queryClient.getQueryData<QuestionResponse[]>([
-        "questions",
-      ]);
-
-      queryClient.setQueryData<FollowStatus>(["follows", questionId], {
-        isFollowing: true,
-      });
-
-      queryClient.setQueryData<QuestionResponse[]>(["questions"], (old) =>
-        Array.isArray(old)
-          ? old.map((q) =>
-              q.id === questionId
-                ? { ...q, followsCount: (q.followsCount || 0) + 1 }
-                : q
-            )
-          : old || []
-      );
-
-      return { previousFollowStatus, previousQuestions };
-    },
-    onError: (error, _variables, context) => {
-      if (context) {
-        queryClient.setQueryData(
-          ["follows", _variables.id],
-          context.previousFollowStatus
-        );
-        queryClient.setQueryData(["questions"], context.previousQuestions);
-      }
-      toast.error(error.message || "Failed to follow question");
-    },
-    onSuccess: () => {
-      refetch(); // Làm mới query sau khi mutation thành công
-      queryClient.invalidateQueries({ queryKey: ["questions"] });
-      toast.success("Question followed successfully");
-    },
-  });
-
-  // Mutation để unfollow question
-  const unfollowMutation = useMutation<
-    FollowResponse,
-    Error,
-    { id: string; type: string },
-    MutationContext
-  >({
-    mutationFn: ({ id, type }) => UnfollowQuestion(id, type),
-    onMutate: async ({ id: questionId }) => {
-      await queryClient.cancelQueries({ queryKey: ["follows", questionId] });
-      await queryClient.cancelQueries({ queryKey: ["questions"] });
-
-      const previousFollowStatus = queryClient.getQueryData<FollowStatus>([
-        "follows",
-        questionId,
-      ]);
-      const previousQuestions = queryClient.getQueryData<QuestionResponse[]>([
-        "questions",
-      ]);
-
-      queryClient.setQueryData<FollowStatus>(["follows", questionId], {
-        isFollowing: false,
-      });
-
-      queryClient.setQueryData<QuestionResponse[]>(["questions"], (old) =>
-        Array.isArray(old)
-          ? old.map((q) =>
-              q.id === questionId
-                ? { ...q, followsCount: (q.followsCount || 0) - 1 }
-                : q
-            )
-          : old || []
-      );
-
-      return { previousFollowStatus, previousQuestions };
-    },
-    onError: (error, _variables, context) => {
-      if (context) {
-        queryClient.setQueryData(
-          ["follows", _variables.id],
-          context.previousFollowStatus
-        );
-        queryClient.setQueryData(["questions"], context.previousQuestions);
-      }
-      toast.error(error.message || "Failed to unfollow question");
-    },
-    onSuccess: () => {
-      refetch(); // Làm mới query sau khi mutation thành công
-      queryClient.invalidateQueries({ queryKey: ["questions"] });
-      toast.success("Question unfollowed successfully");
-    },
-  });
-
-  // Mutation để pass question
-  const passMutation = useMutation<void, Error, string>({
-    mutationFn: PassQuestion,
-    onSuccess: () => {
-      toast.success("Question passed successfully");
-      queryClient.invalidateQueries({ queryKey: ["questions"] });
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to pass question");
-    },
-  });
-
-  // Xử lý toggle follow/unfollow
-  const handleFollowToggle = () => {
-    if (isFollowing) {
-      unfollowMutation.mutate({ id: question.id, type: "questions" });
-    } else {
-      followMutation.mutate({ id: question.id, type: "questions" });
-    }
-  };
-
-  // Xử lý pass question
-  const handlePass = () => {
-    passMutation.mutate(question.id);
-  };
-
-  // Format thời gian
   const date = question.lastFollowed
     ? new Date(question.lastFollowed).getTime()
     : null;
@@ -250,12 +91,8 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
               variant={isFollowing ? "bordered" : "light"}
               radius="full"
               className={`gap-x-[4px] !font-semibold transition-all duration-200 ${isFollowing ? "shadow-md bg-content1" : ""}`}
-              onPress={handleFollowToggle}
-              isLoading={
-                followMutation.isPending ||
-                unfollowMutation.isPending ||
-                isCheckingFollow
-              }
+              onPress={handleToggleFollow}
+              isLoading={isFollowPending || isCheckingFollow}
             >
               <FaRss className="w-4 h-4" />
               {isFollowing ? "Following" : "Follow"}
@@ -267,8 +104,8 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
               variant="light"
               radius="full"
               className="gap-x-[4px] !font-semibold"
-              isLoading={passMutation.isPending}
-              onPress={handlePass}
+              isLoading={isPassing}
+              onPress={() => passQuestion(question.id)}
             >
               <MdOutlineEditOff className="w-4 h-4" /> Pass
             </Button>
@@ -306,8 +143,8 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
                 className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
                 size="sm"
                 radius="none"
-                onClick={handlePass}
-                isLoading={passMutation.isPending}
+                onPress={() => passQuestion(question.id)}
+                isLoading={isPassing}
               >
                 <MdOutlineEditOff className="w-4 h-4" />
                 Pass question

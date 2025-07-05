@@ -8,7 +8,10 @@ import { FaRegBookmark } from "react-icons/fa";
 import { GrUnorderedList } from "react-icons/gr";
 import { LuKeyboardOff } from "react-icons/lu";
 import { PiWarningBold } from "react-icons/pi";
+import { PostResponse } from "../../../../store/interfaces/postInterfaces";
+import { cn } from "../../../../lib/utils";
 interface PostFooterProps {
+  post: PostResponse;
   setIsShowComment?: (show: boolean) => void;
   isShowComment?: boolean;
   totalComment?: number;
@@ -16,7 +19,8 @@ interface PostFooterProps {
 const PostFooter: React.FC<PostFooterProps> = ({
   setIsShowComment,
   isShowComment,
-  totalComment
+  totalComment,
+  post,
 }) => {
   const [loading, setLoading] = useState(true);
 
@@ -29,8 +33,14 @@ const PostFooter: React.FC<PostFooterProps> = ({
   }
 
   return (
-    <div className="flex justify-between items-center pb-2">
+    <div
+      className={cn(
+        "flex justify-between items-center mt-2 py-1  border-content3",
+        isShowComment ? "border-y" : "border-t"
+      )}
+    >
       <UpVote
+        postId={post.id}
         setIsShowComment={setIsShowComment}
         isShowComment={isShowComment}
         totalComment={totalComment}

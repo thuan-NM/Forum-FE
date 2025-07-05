@@ -4,7 +4,7 @@ import { BiMessageAltEdit } from "react-icons/bi";
 import { GrEdit } from "react-icons/gr";
 import {  useState } from 'react';
 import PostModal from './Post/PostCreation/PostModal';
-import QuestionModal from './Question/QuestionModal';
+import QuestionModal from './Question/QuestionCreation/QuestionModal';
 
 const PostManage = () => {
     const { isOpen, onOpenChange, onOpen } = useDisclosure();

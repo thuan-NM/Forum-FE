@@ -49,7 +49,7 @@ const Header: React.FC = () => {
 
   return (
     <Navbar
-      className="bg-content2 flex-wrap"
+      className="bg-content1 flex-wrap"
       maxWidth="full"
       isBordered
       isMenuOpen={isMenuOpen}
