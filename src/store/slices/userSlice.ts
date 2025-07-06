@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { User, UserState } from "../interfaces/userInterfaces";
+import {  UserResponse, UserState } from "../interfaces/userInterfaces";
 
 const initialState: UserState = {
     user: null,
@@ -11,7 +11,7 @@ const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        setUser(state, action: PayloadAction<User>) {
+        setUser(state, action: PayloadAction<UserResponse>) {
             state.user = action.payload;
             // Lưu user vào localStorage
             const authData = { user: action.payload };

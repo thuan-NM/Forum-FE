@@ -1,11 +1,11 @@
 import { Avatar, Button } from "@heroui/react";
-import TiptapEditor from "../../../TextEditor/Tiptap";
+import TiptapEditor from "../TextEditor/Tiptap";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
-import MenuBar from "../../../TextEditor/MenuBar";
+import MenuBar from "../TextEditor/MenuBar";
 import { motion } from "framer-motion";
-import EditorModal from "../../../TextEditor/EditorModal";
-import { useCreateComment } from "../../../../hooks/comments/useCreateComment";
+import EditorModal from "../TextEditor/EditorModal";
+import { useCreateComment } from "../../hooks/comments/useCreateComment";
 interface Props {
   id: string;
   type: string;

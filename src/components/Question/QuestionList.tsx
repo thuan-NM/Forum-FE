@@ -1,15 +1,15 @@
 import { AnimatePresence } from "framer-motion";
 import { FaRegLightbulb, FaChevronRight } from "react-icons/fa6";
 import QuestionItem from "./QuestionItem/QuestionItem";
-import { QuestionResponse } from "../../../store/interfaces/questionInterfaces";
+import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   DeleteQuestion,
   GetAllQuestions,
-} from "../../../services/QuestionServices";
-import { QuestionSkeleton } from "../../Skeleton/QuestionSkeleton";
+} from "../../services/QuestionServices";
+import { QuestionSkeleton } from "../Skeleton/QuestionSkeleton";
 import toast from "react-hot-toast";
-import NotFind from "../../Common/NotFind";
+import NotFind from "../Common/NotFind";
 import { Button } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
 

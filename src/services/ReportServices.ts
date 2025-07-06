@@ -72,22 +72,20 @@ const CreateReport = async (
   contentType: string,
   contentId: string,
   contentPreview: string,
-  details?: string,
-  metadata?: Record<string, any>
+  details?: string
 ): Promise<ReportResponse> => {
   if (!reason) throw new Error("Reason is required");
   if (!contentType) throw new Error("Content type is required");
   if (!contentId) throw new Error("Content ID is required");
   if (!contentPreview) throw new Error("Content preview is required");
   const response = await axios.post(
-    `/reports`,
+    `/reports/`,
     {
-      reason,
+      reason: reason,
       content_type: contentType,
       content_id: contentId,
       content_preview: contentPreview,
-      details,
-      metadata,
+      details: details,
     },
     { withCredentials: true }
   );

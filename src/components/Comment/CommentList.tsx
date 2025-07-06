@@ -6,17 +6,18 @@ import { motion } from "framer-motion";
 
 import CommentCreation from "./CommentCreation";
 import CommentItem from "./CommentItem";
-import { CommentResponse } from "../../../../store/interfaces/commentInterfaces";
-import LoadingState from "../../../Common/LoadingState";
-import ErrorState from "../../../Common/ErrorState";
-import NotFind from "../../../Common/NotFind";
+import { CommentResponse } from "../../store/interfaces/commentInterfaces";
+import LoadingState from "../Common/LoadingState";
+import ErrorState from "../Common/ErrorState";
+import NotFind from "../Common/NotFind";
 import { FaRegComment } from "react-icons/fa6";
 
 type SortType = "recommended" | "most" | "least";
 
 interface CommentListProps {
   comments: CommentResponse[];
-  postId: string;
+  id: string;
+  type: string;
   fetchNextPage: () => void;
   hasNextPage?: boolean;
   isFetchingNextPage: boolean;
@@ -28,7 +29,8 @@ interface CommentListProps {
 const CommentList: React.FC<CommentListProps> = ({
   comments,
   fetchNextPage,
-  postId,
+  id,
+  type,
   hasNextPage,
   isFetchingNextPage,
   isError,
@@ -61,7 +63,7 @@ const CommentList: React.FC<CommentListProps> = ({
 
   return (
     <div>
-      <CommentCreation id={postId} type="post_id" />
+      <CommentCreation id={id} type={type} />
 
       <div className="flex justify-between items-center my-3">
         <div className="font-semibold">Comments</div>

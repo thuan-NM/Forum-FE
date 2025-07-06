@@ -25,9 +25,9 @@ import { useLogoutMutation } from "../../../hooks/users/useLogoutMutation";
 
 const navItems = {
   home: { path: "/", name: "Home", icon: <MdHome className="h-6 w-6" /> },
-  following: {
-    path: "/following",
-    name: "Following",
+  topics: {
+    path: "/topics",
+    name: "Topics",
     icon: <BsFillPostcardHeartFill className="h-6 w-6" />,
   },
   answer: {

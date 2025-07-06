@@ -1,4 +1,4 @@
-import QuestionTab from "../components/PostManage/Question/QuestionTab/QuestionTab";
+import QuestionTab from "../components/Question/QuestionTab/QuestionTab";
 import TopicTab from "../components/Topic/TopicTab";
 import AnswerLayout from "../layouts/AnswerLayout";
 import { Outlet } from "react-router-dom";
@@ -13,7 +13,7 @@ const AnswerPage = () => {
         <div className="basis-2/5">
           <Outlet />
         </div>
-        <div className="basis-1/6 flex justify-start">
+        <div className="w-full !max-w-xs flex justify-start">
           <TopicTab />
         </div>
       </div>

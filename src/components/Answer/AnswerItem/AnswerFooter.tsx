@@ -1,27 +1,28 @@
 import { useEffect, useState } from "react";
-import UpVote from "../../../Common/Button/UpVote";
-import { PostFooterSkeleton } from "../../../Skeleton/PostSkeleton";
 
 import { FaLink } from "react-icons/fa6";
 import { FaRegBookmark } from "react-icons/fa";
 import { GrUnorderedList } from "react-icons/gr";
 import { LuKeyboardOff } from "react-icons/lu";
 import { PiWarningBold } from "react-icons/pi";
-import { PostResponse } from "../../../../store/interfaces/postInterfaces";
-import { cn } from "../../../../lib/utils";
-import MoreActionsPopover from "../../../Common/MoreActionsPopover";
-import ReportModal from "../../../Report/ReportModal";
-interface PostFooterProps {
-  post: PostResponse;
+import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
+import ReportModal from "../../Report/ReportModal";
+import MoreActionsPopover from "../../Common/MoreActionsPopover";
+import { cn } from "../../../lib/utils";
+import { AnswerFooterSkeleton } from "../../Skeleton/AnswerSkeleton";
+import Reaction from "./Reaction";
+
+interface AnswerFooterProps {
+  answer: AnswerResponse;
   setIsShowComment?: (show: boolean) => void;
   isShowComment?: boolean;
   totalComment?: number;
 }
-const PostFooter: React.FC<PostFooterProps> = ({
+const AnswerFooter: React.FC<AnswerFooterProps> = ({
   setIsShowComment,
   isShowComment,
   totalComment,
-  post,
+  answer,
 }) => {
   const [loading, setLoading] = useState(true);
   const [isReportOpen, setIsReportOpen] = useState(false);
@@ -31,7 +32,7 @@ const PostFooter: React.FC<PostFooterProps> = ({
   }, []);
 
   if (loading) {
-    return <PostFooterSkeleton />;
+    return <AnswerFooterSkeleton />;
   }
 
   return (
@@ -41,8 +42,8 @@ const PostFooter: React.FC<PostFooterProps> = ({
         isShowComment ? "border-y" : "border-t"
       )}
     >
-      <UpVote
-        postId={post.id}
+      <Reaction
+        id={answer.id}
         setIsShowComment={setIsShowComment}
         isShowComment={isShowComment}
         totalComment={totalComment}
@@ -71,12 +72,12 @@ const PostFooter: React.FC<PostFooterProps> = ({
       <ReportModal
         isOpen={isReportOpen}
         onClose={() => setIsReportOpen(false)}
-        contentId={String(post.id)}
-        contentType="post"
-        contentPreview={post.title || "No title"}
+        contentId={String(answer.id)}
+        contentType="answer"
+        contentPreview={answer.title || "No title"}
       />
     </div>
   );
 };
 
-export default PostFooter;
+export default AnswerFooter;

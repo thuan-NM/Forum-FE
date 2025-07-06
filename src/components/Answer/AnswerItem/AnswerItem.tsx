@@ -1,21 +1,19 @@
-// ✅ PostItem.tsx
-import PostHeader from "./PostHeader";
-import { PostResponse } from "../../../../store/interfaces/postInterfaces";
-import PostContent from "./PostContent";
-import PostFooter from "./PostFooter";
-import CommentList from "../../../Comment/CommentList";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { CommentResponse } from "../../../../store/interfaces/commentInterfaces";
-import { ListComments } from "../../../../services";
+import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
+import { ListComments } from "../../../services";
+import { CommentResponse } from "../../../store/interfaces/commentInterfaces";
+import AnswerHeader from "./AnswerHeader";
+import AnswerContent from "./AnswerContent";
+import AnswerFooter from "./AnswerFooter";
+import CommentList from "../../Comment/CommentList";
 
-interface PostItemProps {
-  post: PostResponse;
-  onDelete?: (postId: string) => void;
+interface AnswerItemProps {
+  answer: AnswerResponse;
 }
 
-const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
+const AnswerItem: React.FC<AnswerItemProps> = ({ answer }) => {
   const [isShowComment, setIsShowComment] = useState(false);
 
   const {
@@ -27,9 +25,9 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
     isError,
     error,
   } = useInfiniteQuery<{ comments: CommentResponse[]; total: number }, Error>({
-    queryKey: ["comments", post.id],
+    queryKey: ["comments", answer.id],
     queryFn: ({ pageParam = 1 }) =>
-      ListComments({ page: pageParam, limit: 5, post_id: post.id }),
+      ListComments({ page: pageParam, limit: 5, answer_id: answer.id }),
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage || !Array.isArray(lastPage.comments)) return undefined;
       const loaded = allPages.reduce(
@@ -56,10 +54,10 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
       transition={{ duration: 0.3 }}
       className="p-4 bg-content1 rounded-lg my-3 relative"
     >
-      <PostHeader post={post} onDeleted={() => onDelete?.(post.id)} />
-      <PostContent post={post} />
-      <PostFooter
-        post={post}
+      <AnswerHeader answer={answer} />
+      <AnswerContent answer={answer} />
+      <AnswerFooter
+        answer={answer}
         setIsShowComment={setIsShowComment}
         isShowComment={isShowComment}
         totalComment={data?.pages?.[0]?.total ?? 0}
@@ -76,8 +74,8 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
             transition={{ duration: 0.3 }}
           >
             <CommentList
-              id={post.id}
-              type={"post_id"}
+              id={answer.id}
+              type={"answer_id"}
               comments={allComments}
               fetchNextPage={fetchNextPage}
               hasNextPage={hasNextPage}
@@ -93,4 +91,4 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
   );
 };
 
-export default PostItem;
+export default AnswerItem;

@@ -1,22 +1,18 @@
-import {
-  Avatar,
-  Button,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Tooltip,
-} from "@heroui/react";
+import { Avatar, Button, Tooltip } from "@heroui/react";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { GoDotFill } from "react-icons/go";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { format } from "timeago.js";
-import { CommentResponse } from "../../../../store/interfaces/commentInterfaces";
+import { CommentResponse } from "../../store/interfaces/commentInterfaces";
 import { useQuery } from "@tanstack/react-query";
-import { ListReplies } from "../../../../services";
+import { ListReplies } from "../../services";
 import { useState } from "react";
 import DOMPurify from "dompurify";
 import CommentCreation from "./CommentCreation";
-import { useReactItem } from "../../../../hooks/reactions/useReactItem";
+import { useReactItem } from "../../hooks/reactions/useReactItem";
+import MoreActionsPopover from "../Common/MoreActionsPopover";
+import { PiWarningBold } from "react-icons/pi";
+import ReportModal from "../Report/ReportModal";
+import { stripHTML } from "../../utils/stripHTML";
 
 interface CommentItemProps {
   comment: CommentResponse;
@@ -27,6 +23,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [hasReplies, setHasReplies] = useState(comment.has_replies || false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   const { data: reply, isLoading: isLoadingReplies } = useQuery<{
     replies: CommentResponse[];
@@ -116,30 +113,15 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
                 {showReplyForm ? "Cancel" : "Reply"}
               </Button>
             </div>
-            <Popover placement="top-start">
-              <PopoverTrigger className="flex items-center">
-                <Button
-                  size="sm"
-                  variant="flat"
-                  radius="full"
-                  className="bg-transparent"
-                  isIconOnly
-                >
-                  <HiOutlineDotsHorizontal className="text-lg cursor-pointer" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0">
-                <div className="flex flex-col !items-start rounded-full">
-                  <Button
-                    className="bg-content1 hover:bg-content2 text-md w-full !justify-start text-xs font-semibold"
-                    size="sm"
-                    radius="none"
-                  >
-                    Report
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+            <MoreActionsPopover
+              actions={[
+                {
+                  label: "Report",
+                  icon: <PiWarningBold />,
+                  onClick: () => setIsReportOpen(true),
+                },
+              ]}
+            />
           </div>
           {showReplyForm && (
             <div className="mt-2 ml-2">
@@ -186,6 +168,13 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
           )}
         </div>
       </div>
+      <ReportModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        contentId={String(comment.id)}
+        contentType="comment"
+        contentPreview={stripHTML(comment.content) || "No title"}
+      />
     </div>
   );
 };

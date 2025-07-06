@@ -5,9 +5,9 @@ import HomeLayout from "../layouts/HomeLayout";
 const HomePage = () => {
   return (
     <HomeLayout>
-      <div className="flex flex-row mt-5 ">
-        <div className="basis-1/4 flex justify-end h-[60vh] ">
-          <div className="w-3/4 mx-auto -mt-4">
+      <div className="flex flex-row mt-5 gap-x-2">
+        <div className="basis-1/4 flex justify-end min-h-[60vh] h-fit ">
+          <div className="w-full !max-w-xs mx-auto -mt-4">
             <TopicTab />
           </div>
         </div>

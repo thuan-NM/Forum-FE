@@ -22,8 +22,9 @@ export interface AnswerResponse {
 
 export interface AnswerCreateDto {
   content: string;
-  tag?: number[];
+  tags: string[];
   questionId: string;
+  title: string;
 }
 
 export interface AnswerUpdateDto {

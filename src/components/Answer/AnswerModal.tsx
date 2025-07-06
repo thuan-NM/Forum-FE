@@ -1,73 +1,97 @@
-import React, { useState } from "react";
+"use client";
+
 import {
-  Button,
-  Chip,
-  Input,
-  ModalBody,
+  Modal,
   ModalContent,
+  ModalBody,
   ModalFooter,
-  ModalHeader,
+  Button,
   User,
+  Input,
+  Chip,
   useDisclosure,
 } from "@heroui/react";
-import { Icon } from "@iconify/react";
-import { useAppSelector } from "../../../../store/hooks";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { RootState } from "../../../../store/store";
-import { GetAllTags } from "../../../../services";
-import { PostCreateDto } from "../../../../store/interfaces/postInterfaces";
-import TiptapEditor from "../../../TextEditor/Tiptap";
 import { AnimatePresence } from "framer-motion";
-import MenuBar from "../../../TextEditor/MenuBar";
-import EditorModal from "../../../TextEditor/EditorModal";
-import TagSelectionModal from "./TagSelectionModal";
+import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-import { TagResponse } from "../../../../store/interfaces/tagInterfaces";
-import { useCreatePost } from "../../../../hooks/posts/useCreatePost";
+import { useState } from "react";
+import TiptapEditor from "../TextEditor/Tiptap";
+import MenuBar from "../TextEditor/MenuBar";
+import EditorModal from "../TextEditor/EditorModal";
+import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-interface PostModalProps {
-  setModalActive: (arg0: string) => void;
+import { AnswerCreateDto } from "../../store/interfaces/answerInterfaces";
+import { useAppSelector } from "../../store/hooks";
+import { RootState } from "../../store/store";
+import { GetAllTags } from "../../services";
+import { TagResponse } from "../../store/interfaces/tagInterfaces";
+import TagSelectionModal from "../PostManage/Post/PostCreation/TagSelectionModal";
+import { useCreateAnswer } from "../../hooks/answers/useCreateAnswer";
+
+interface AnswerModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  question: QuestionResponse;
 }
 
-const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
+const AnswerModal: React.FC<AnswerModalProps> = ({
+  isOpen,
+  onOpenChange,
+  question,
+}) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [editor, setEditor] = useState<any>(null);
   const [openImage, setOpenImage] = useState<boolean>(false);
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
   const [content, setContent] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedTags, setSelectedTags] = useState<TagResponse[]>([]);
+  const {
+    isOpen: isOpenTag,
+    onOpen: onOpenTag,
+    onClose: onCloseTag,
+  } = useDisclosure();
+  const [title, setTitle] = useState<string>(question.title);
+  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const userData = useAppSelector((state: RootState) => state.user.user);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { createAnswer, isCreating } = useCreateAnswer();
+
+  const onSubmit = (onClose: () => void) => {
+    const data: AnswerCreateDto = {
+      content: content,
+      questionId: question.id,
+      tags: selectedTags.map((tag) => tag.id),
+      title: title,
+    };
+    createAnswer(data, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
+  };
 
   const { data: tags } = useQuery({
     queryKey: ["tags"],
     queryFn: () => GetAllTags({}),
   });
 
-  const { createPost, isCreating } = useCreatePost();
-
-  const onSubmit = (onClose: () => void) => {
-    const data: PostCreateDto = {
-      content,
-      title,
-      tags: selectedTags.map((tag) => tag.id),
-    };
-
-    createPost(data);
-    onClose();
-  };
-
   const handleTagSelection = (tags: TagResponse[]) => {
     setSelectedTags(tags);
   };
-
   return (
-    <div>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      isDismissable={false}
+      backdrop="blur"
+      hideCloseButton
+      isKeyboardDismissDisabled={false}
+      size="3xl"
+    >
       <ModalContent className="flex flex-col h-[100vh]">
         {(onClose) => (
           <>
+            {/* Header */}
             <div className="flex-0 sticky top-0 z-10">
               <div className="flex justify-center relative pt-3">
                 <Button
@@ -77,36 +101,12 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 >
                   <Icon icon="lucide:x" className="w-6 h-6" />
                 </Button>
-
-                <Button
-                  className="bg-content2 rounded-full"
-                  variant="flat"
-                  size="sm"
-                >
-                  <div className="flex !items-center gap-2 text-xs font-semibold">
-                    <Icon icon="lucide:globe" className="text-lg" /> Everyone
-                  </div>
-                </Button>
               </div>
             </div>
-            <ModalHeader className="flex flex-col gap-1 pt-1 relative">
-              <div className="flex justify-between border-b-2 border-content3">
-                <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out"
-                  onPress={() => setModalActive("Ask")}
-                >
-                  Add Question
-                </Button>
-                <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out border-b-2 border-blue-400"
-                  onPress={() => setModalActive("Post")}
-                >
-                  Create Post
-                </Button>
-              </div>
-            </ModalHeader>
-            <ModalBody className="flex-1 overflow-y-auto">
-              <div className="flex justify-start">
+
+            {/* Body */}
+            <ModalBody className="flex-1 overflow-y-auto mt-8  scrollbar-hide">
+              <div className="flex justify-start mb-1">
                 <User
                   avatarProps={{
                     src:
@@ -115,12 +115,12 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   }}
                   name={
                     <p className="text-xs font-semibold mb-1">
-                      {userData?.fullName}
+                      {userData?.fullName || "Anonymous"}
                     </p>
                   }
                   description={
                     <Button variant="bordered" size="sm" radius="full">
-                      @{userData?.username}
+                      @{userData?.username || "user"}
                     </Button>
                   }
                 />
@@ -130,13 +130,12 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 className="!text-2xl mb-2"
                 placeholder="Enter your post title"
                 required
+                defaultValue={question.title}
                 onChange={(e) => setTitle(e.target.value)}
               />
               <TiptapEditor
                 initialContent=""
-                onChange={(value) => {
-                  setContent(value);
-                }}
+                onChange={(value) => setContent(value)}
                 isDisabled={false}
                 setEditor={setEditor}
               />
@@ -156,12 +155,13 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 size="sm"
                 variant="bordered"
                 color="default"
-                onPress={onOpen}
+                onPress={onOpenTag}
                 startContent={<Icon icon="lucide:plus" />}
               >
                 Add Tags
               </Button>
             </div>
+            {/* Footer */}
             <ModalFooter className="flex justify-between items-center">
               <div className="flex items-center">
                 <motion.div
@@ -228,15 +228,17 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 </AnimatePresence>
               </div>
               <Button
-                isLoading={isCreating}
                 color="primary"
                 size="sm"
                 onPress={() => onSubmit(onClose)}
+                isLoading={isCreating}
                 className="!px-6 !py-4"
               >
-                Đăng bài
+                Trả lời
               </Button>
             </ModalFooter>
+
+            {/* Modals */}
             <EditorModal
               editor={editor}
               setOpenImage={setOpenImage}
@@ -250,14 +252,14 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
         )}
       </ModalContent>
       <TagSelectionModal
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={isOpenTag}
+        onClose={onCloseTag}
         tags={tags?.tags || []}
         selectedTags={selectedTags}
         onTagSelection={handleTagSelection}
       />
-    </div>
+    </Modal>
   );
 };
 
-export default PostModal;
+export default AnswerModal;

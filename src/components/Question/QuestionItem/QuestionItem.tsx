@@ -1,25 +1,26 @@
-import React from "react";
-import { QuestionResponse } from "../../../../store/interfaces/questionInterfaces";
-import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import React, { useState } from "react";
+import { QuestionResponse } from "../../../store/interfaces/questionInterfaces";
+import { Button } from "@heroui/react";
 import { MdClear, MdOutlineEditOff } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
 import { BiEdit } from "react-icons/bi";
 import { FaLink, FaRss } from "react-icons/fa6";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { GrUnorderedList } from "react-icons/gr";
 import { PiWarningBold } from "react-icons/pi";
 import { IoPersonAddSharp } from "react-icons/io5";
 import { PiClockCountdownFill } from "react-icons/pi";
 import { HiOutlineBell } from "react-icons/hi";
 import { useDisclosure } from "@heroui/react";
-import AnswerModal from "../Answer/AnswerModal";
+import AnswerModal from "../../Answer/AnswerModal";
 import { motion } from "framer-motion";
 import { format } from "timeago.js";
 import { Link } from "react-router-dom";
 
 // ✅ Custom hooks
-import { usePassQuestion } from "../../../../hooks/questions/usePassQuestion";
-import { useFollowItem } from "../../../../hooks/follows/useFollowItem";
+import { usePassQuestion } from "../../../hooks/questions/usePassQuestion";
+import { useFollowItem } from "../../../hooks/follows/useFollowItem";
+import MoreActionsPopover from "../../Common/MoreActionsPopover";
+import ReportModal from "../../Report/ReportModal";
 
 interface QuestionItemProps {
   question: QuestionResponse;
@@ -28,6 +29,7 @@ interface QuestionItemProps {
 
 const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   const { passQuestion, isPassing } = usePassQuestion();
 
@@ -67,9 +69,12 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
           </Button>
         </div>
         <div className="flex gap-x-1 opacity-80 text-xs flex-wrap !items-center mt-1">
-          <button className="font-bold hover:underline">
+          <Link
+            to={`/question/${question.id}`}
+            className="font-bold hover:underline"
+          >
             {question.answersCount} answers
-          </button>
+          </Link>
           <GoDotFill className="w-1 h-1 hidden sm:block" />
           <span>
             {date ? `Last followed ${format(date)}` : `No one followed`}
@@ -110,84 +115,38 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
               <MdOutlineEditOff className="w-4 h-4" /> Pass
             </Button>
           </div>
-          <Popover placement="top-start">
-            <PopoverTrigger>
-              <Button
-                size="sm"
-                variant="flat"
-                radius="full"
-                className="bg-transparent"
-                isIconOnly
-              >
-                <HiOutlineDotsHorizontal className="text-lg cursor-pointer" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0 rounded-sm bg-content1 w-min">
-              <Button
-                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
-                size="sm"
-                radius="none"
-              >
-                <FaLink className="w-4 h-4" />
-                Copy link
-              </Button>
-              <Button
-                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
-                size="sm"
-                radius="none"
-              >
-                <IoPersonAddSharp className="w-4 h-4" />
-                Request answers
-              </Button>
-              <Button
-                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
-                size="sm"
-                radius="none"
-                onPress={() => passQuestion(question.id)}
-                isLoading={isPassing}
-              >
-                <MdOutlineEditOff className="w-4 h-4" />
-                Pass question
-              </Button>
-              <Button
-                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
-                size="sm"
-                radius="none"
-              >
-                <PiClockCountdownFill className="w-4 h-4" />
-                Answer later
-              </Button>
-              <Button
-                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
-                size="sm"
-                radius="none"
-              >
-                <HiOutlineBell className="w-4 h-4" />
-                Notify me about edits
-              </Button>
-              <Button
-                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
-                size="sm"
-                radius="none"
-              >
-                <GrUnorderedList className="w-4 h-4" />
-                View question log
-              </Button>
-              <Button
-                className="hover:bg-content3 bg-transparent text-md w-full !justify-start text-xs font-semibold"
-                size="sm"
-                radius="none"
-              >
-                <PiWarningBold className="w-4 h-4" />
-                Report
-              </Button>
-            </PopoverContent>
-          </Popover>
+          <MoreActionsPopover
+            actions={[
+              { label: "Copy link", icon: <FaLink /> },
+              { label: "Request answers", icon: <IoPersonAddSharp /> },
+              {
+                label: "Pass question",
+                icon: <MdOutlineEditOff />,
+                onClick: () => passQuestion(question.id),
+                isLoading: isPassing,
+              },
+              { label: "Answer later", icon: <PiClockCountdownFill /> },
+              { label: "Notify me about edits", icon: <HiOutlineBell /> },
+              { label: "View question log", icon: <GrUnorderedList /> },
+              {
+                label: "Report",
+                icon: <PiWarningBold />,
+                onClick: () => setIsReportOpen(true),
+              },
+            ]}
+          />
         </div>
         <AnswerModal
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           question={question}
+        />
+        <ReportModal
+          isOpen={isReportOpen}
+          onClose={() => setIsReportOpen(false)}
+          contentId={String(question.id)}
+          contentType="question"
+          contentPreview={question.title || "No title"}
         />
       </div>
     </motion.div>
