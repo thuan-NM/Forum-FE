@@ -1,5 +1,6 @@
 import { Card, Image } from "@heroui/react";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface CardItemProps {
   id: string;
@@ -7,7 +8,8 @@ interface CardItemProps {
   description: string;
   avatarUrl?: string;
   coverUrl?: string;
-  children?: React.ReactNode; // phần để truyền button như Follow
+  children?: React.ReactNode;
+  type?: string; // phần để truyền button như Follow
 }
 
 const CardItem: React.FC<CardItemProps> = ({
@@ -17,6 +19,7 @@ const CardItem: React.FC<CardItemProps> = ({
   avatarUrl,
   coverUrl,
   children,
+  type = "topics",
 }) => {
   const defaultAvatar = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
     name
@@ -24,7 +27,10 @@ const CardItem: React.FC<CardItemProps> = ({
   const defaultCover = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
     name + "cover"
   )}`;
-
+  const navigate = useNavigate();
+  const handleClick = () => {
+    navigate(`/${type}/${id}`);
+  };
   return (
     <Card
       key={id}
@@ -51,9 +57,11 @@ const CardItem: React.FC<CardItemProps> = ({
       </div>
 
       {/* Content */}
-      <div className="px-3 pb-2 pt-2 flex flex-col justify-between content-between items-center gap-1 h-full">
-        <div>
-          <h3 className="text-sm font-semibold">{name}</h3>
+      <div className=" px-3 pb-2 pt-2 flex flex-col justify-between content-between items-center gap-1 h-full">
+        <div className="group cursor-pointer" onClick={handleClick}>
+          <h3 className="group-hover:underline text-sm font-semibold">
+            {name}
+          </h3>
           <p className="text-xs text-gray-500">{description}</p>
         </div>
 

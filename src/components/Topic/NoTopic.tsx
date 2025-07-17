@@ -7,9 +7,11 @@ const NoTopic: React.FC<NoTopicProps> = ({ onOpen }) => {
   return (
     <div className="flex justify-center flex-col my-2 gap-y-1 mx-auto py-6 px-2 items-center">
       <BsMailbox className="w-10 h-10 opacity-60 mx-auto" />
-      <div className="mx-auto font-bold text-sm opacity-60">No topics yet</div>
+      <div className="mx-auto font-bold text-sm opacity-60">
+        Chưa có chủ đề nào
+      </div>
       <div className="mx-auto text-xs text-light text-center opacity-50">
-        You’ll get better questions if you add more specific topics.
+        Bạn sẽ nhận được nhiều câu hỏi hơn nếu thêm các chủ đề cụ thể.
       </div>
       <Button
         color="primary"
@@ -18,7 +20,7 @@ const NoTopic: React.FC<NoTopicProps> = ({ onOpen }) => {
         variant="bordered"
         onPress={onOpen}
       >
-        Add topics
+        Thêm chủ đề
       </Button>
     </div>
   );

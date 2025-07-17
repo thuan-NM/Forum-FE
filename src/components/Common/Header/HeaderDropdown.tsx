@@ -41,7 +41,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
           }}
           description=""
           name=""
-          className="mx-4"
+          className="ml-2"
         />
       </DropdownTrigger>
       <DropdownMenu aria-label="Static Actions" className="!px-0 !rounded-none">

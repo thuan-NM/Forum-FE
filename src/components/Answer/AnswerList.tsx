@@ -12,7 +12,7 @@ interface AnswerListProps {
   questionId: string;
 }
 
-const LIMIT = 10;
+const LIMIT = 100;
 
 const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
   const {
@@ -28,7 +28,7 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
     total: number;
   }>({
     queryKey: ["answers", questionId],
-    queryFn: ({ pageParam }: { pageParam?: unknown }) =>
+    queryFn: ({ pageParam }: { pageParam?: any }) =>
       ListAnswers(
         questionId,
         LIMIT,

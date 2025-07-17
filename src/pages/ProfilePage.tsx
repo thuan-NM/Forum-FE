@@ -20,10 +20,14 @@ const ProfilePage = () => {
   console.log("user:", user);
   const navigate = useNavigate();
 
-  const { data: allPostsData } = useQuery({
+  const {
+    data: allPostsData,
+
+  } = useQuery({
     queryKey: ["posts"],
     queryFn: () => GetAllPosts({}),
   });
+
 
   React.useEffect(() => {
     if (!user) {
@@ -66,12 +70,16 @@ const ProfilePage = () => {
                   <div className="flex justify-between items-center mb-4">
                     <div className="flex gap-4">
                       <div className="text-center">
-                        <p className="text-lg font-bold">{75}</p>
+                        <p className="text-lg font-bold">
+                          {user.followersCount || 75}
+                        </p>
                         <p className="text-sm text-default-500">Followers</p>
                       </div>
                       <Divider orientation="vertical" />
                       <div className="text-center">
-                        <p className="text-lg font-bold">{21}</p>
+                        <p className="text-lg font-bold">
+                          {user.followingCount || 21}
+                        </p>
                         <p className="text-sm text-default-500">Following</p>
                       </div>
                     </div>

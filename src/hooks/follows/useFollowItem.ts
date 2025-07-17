@@ -32,7 +32,7 @@ export const useFollowItem = <T extends { id: string; followsCount?: number }>(
     isLoading: isCheckingFollow,
     refetch,
   } = useQuery<FollowStatus, Error, boolean, [string, string]>({
-    queryKey: [type + "-follows", id],
+    queryKey: ["topic" + "-follows", id],
     queryFn: () =>
       CheckFollowStatus(id, type).then((data) => ({
         isFollowing: data.isFollowing,

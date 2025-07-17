@@ -1,5 +1,3 @@
-// Tích hợp đầy đủ TopicsPage với phân trang mượt mà, Framer Motion và React Query
-
 import { Button, useDisclosure } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -19,11 +17,13 @@ import ErrorState from "../components/Common/ErrorState";
 import EmptyState from "../components/Common/EmptyState";
 import Pagination from "../components/Common/Pagination/Pagination";
 import { GetFollowedTopics } from "../services";
+import TopicModal from "../components/Topic/TopicModal";
+import NoTopic from "../components/Topic/NoTopic";
 
 const PAGE_SIZE = 12;
 
 const TopicsPage = () => {
-  const { onOpen } = useDisclosure();
+  const { onOpen, isOpen, onOpenChange } = useDisclosure();
   const [topicPage, setTopicPage] = useState(1);
   const [tagPage, setTagPage] = useState(1);
 
@@ -89,24 +89,34 @@ const TopicsPage = () => {
                 />
               ) : followedTopics.length > 0 ? (
                 <div className="mt-0 space-y-2">
-                  {followedTopics.map((topic: TopicResponse) => (
-                    <div
-                      key={topic.id}
-                      className="cursor-pointer flex items-center justify-between p-2 bg-content1 rounded-md hover:bg-content3 transition-colors duration-200"
-                    >
-                      <span className="ml-2 text-sm">{topic.name}</span>
-                      <span className="text-xs text-gray-400 mr-2">ADMIN</span>
-                    </div>
-                  ))}
+                  {followedTopics.map((topic: TopicResponse) => {
+                    const { handleToggleFollow, isPending } = useFollowItem(
+                      topic.id,
+                      "topics"
+                    );
+                    return (
+                      <div
+                        key={topic.id}
+                        className="cursor-pointer flex items-center justify-between p-2 bg-content1 rounded-md hover:bg-content3 transition-colors duration-200"
+                      >
+                        <span className="ml-2 text-sm">{topic.name}</span>
+                        <Button
+                          size="sm"
+                          radius="full"
+                          variant="flat"
+                          onPress={handleToggleFollow}
+                          isLoading={isPending}
+                          className="text-xs font-semibold"
+                        >
+                          <Icon icon="lucide:user-minus" className="w-4 h-4" />
+                          Bỏ theo dõi
+                        </Button>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
-                <EmptyState
-                  title="Chưa có chủ đề nào"
-                  description="Bạn sẽ nhận được nhiều câu hỏi hơn nếu thêm các chủ đề cụ thể."
-                  icon="lucide:mailbox"
-                  actionLabel="Thêm chủ đề"
-                  onAction={onOpen}
-                />
+                <NoTopic onOpen={onOpen} />
               )}
             </div>
           </div>
@@ -237,6 +247,11 @@ const TopicsPage = () => {
           </div>
         </div>
       </div>
+      <TopicModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        followedTopics={topics}
+      />
     </div>
   );
 };

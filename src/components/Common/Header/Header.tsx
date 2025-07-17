@@ -22,6 +22,7 @@ import NotificationDropdown from "../../Home/Notification";
 import { BiEdit } from "react-icons/bi";
 
 import { useLogoutMutation } from "../../../hooks/users/useLogoutMutation";
+import NotificationInbox from "../Notification/NotificationInbox";
 
 const navItems = {
   home: { path: "/", name: "Home", icon: <MdHome className="h-6 w-6" /> },
@@ -95,11 +96,7 @@ const Header: React.FC = () => {
             </NavbarItem>
           </Tooltip>
         ))}
-        <Tooltip content="Notifications" placement="bottom" offset={15}>
-          <NavbarItem>
-            <NotificationDropdown />
-          </NavbarItem>
-        </Tooltip>
+
         <NavbarItem className="mx-2">
           <Input
             isClearable
@@ -116,6 +113,10 @@ const Header: React.FC = () => {
         </NavbarItem>
         <NavbarItem>
           <HeaderDropdown handleLogouts={() => logoutAccount()} />
+        </NavbarItem>
+        <NavbarItem>
+          {/* <NotificationDropdown /> */}
+          <NotificationInbox />
         </NavbarItem>
         <Tooltip content="Theme" placement="bottom" offset={15}>
           <NavbarItem className="mx-2">
