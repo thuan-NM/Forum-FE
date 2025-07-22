@@ -17,7 +17,6 @@ import AnswerModal from "../components/Answer/AnswerModal";
 import QuestionStatTab from "../components/Question/QuestionDetail/QuestionStatTab";
 import { useState } from "react";
 import ReportModal from "../components/Report/ReportModal";
-import QuestionModal from "../components/Question/QuestionCreation/QuestionModal";
 import { FaChevronDown } from "react-icons/fa6";
 
 const QuestionDetailPage = () => {

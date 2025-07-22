@@ -57,7 +57,7 @@ const CardItem: React.FC<CardItemProps> = ({
       </div>
 
       {/* Content */}
-      <div className=" px-3 pb-2 pt-2 flex flex-col justify-between content-between items-center gap-1 h-full">
+      <div className=" px-3 pb-2 pt-2 flex flex-col justify-between content-between items-center gap-1 !h-full ">
         <div className="group cursor-pointer" onClick={handleClick}>
           <h3 className="group-hover:underline text-sm font-semibold">
             {name}

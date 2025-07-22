@@ -3,7 +3,7 @@ import React from "react";
 import { FaRss } from "react-icons/fa6";
 import { GoDotFill } from "react-icons/go";
 import { TopicResponse } from "../../../store/interfaces/topicInterfaces";
-import { useFollowItem } from "../../../hooks/follows/useFollowItem";
+import { useFollowTopic } from "../../../hooks/follows/useFollowTopic";
 
 interface TopicHeaderProps {
   defaultAvatar: string;
@@ -14,12 +14,12 @@ const TopicHeader: React.FC<TopicHeaderProps> = ({
   defaultAvatar,
   topicData,
 }) => {
-  const {
-    isFollowing,
-    isCheckingFollow,
-    handleToggleFollow,
-    isPending: isFollowPending,
-  } = useFollowItem<TopicResponse>(topicData.id || "", "topics");
+  const { isFollowing, toggleFollow, isPending } = useFollowTopic(topicData.id);
+
+  const handleToggleFollow = () => {
+    toggleFollow();
+  };
+
   return (
     <Card className="bg-content1 !p-4 rounded-md flex flex-row gap-x-4 items-center">
       <Image
@@ -36,7 +36,7 @@ const TopicHeader: React.FC<TopicHeaderProps> = ({
           radius="full"
           className={`w-fit gap-x-[4px] !font-semibold transition-all duration-200 ${isFollowing ? "shadow-md bg-content1" : ""}`}
           onPress={handleToggleFollow}
-          isLoading={isFollowPending || isCheckingFollow}
+          isLoading={isPending}
         >
           <FaRss className="w-4 h-4" />
           {isFollowing ? "Following" : "Follow"}

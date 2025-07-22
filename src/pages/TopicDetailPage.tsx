@@ -9,10 +9,7 @@ import TopicDetailLayout from "../layouts/TopicDetailLayout";
 
 import TopicHeader from "../components/Topic/TopicDetail/TopicHeader";
 import { useState } from "react";
-import { Button } from "@heroui/react";
-import QuestionList from "../components/Question/QuestionList";
-import AnswerList from "../components/Answer/AnswerList";
-import TopicAnswerList from "../components/Topic/TopicDetail/TopicAnswerList";
+import TopicQuestionList from "../components/Topic/TopicDetail/TopicQuestionList";
 
 const TopicDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,12 +22,15 @@ const TopicDetailPage = () => {
     isLoading,
     isError,
     error,
+    refetch, // Thêm refetch
   } = useQuery<{
     topic: TopicResponse;
   }>({
-    queryKey: ["topic", id],
+    queryKey: ["topic", id?.toString()],
     queryFn: () => GetTopicById(id!),
+    refetchOnWindowFocus: false, // Thêm option này để tránh refetch không cần thiết
   });
+
   const defaultAvatar = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
     topicData?.topic?.name || ""
   )}`;
@@ -41,11 +41,12 @@ const TopicDetailPage = () => {
   if (isError) {
     return <ErrorState message={error.message || "Lỗi khi tải chủ đề"} />;
   }
+
   return (
     <TopicDetailLayout>
-      <div className="flex flex-row mt-5 gap-x-2">
+      <div className="flex flex-row mt-5 gap-x-2 relative">
         <div className="basis-1/4 flex justify-end min-h-[60vh] h-fit ">
-          <div className="w-full !max-w-xs mx-auto -mt-4">
+          <div className="w-full !max-w-xs mx-auto -mt-4 fixed left-[30px]">
             <TopicTab />
           </div>
         </div>
@@ -58,28 +59,22 @@ const TopicDetailPage = () => {
               />
             )}
             <div className="flex w-full border-b border-default-200 relative">
-              {["questions", "answers"].map((tab) => (
+              {["questions"].map((tab) => (
                 <div
                   key={tab}
-                  className={`relative px-4 py-2 pt-8 cursor-pointer text-xs font-semibold transition-colors duration-200 ${
+                  className={`relative px-4 py-2 pt-8 cursor-pointer text-xs font-semibold transition-colors duration-200 select-none ${
                     activeTab === tab ? "text-red-500" : "text-default-500"
                   }`}
-                  onClick={() => setActiveTab(tab as "questions" | "answers")}
+                  onClick={() => setActiveTab(tab as "questions")}
                 >
-                  {tab === "questions" ? "Questions" : "Answers"}
+                  Các câu hỏi{" "}
                   {activeTab === tab && (
                     <div className="absolute bottom-0 left-0 w-full h-[3px] bg-red-500 rounded-t" />
                   )}
                 </div>
               ))}
             </div>
-            <div className="">
-              {activeTab === "questions" ? (
-                <QuestionList />
-              ) : (
-                <TopicAnswerList />
-              )}
-            </div>
+            {topicData && <TopicQuestionList topic={topicData?.topic} />}
           </div>
         </div>
       </div>

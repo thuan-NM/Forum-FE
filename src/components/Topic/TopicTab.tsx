@@ -16,7 +16,7 @@ const TopicTab = () => {
   });
 
   return (
-    <div className="ml-6 w-full mt-4 bg-content1 rounded-md h-fit ">
+    <div className="ml-6 w-full mt-4 bg-content1 rounded-md h-fit  ">
       <div className="flex justify-between w-full font-semibold text-base border-b border-content4 py-2 pl-3 items-center">
         <div className="text-sm">Các chủ đề bạn đã theo dõi</div>
         <Tooltip

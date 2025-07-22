@@ -1,12 +1,28 @@
-import { Image } from "@heroui/react";
+import { Button, Image } from "@heroui/react";
 import { TopicResponse } from "../../store/interfaces/topicInterfaces";
 import { useNavigate } from "react-router-dom";
+import { useFollowItem } from "../../hooks/follows/useFollowItem";
+import { Icon } from "@iconify/react/dist/iconify.js";
+import { cn } from "../../lib/utils";
+import { useFollowTopic } from "../../hooks/follows/useFollowTopic";
 
-const FollowedTopicsItem = ({ topic }: { topic: TopicResponse }) => {
+interface FollowedTopicsItemProps {
+  topic: TopicResponse;
+  showButton?: boolean;
+  className?: string;
+}
+
+const FollowedTopicsItem: React.FC<FollowedTopicsItemProps> = ({
+  topic,
+  showButton = false,
+  className,
+}) => {
   const avatarUrl = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
     topic.name
   )}`;
   const navigate = useNavigate();
+  const { isFollowing, toggleFollow, isPending } = useFollowTopic(topic.id);
+
   const handleClick = () => {
     navigate(`/topics/${topic.id}`);
   };
@@ -14,18 +30,36 @@ const FollowedTopicsItem = ({ topic }: { topic: TopicResponse }) => {
     <div className="flex items-center justify-between rounded-md w-full">
       <div
         onClick={handleClick}
-        className="flex items-center gap-3 group py-2 hover:bg-content4/20 cursor-pointer w-full px-3"
+        className={cn(
+          "flex items-center gap-3 group py-2 hover:bg-content4/20 cursor-pointer w-full px-3",
+          className
+        )}
       >
-        <Image
-          src={avatarUrl}
-          alt={topic.name}
-          width={32}
-          height={32}
-          className="rounded-md "
-        />
-        <span className="text-xs font-medium group-hover:underline">
-          {topic.name}
-        </span>
+        <div className="flex items-center gap-2">
+          <Image
+            src={avatarUrl}
+            alt={topic.name}
+            width={32}
+            height={32}
+            className="rounded-md "
+          />
+          <span className="text-xs font-medium group-hover:underline">
+            {topic.name}
+          </span>
+        </div>
+        {showButton && (
+          <Button
+            size="sm"
+            variant="flat"
+            radius="full"
+            isLoading={isPending}
+            onPress={toggleFollow}
+            className="text-xs font-semibold"
+          >
+            <Icon icon="lucide:user-minus" className="w-4 h-4" />
+            Bỏ theo dõi
+          </Button>
+        )}
       </div>
     </div>
   );

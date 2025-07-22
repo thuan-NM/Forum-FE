@@ -1,5 +1,7 @@
+"use client";
+
 import React from "react";
-import CardItem from "./CardItem";
+import { motion } from "framer-motion";
 
 interface CardListProps<T> {
   items: T[];
@@ -11,7 +13,16 @@ const CardList = <T extends { id: string }>({
   renderItem,
 }: CardListProps<T>) => {
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div
+      className="grid gap-4
+        grid-cols-1
+        sm:grid-cols-2
+        md:grid-cols-3
+        lg:grid-cols-4
+        xl:grid-cols-4
+        2xl:grid-cols-5
+        min-[1700px]:grid-cols-6"
+    >
       {items.map((item) => (
         <React.Fragment key={item.id}>{renderItem(item)}</React.Fragment>
       ))}
