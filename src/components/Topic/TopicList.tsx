@@ -1,21 +1,34 @@
-import { Avatar, Badge, Button, Skeleton } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
-
+import { GetAllTopics } from "../../services";
+import { Button, Skeleton } from "@heroui/react";
 import { BsMailbox } from "react-icons/bs";
-import { GetAllGroup } from "../../services";
-import { Group } from "../../store/interfaces/groupInterfaces";
-
-const TopicList = () => {
+import { TopicResponse } from "../../store/interfaces/topicInterfaces";
+interface FollowedTopicProps {
+  followedTopics: TopicResponse[];
+}
+const TopicList: React.FC<FollowedTopicProps> = ({
+  followedTopics = [],
+}: {
+  followedTopics: TopicResponse[];
+}) => {
   const {
-    data: groups = [],
+    data: topics,
     isLoading,
     isError,
     error,
-  } = useQuery<Group[]>({
-    queryKey: ["groups"],
-    queryFn: GetAllGroup,
+  } = useQuery({
+    queryKey: ["topics"],
+    queryFn: () =>
+      GetAllTopics({
+        limit: 1000,
+      }),
   });
+  console.log(followedTopics);
 
+  const allTopics = topics?.topics || [];
+  const unfollowedTopics = allTopics.filter(
+    (topic: TopicResponse) => !followedTopics.some((f) => f.id === topic.id)
+  );
   if (isLoading) {
     return (
       <div className="my-3 text-center w-5/6">
@@ -33,44 +46,39 @@ const TopicList = () => {
     );
   }
 
-  if (groups.length === 0) {
+  if (unfollowedTopics.length === 0) {
     return (
       <div className="mt-6">
         <div className="flex justify-center flex-col my-2 gap-y-1 mx-auto py-12 px-2">
           <BsMailbox className="w-10 h-10 opacity-60 mx-auto" />
           <div className="mx-auto font-bold text-sm opacity-60">
-            No topics yet
+            Bạn đã theo dõi tất cả các chủ đề
           </div>
         </div>
       </div>
     );
   }
 
+  const handleFollow = (id: string) => {
+    // TODO: Gọi API follow và cập nhật cache nếu cần
+  };
+
   return (
     <div className="my-3">
-      {groups.map((group) => (
-        <Button
-          className="py-6 bg-transparent hover:bg-content2 rounded-md w-5/6 flex justify-start"
-          size="sm"
-          key={group.id}
+      {unfollowedTopics.map((topic: TopicResponse) => (
+        <div
+          key={topic.id}
+          className="flex justify-between items-center px-3 py-2 hover:bg-content2/30 rounded-md"
         >
-          <Skeleton isLoaded={!isLoading} className="flex !rounded-full">
-            <Badge color="danger" content="5" placement="top-right">
-              <Avatar
-                size="sm"
-                isBordered
-                radius="md"
-                src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-              />
-            </Badge>
-          </Skeleton>
-          <Skeleton
-            isLoaded={!isLoading}
-            className="truncate flex !rounded-full"
+          <span className="text-sm">{topic.name}</span>
+          <Button
+            size="sm"
+            variant="faded"
+            onClick={() => handleFollow(topic.id)}
           >
-            <p className="ml-2 text-xs ">{group.name}</p>
-          </Skeleton>
-        </Button>
+            Thêm
+          </Button>
+        </div>
       ))}
     </div>
   );

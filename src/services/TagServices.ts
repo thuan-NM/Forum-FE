@@ -1,7 +1,7 @@
 import axios from "../utils/configAxios.ts";
 
 const GetTagById = async (id: string) => {
-  return (await axios.get(`/tags/${id}`)).data.data;
+  return (await axios.get(`/tags/${id}`)).data;
 };
 
 const GetAllTags = async (filter: any) => {

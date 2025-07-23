@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import UpVote from "../../../Common/Button/UpVote";
 import { PostFooterSkeleton } from "../../../Skeleton/PostSkeleton";
-import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
+
 import { FaLink } from "react-icons/fa6";
 import { FaRegBookmark } from "react-icons/fa";
 import { GrUnorderedList } from "react-icons/gr";
@@ -10,6 +9,8 @@ import { LuKeyboardOff } from "react-icons/lu";
 import { PiWarningBold } from "react-icons/pi";
 import { PostResponse } from "../../../../store/interfaces/postInterfaces";
 import { cn } from "../../../../lib/utils";
+import MoreActionsPopover from "../../../Common/MoreActionsPopover";
+import ReportModal from "../../../Report/ReportModal";
 interface PostFooterProps {
   post: PostResponse;
   setIsShowComment?: (show: boolean) => void;
@@ -23,6 +24,7 @@ const PostFooter: React.FC<PostFooterProps> = ({
   post,
 }) => {
   const [loading, setLoading] = useState(true);
+  const [isReportOpen, setIsReportOpen] = useState(false);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 1000); // Simulate loading time
@@ -45,64 +47,34 @@ const PostFooter: React.FC<PostFooterProps> = ({
         isShowComment={isShowComment}
         totalComment={totalComment}
       />
-      <Popover placement="top-start">
-        <PopoverTrigger>
-          <Button
-            size="sm"
-            variant="flat"
-            radius="full"
-            className="bg-tranparent"
-            isIconOnly
-          >
-            <HiOutlineDotsHorizontal className="text-lg cursor-pointer" />
-          </Button>
-        </PopoverTrigger>
-
-        <PopoverContent className="p-0 rounded-sm bg-content1 w-1/3">
-          <div className="">
-            <Button
-              className="bg-tranparent text-md  w-full !justify-start text-xs font-semibold"
-              size="sm"
-              radius="none"
-            >
-              <FaLink className="w-4 h-4" />
-              Copy link
-            </Button>
-            <Button
-              className="bg-tranparent text-md  w-full !justify-start text-xs font-semibold"
-              size="sm"
-              radius="none"
-            >
-              <LuKeyboardOff className="w-4 h-4" />
-              Not interested in this
-            </Button>
-            <Button
-              className="bg-tranparent text-md  w-full !justify-start text-xs font-semibold"
-              size="sm"
-              radius="none"
-            >
-              <FaRegBookmark className="w-4 h-4" />
-              Bookmark
-            </Button>
-            <Button
-              className="bg-tranparent text-md  w-full !justify-start text-xs font-semibold"
-              size="sm"
-              radius="none"
-            >
-              <GrUnorderedList className="w-4 h-4" />
-              Log
-            </Button>
-            <Button
-              className="bg-tranparent text-md  w-full !justify-start text-xs font-semibold"
-              size="sm"
-              radius="none"
-            >
-              <PiWarningBold className="w-4 h-4" />
-              Report
-            </Button>
-          </div>
-        </PopoverContent>
-      </Popover>
+      <MoreActionsPopover
+        actions={[
+          {
+            label: "Copy link",
+            icon: <FaLink />,
+            onClick: () => console.log("Copy link"),
+          },
+          {
+            label: "Not interested",
+            icon: <LuKeyboardOff />,
+            onClick: () => {},
+          },
+          { label: "Bookmark", icon: <FaRegBookmark />, onClick: () => {} },
+          { label: "Log", icon: <GrUnorderedList />, onClick: () => {} },
+          {
+            label: "Report",
+            icon: <PiWarningBold />,
+            onClick: () => setIsReportOpen(true),
+          },
+        ]}
+      />
+      <ReportModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        contentId={String(post.id)}
+        contentType="post"
+        contentPreview={post.title || "No title"}
+      />
     </div>
   );
 };

@@ -3,7 +3,7 @@ import PostHeader from "./PostHeader";
 import { PostResponse } from "../../../../store/interfaces/postInterfaces";
 import PostContent from "./PostContent";
 import PostFooter from "./PostFooter";
-import CommentList from "../Comment/CommentList";
+import CommentList from "../../../Comment/CommentList";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useInfiniteQuery } from "@tanstack/react-query";
@@ -56,7 +56,7 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
       transition={{ duration: 0.3 }}
       className="p-4 bg-content1 rounded-lg my-3 relative"
     >
-      <PostHeader post={post} onDelete={() => onDelete?.(post.id)} />
+      <PostHeader post={post} onDeleted={() => onDelete?.(post.id)} />
       <PostContent post={post} />
       <PostFooter
         post={post}
@@ -76,7 +76,8 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
             transition={{ duration: 0.3 }}
           >
             <CommentList
-              postId={post.id}
+              id={post.id}
+              type={"post_id"}
               comments={allComments}
               fetchNextPage={fetchNextPage}
               hasNextPage={hasNextPage}

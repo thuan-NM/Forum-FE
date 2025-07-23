@@ -10,7 +10,7 @@ import {
   Checkbox,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { TopicResponse } from "../../../../store/interfaces/topicInterfaces";
+import { TopicResponse } from "../../../store/interfaces/topicInterfaces";
 
 interface TopicSelectionModalProps {
   isOpen: boolean;

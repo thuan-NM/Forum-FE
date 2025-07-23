@@ -88,6 +88,7 @@ export const useFollowItem = <T extends { id: string; followsCount?: number }>(
     onSuccess: () => {
       refetch();
       queryClient.invalidateQueries({ queryKey: [type] });
+      queryClient.invalidateQueries({ queryKey: ["topic", id] }); // 👈 thêm dòng này
     },
   });
 
@@ -137,6 +138,7 @@ export const useFollowItem = <T extends { id: string; followsCount?: number }>(
     onSuccess: () => {
       refetch();
       queryClient.invalidateQueries({ queryKey: [type] });
+      queryClient.invalidateQueries({ queryKey: ["topic", id] });
     },
   });
 

@@ -54,6 +54,8 @@ export interface UserResponse {
   status: "active" | "inactive" | "banned";
   emailVerified: boolean;
   lastLogin?: Date;
+  followersCount: number;
+  followingCount: number;
   postsCount: number;
   commentsCount: number;
   createdAt: Date;
@@ -66,7 +68,7 @@ export interface UserAuthResponse {
 }
 
 export interface UserState {
-  user: User | null;
+  user: UserResponse | null;
   isLoading: boolean;
   error: string | null;
 }

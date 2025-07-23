@@ -1,7 +1,7 @@
 import axios from "../utils/configAxios.ts";
 
 const GetTopicById = async (id: string) => {
-  return (await axios.get(`/topics/${id}`)).data.data;
+  return (await axios.get(`/topics/${id}`)).data;
 };
 
 const GetAllTopics = async (filter: any) => {

@@ -12,10 +12,9 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppSelector } from "../../../../store/hooks";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { RootState } from "../../../../store/store";
-import { CreatePost, GetAllTags } from "../../../../services";
+import { GetAllTags } from "../../../../services";
 import { PostCreateDto } from "../../../../store/interfaces/postInterfaces";
 import TiptapEditor from "../../../TextEditor/Tiptap";
 import { AnimatePresence } from "framer-motion";
@@ -24,6 +23,7 @@ import EditorModal from "../../../TextEditor/EditorModal";
 import TagSelectionModal from "./TagSelectionModal";
 import { motion } from "framer-motion";
 import { TagResponse } from "../../../../store/interfaces/tagInterfaces";
+import { useCreatePost } from "../../../../hooks/posts/useCreatePost";
 
 interface PostModalProps {
   setModalActive: (arg0: string) => void;
@@ -39,7 +39,6 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedTags, setSelectedTags] = useState<TagResponse[]>([]);
   const userData = useAppSelector((state: RootState) => state.user.user);
-  const queryClient = useQueryClient();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   const { data: tags } = useQuery({
@@ -47,30 +46,19 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
     queryFn: () => GetAllTags({}),
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: CreatePost,
-    onSuccess: (data: any) => {
-      toast.success(data.message || "Tạo bài viết thành công");
-      setModalActive("");
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
-    },
-    onError: (error: any) => {
-      toast.error(error.response.data.error);
-    },
-  });
+  const { createPost, isCreating } = useCreatePost();
 
   const onSubmit = (onClose: () => void) => {
     const data: PostCreateDto = {
-      content: content,
-      title: title,
+      content,
+      title,
       tags: selectedTags.map((tag) => tag.id),
     };
-    mutate(data, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
+
+    createPost(data);
+    onClose();
   };
+
   const handleTagSelection = (tags: TagResponse[]) => {
     setSelectedTags(tags);
   };
@@ -240,7 +228,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 </AnimatePresence>
               </div>
               <Button
-                isLoading={isPending}
+                isLoading={isCreating}
                 color="primary"
                 size="sm"
                 onPress={() => onSubmit(onClose)}

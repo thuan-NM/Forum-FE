@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import ChangeTheme from "../ChangeTheme";
 import logo from "../../../assets/logo.png";
-import { MdHome } from "react-icons/md";
-import { BsFillPostcardHeartFill } from "react-icons/bs";
+import { MdHome, MdOutlineTopic } from "react-icons/md";
+import { BsTagsFill } from "react-icons/bs";
 import {
   Input,
   Navbar,
@@ -18,26 +18,32 @@ import { HiUserGroup } from "react-icons/hi";
 import { IoIosSearch } from "react-icons/io";
 import HeaderModal from "./HeaderModal";
 import HeaderDropdown from "./HeaderDropdown";
-import NotificationDropdown from "../../Home/Notification";
 import { BiEdit } from "react-icons/bi";
 
 import { useLogoutMutation } from "../../../hooks/users/useLogoutMutation";
+import NotificationInbox from "../Notification/NotificationInbox";
 
 const navItems = {
-  home: { path: "/", name: "Home", icon: <MdHome className="h-6 w-6" /> },
-  following: {
-    path: "/following",
-    name: "Following",
-    icon: <BsFillPostcardHeartFill className="h-6 w-6" />,
-  },
+  home: { path: "/", name: "Trang chủ", icon: <MdHome className="h-6 w-6" /> },
+
   answer: {
     path: "/answer",
-    name: "Answer",
+    name: "Câu hỏi",
     icon: <BiEdit className="h-6 w-6" />,
   },
+  topics: {
+    path: "/topics",
+    name: "Chủ đề",
+    icon: <MdOutlineTopic className="h-6 w-6" />,
+  },
+  tags: {
+    path: "/tags",
+    name: "Nhãn",
+    icon: <BsTagsFill className="h-6 w-6" />,
+  },
   group: {
-    path: "/group",
-    name: "Group",
+    path: "/users",
+    name: "Danh sách người dùng",
     icon: <HiUserGroup className="h-6 w-6" />,
   },
 };
@@ -95,11 +101,7 @@ const Header: React.FC = () => {
             </NavbarItem>
           </Tooltip>
         ))}
-        <Tooltip content="Notifications" placement="bottom" offset={15}>
-          <NavbarItem>
-            <NotificationDropdown />
-          </NavbarItem>
-        </Tooltip>
+
         <NavbarItem className="mx-2">
           <Input
             isClearable
@@ -116,6 +118,10 @@ const Header: React.FC = () => {
         </NavbarItem>
         <NavbarItem>
           <HeaderDropdown handleLogouts={() => logoutAccount()} />
+        </NavbarItem>
+        <NavbarItem>
+          {/* <NotificationDropdown /> */}
+          <NotificationInbox />
         </NavbarItem>
         <Tooltip content="Theme" placement="bottom" offset={15}>
           <NavbarItem className="mx-2">

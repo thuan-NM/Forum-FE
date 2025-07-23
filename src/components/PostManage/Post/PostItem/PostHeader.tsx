@@ -68,17 +68,22 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
           />
           <div className="flex flex-col !text-xs md:text-sm gap-y-1">
             <div className="font-bold flex flex-wrap items-center gap-x-1">
-              <div>{user?.username}</div>
-              <GoDotFill className="w-2 h-2 hidden sm:block" />
-              <Link
-                underline="hover"
-                size="sm"
-                className="text-xs"
-                onPress={handleToggleFollow}
-                isDisabled={isPending}
-              >
-                {isFollowing ? "Unfollow" : "Follow"}
-              </Link>
+              <div className="cursor-pointer hover:underline">{user?.username}</div>
+
+              {post.author.id !== userData?.id && (
+                <>
+                  <GoDotFill className="w-2 h-2 hidden sm:block" />
+                  <Link
+                    underline="hover"
+                    size="sm"
+                    className="text-xs cursor-pointer"
+                    onPress={handleToggleFollow}
+                    isDisabled={isPending}
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </Link>
+                </>
+              )}
             </div>
             <div className="opacity-90 text-xs flex flex-wrap !items-center gap-x-1">
               <div className="hidden sm:block">{user?.email}</div>

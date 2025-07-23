@@ -14,11 +14,11 @@ import { useState } from "react";
 import { FaCaretRight } from "react-icons/fa";
 import { FaAngleDown } from "react-icons/fa6";
 import { MdClear } from "react-icons/md";
-import { useCreateQuestion } from "../../../../hooks/questions/useCreateQuestion";
+import { useCreateQuestion } from "../../../hooks/questions/useCreateQuestion";
 import TopicSelectionModal from "./TopicSelectionModal";
-import { TopicResponse } from "../../../../store/interfaces/topicInterfaces";
+import { TopicResponse } from "../../../store/interfaces/topicInterfaces";
 import { useQuery } from "@tanstack/react-query";
-import { GetFollowedTopics } from "../../../../services";
+import { GetFollowedTopics } from "../../../services";
 import { Icon } from "@iconify/react";
 
 interface PostModalProps {
@@ -105,7 +105,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   <Button
                     variant="bordered"
                     radius="full"
-                    className="px-2 py-0"
+                    className="px-2 py-0 text-sm text-white/80"
                     onPress={() => setIsTopicModalOpen(true)}
                     size="sm"
                   >
@@ -131,7 +131,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 />
               </div>
             </ModalBody>
-            <ModalFooter className="border-t border-content3 p-0 py-3 px-6">
+            <ModalFooter className="border-none border-content3 p-0 py-3 px-6">
               <Button
                 className="border-none bg-transparent hover:bg-content2 px-0 text-sm font-semibold"
                 radius="full"

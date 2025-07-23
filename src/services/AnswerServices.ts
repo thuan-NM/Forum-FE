@@ -47,7 +47,7 @@ const AcceptAnswer = async (id: string) => {
   return response.data;
 };
 const CreateAnswer = async (data: any) => {
-  const response = await axios.post("/answers", data, {
+  const response = await axios.post("/answers/", data, {
     withCredentials: true,
   });
   return response.data;

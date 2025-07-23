@@ -2,15 +2,22 @@ import { createBrowserRouter } from "react-router-dom";
 import { lazy } from "react";
 import MainLayout from "../layouts/MainLayout";
 import AnswerPage from "../pages/AnswerPage";
-import QuestionList from "../components/PostManage/Question/QuestionList";
-import AnswerRequestsList from "../components/PostManage/Question/Answer/AnswerRequests/AnswerRequestsList";
+import QuestionList from "../components/Question/QuestionList";
+import AnswerRequestsList from "../components/Answer/AnswerRequests/AnswerRequestsList";
 import PrivateRoute from "./PrivateRoute";
 import VerifyEmail from "../components/Auth/VerifyEmail";
 import ResendVerification from "../components/Auth/ResendVerification";
+import ScrollWrapper from "../components/Common/ScrollToTop/ScrollToTop";
 
 const HomePage = lazy(() => import("../pages/HomePage"));
+const ProfilePage = lazy(() => import("../pages/ProfilePage"));
 const AuthPage = lazy(() => import("../pages/AuthPage"));
 const TopicsPage = lazy(() => import("../pages/TopicsPage"));
+const TopicDetailPage = lazy(() => import("../pages/TopicDetailPage"));
+const QuestionDetailPage = lazy(() => import("../pages/QuestionDetailPage"));
+const TagsPage = lazy(() => import("../pages/TagsPage"));
+const UsersPage = lazy(() => import("../pages/UserListPage"));
+const TagDetailPage = lazy(() => import("../pages/TagDetailPage"));
 
 const withPrivateRoute = (element: JSX.Element) => (
   <PrivateRoute>{element}</PrivateRoute>
@@ -28,11 +35,34 @@ const protectedRoutes = [
   },
   {
     path: "topics",
-    element: withPrivateRoute(<TopicsPage />),
-    // children: [
-    //     { index: true, element: withPrivateRoute(<QuestionList />) },
-    //     { path: "requests", element: withPrivateRoute(<AnswerRequestsList />) },
-    // ],
+    children: [
+      { index: true, element: withPrivateRoute(<TopicsPage />) },
+      { path: ":id", element: withPrivateRoute(<TopicDetailPage />) },
+    ],
+  },
+  {
+    path: "tags",
+    children: [
+      { index: true, element: withPrivateRoute(<TagsPage />) },
+      { path: ":id", element: withPrivateRoute(<TagDetailPage />) },
+    ],
+  },
+  {
+    path: "question",
+    children: [
+      { path: ":id", element: withPrivateRoute(<QuestionDetailPage />) }, // 👈 Route chi tiết
+    ],
+  },
+  {
+    path: "users",
+    children: [
+      { index: true, element: withPrivateRoute(<UsersPage />) },
+      // { path: ":id", element: withPrivateRoute(<QuestionDetailPage />) }, // 👈 Route chi tiết
+    ],
+  },
+  {
+    path: "profile",
+    element: withPrivateRoute(<ProfilePage />),
   },
 ];
 const publicRoutes = [
@@ -46,18 +76,20 @@ const publicRoutes = [
   },
   {
     path: "api",
-    children: [
-      // { index: true, element: <AuthPage /> },
-      { path: "verify-email", element: <VerifyEmail /> },
-      // { path: "resend-verification", element: <ResendVerification /> },
-    ],
+    children: [{ path: "verify-email", element: <VerifyEmail /> }],
   },
 ];
 const routes = [
   {
     path: "/",
-    element: <MainLayout />,
-    children: protectedRoutes,
+    element: <ScrollWrapper />, // 👈 Wrapper xử lý scroll
+    children: [
+      {
+        path: "/",
+        element: <MainLayout />,
+        children: protectedRoutes,
+      },
+    ],
   },
   ...publicRoutes,
 ];
