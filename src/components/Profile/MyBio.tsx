@@ -1,3 +1,4 @@
+"use client";
 
 import {
   Modal,
@@ -9,6 +10,7 @@ import {
   Input,
   Chip,
   useDisclosure,
+  Card,
 } from "@heroui/react";
 import { AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
@@ -17,78 +19,67 @@ import { useState } from "react";
 import TiptapEditor from "../TextEditor/Tiptap";
 import MenuBar from "../TextEditor/MenuBar";
 import EditorModal from "../TextEditor/EditorModal";
-import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { UserResponse } from "../../store/interfaces/userInterfaces";
+import { useUpdateUser } from "../../hooks/users/useEditUser";
+import toast from "react-hot-toast";
 
-import { AnswerCreateDto } from "../../store/interfaces/answerInterfaces";
-import { useAppSelector } from "../../store/hooks";
-import { RootState } from "../../store/store";
-import { GetAllTags } from "../../services";
-import { TagResponse } from "../../store/interfaces/tagInterfaces";
-import TagSelectionModal from "../PostManage/Post/PostCreation/TagSelectionModal";
-import { useCreateAnswer } from "../../hooks/answers/useCreateAnswer";
-
-interface AnswerModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  question: QuestionResponse;
+interface MyBioProps {
+  user: UserResponse;
 }
 
-const AnswerModal: React.FC<AnswerModalProps> = ({
-  isOpen,
-  onOpenChange,
-  question,
-}) => {
+const MyBio: React.FC<MyBioProps> = ({ user }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [editor, setEditor] = useState<any>(null);
   const [openImage, setOpenImage] = useState<boolean>(false);
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
-  const [content, setContent] = useState<string>("");
-  const [selectedTags, setSelectedTags] = useState<TagResponse[]>([]);
-  const {
-    isOpen: isOpenTag,
-    onOpen: onOpenTag,
-    onClose: onCloseTag,
-  } = useDisclosure();
-  const [title, setTitle] = useState<string>(question.title);
+  const [bio, setBio] = useState<string>("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-  const userData = useAppSelector((state: RootState) => state.user.user);
-  const { createAnswer, isCreating } = useCreateAnswer();
 
-  const onSubmit = (onClose: () => void) => {
-    const data: AnswerCreateDto = {
-      content: content,
-      questionId: question.id,
-      tags: selectedTags.map((tag) => tag.id),
-      title: title,
-    };
-    createAnswer(data, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
-  };
-
-  const { data: tags } = useQuery({
-    queryKey: ["tags"],
-    queryFn: () => GetAllTags({}),
+  const { UpdateUser, isUpdating } = useUpdateUser(() => {
+    toast.success("Cập nhật mô tả thành công!");
+    // setUser
+    onClose();
   });
 
-  const handleTagSelection = (tags: TagResponse[]) => {
-    setSelectedTags(tags);
+  const onSubmit = () => {
+    if (!bio || !bio.trim()) {
+      toast.error("Mô tả không được để trống");
+      return;
+    }
+
+    UpdateUser(user?.id, { bio });
   };
   return (
-    <Modal
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      isDismissable={false}
-      backdrop="blur"
-      hideCloseButton
-      isKeyboardDismissDisabled={false}
-      size="3xl"
-    >
-      <ModalContent className="flex flex-col h-[100vh]">
-        {(onClose) => (
+    <>
+      <Card className="rounded-md">
+        <div className="flex justify-center flex-col my-2 gap-y-1 mx-auto py-6 px-2 items-center">
+          {/* <BsMailbox className="w-10 h-10 opacity-60 mx-auto" /> */}
+          <div className="mx-auto font-bold text-sm opacity-60">
+            <div>Thêm mô tả về bản thân của bạn tại đây</div>
+          </div>
+
+          <Button
+            color="primary"
+            radius="full"
+            className="w-fit mx-auto mt-4 font-semibold"
+            variant="bordered"
+            onPress={onOpen}
+          >
+            Thêm mô tả
+          </Button>
+        </div>
+      </Card>
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpen}
+        isDismissable={false}
+        backdrop="blur"
+        hideCloseButton
+        isKeyboardDismissDisabled={false}
+        size="3xl"
+      >
+        <ModalContent className="flex flex-col h-fit">
           <>
             {/* Header */}
             <div className="flex-0 sticky top-0 z-10">
@@ -104,62 +95,15 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
             </div>
 
             {/* Body */}
-            <ModalBody className="flex-1 overflow-y-auto mt-8  scrollbar-hide">
-              <div className="flex justify-start mb-1">
-                <User
-                  avatarProps={{
-                    src:
-                      userData?.avatar ||
-                      "https://img.heroui.chat/image/avatar?w=300&h=300&u=1",
-                  }}
-                  name={
-                    <p className="text-xs font-semibold mb-1">
-                      {userData?.fullName || "Anonymous"}
-                    </p>
-                  }
-                  description={
-                    <Button variant="bordered" size="sm" radius="full">
-                      @{userData?.username || "user"}
-                    </Button>
-                  }
-                />
-              </div>
-              <Input
-                variant="underlined"
-                className="!text-2xl mb-2"
-                placeholder="Enter your post title"
-                required
-                defaultValue={question.title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+            <ModalBody className="flex-1 overflow-y-auto mt-8 h-fit scrollbar-hide">
               <TiptapEditor
                 initialContent=""
-                onChange={(value) => setContent(value)}
+                onChange={(value) => setBio(value)}
                 isDisabled={false}
                 setEditor={setEditor}
               />
             </ModalBody>
-            <div className="flex flex-wrap gap-2 px-6 py-2">
-              {selectedTags.map((tag) => (
-                <Chip
-                  key={tag.id}
-                  onClose={() =>
-                    setSelectedTags(selectedTags.filter((t) => t !== tag))
-                  }
-                >
-                  {tag.name}
-                </Chip>
-              ))}
-              <Button
-                size="sm"
-                variant="bordered"
-                color="default"
-                onPress={onOpenTag}
-                startContent={<Icon icon="lucide:plus" />}
-              >
-                Add Tags
-              </Button>
-            </div>
+
             {/* Footer */}
             <ModalFooter className="flex justify-between items-center">
               <div className="flex items-center">
@@ -229,11 +173,11 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
               <Button
                 color="primary"
                 size="sm"
-                onPress={() => onSubmit(onClose)}
-                isLoading={isCreating}
+                onPress={() => onSubmit()}
+                isLoading={isUpdating}
                 className="!px-6 !py-4"
               >
-                Trả lời
+                Thêm
               </Button>
             </ModalFooter>
 
@@ -248,17 +192,10 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
               setShowEmojiPicker={setShowEmojiPicker}
             />
           </>
-        )}
-      </ModalContent>
-      <TagSelectionModal
-        isOpen={isOpenTag}
-        onClose={onCloseTag}
-        tags={tags?.tags || []}
-        selectedTags={selectedTags}
-        onTagSelection={handleTagSelection}
-      />
-    </Modal>
+        </ModalContent>
+      </Modal>
+    </>
   );
 };
 
-export default AnswerModal;
+export default MyBio;

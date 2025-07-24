@@ -74,10 +74,10 @@ const TopicsPage = () => {
 
   return (
     <div className="flex flex-col h-auto">
-      <div className="p-4 w-full max-w-screen-xl mx-auto flex">
+      <div className="p-4 w-full mx-auto flex md:flex-row flex-col gap-4 px-24">
         <div className="basis-4/6 pr-4">
           {/* Chủ đề của bạn */}
-          <div className="bg-content1 rounded-md p-4 mr-5 mb-5">
+          <div className="bg-content1 rounded-md p-4 mb-5">
             <h2 className="text-base font-semibold">Chủ đề của bạn</h2>
             <div className="p-4">
               {isLoadingFollowed ? (
@@ -181,7 +181,7 @@ const TopicsPage = () => {
         </div>
 
         {/* Cột bên phải */}
-        <div className="basis-2/6 pl-4">
+        <div className="md:basis-2/6 md:pl-4">
           <div className="bg-content1 rounded-md p-4 h-[200px]">
             <h3 className="font-semibold mb-4">Lời mời đang chờ</h3>
             <div className="text-center opacity-60">Chưa có lời mời nào</div>

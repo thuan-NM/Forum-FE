@@ -5,11 +5,14 @@ const CreateQuestion = async (data: QuestionCreateDto) => {
   return (await axios.post("/questions/", data)).data;
 };
 
-const GetAllQuestions = async (filter: any) => {
+const ListQuestion = async (filter: any) => {
   const response = await axios.get("/questions/", { params: filter });
   return response.data;
 };
-
+const GetAllQuestions = async (filter: any) => {
+  const response = await axios.get("/questions/all", { params: filter });
+  return response.data;
+};
 const DeleteQuestion = async (id: string) => {
   return (await axios.delete(`/questions/${id}`)).data;
 };
@@ -37,8 +40,9 @@ export {
   CreateQuestion,
   GetQuestionById,
   DeleteQuestion,
-  GetAllQuestions,
+  ListQuestion,
   UpdateQuestion,
   UpdateQuestionStatus,
   CloseQuestion,
+  GetAllQuestions,
 };

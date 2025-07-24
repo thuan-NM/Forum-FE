@@ -61,8 +61,8 @@ const protectedRoutes = [
     ],
   },
   {
-    path: "profile",
-    element: withPrivateRoute(<ProfilePage />),
+    path: "my-profile",
+    children: [{ index: true, element: withPrivateRoute(<ProfilePage />) }],
   },
 ];
 const publicRoutes = [

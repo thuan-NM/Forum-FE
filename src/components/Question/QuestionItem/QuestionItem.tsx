@@ -79,6 +79,8 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
           <span>
             {date ? `Last followed ${format(date)}` : `No one followed`}
           </span>
+          <GoDotFill className="w-1 h-1 hidden sm:block" />
+          <span>{question.author.fullName}</span>
         </div>
         <div className="flex items-center justify-between mt-3">
           <div className="flex items-center gap-x-1">

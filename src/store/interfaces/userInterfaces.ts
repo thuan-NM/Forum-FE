@@ -57,7 +57,8 @@ export interface UserResponse {
   followersCount: number;
   followingCount: number;
   postsCount: number;
-  commentsCount: number;
+  answersCount: number;
+  questionsCount: number;
   createdAt: Date;
   updatedAt: Date;
 }

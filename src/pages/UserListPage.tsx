@@ -66,7 +66,7 @@ const UsersPage = () => {
 
   return (
     <div className="flex flex-col h-auto">
-      <div className="p-4 w-full max-w-screen-xl mx-auto flex">
+      <div className="p-4 w-full mx-auto flex md:flex-row flex-col gap-4 px-24">
         <div className="basis-4/6 pr-4">
           {/* Chủ đề của bạn */}
 
@@ -148,7 +148,7 @@ const UsersPage = () => {
         </div>
 
         {/* Cột bên phải */}
-        <div className="basis-2/6 pl-4">
+        <div className="md:basis-2/6 md:pl-4">
           <TopicTab />
         </div>
       </div>

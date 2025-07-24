@@ -133,9 +133,9 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
             </ModalBody>
             <ModalFooter className="border-none border-content3 p-0 py-3 px-6">
               <Button
-                className="border-none bg-transparent hover:bg-content2 px-0 text-sm font-semibold"
+                className="border-none bg-transparent hover:bg-content2 px-0"
                 radius="full"
-                size="md"
+                size="sm"
                 onPress={onClose}
               >
                 Hủy
@@ -144,7 +144,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 color="primary"
                 radius="full"
                 className="px-5"
-                size="md"
+                size="sm"
                 isLoading={isCreating}
                 onPress={() => onSubmit(onClose)}
               >

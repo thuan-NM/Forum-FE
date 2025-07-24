@@ -1,24 +1,20 @@
-"use client";
-
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
-
-import { ListAnswers } from "../../services";
-import AnswerItem from "./AnswerItem/AnswerItem";
+import { AnimatePresence } from "framer-motion";
+import { GetAllAnswers, ListAnswers } from "../../services";
 import NotFind from "../Common/NotFind";
 import LoadingState from "../Common/LoadingState";
-import { Skeleton } from "@heroui/react";
 import { AnswerResponse } from "../../store/interfaces/answerInterfaces";
+import AnswerItem from "../Answer/AnswerItem/AnswerItem";
+import { useAppSelector } from "../../store/hooks";
+import { RootState } from "../../store/store";
+import { UserResponse } from "../../store/interfaces/userInterfaces";
 
-interface AnswerListProps {
-  questionId: string;
+interface MyAnswerListProps {
+  user: UserResponse;
 }
-
-const LIMIT = 12;
-
-const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
+const MyAnswerList: React.FC<MyAnswerListProps> = ({ user }) => {
   const {
     data,
     fetchNextPage,
@@ -31,9 +27,13 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
     answers: AnswerResponse[];
     total: number;
   }>({
-    queryKey: ["answers", questionId],
-    queryFn: ({ pageParam = 1 }) =>
-      ListAnswers(questionId, LIMIT, Number(pageParam)),
+    queryKey: ["answers"],
+    queryFn: ({ pageParam }: { pageParam?: any }) =>
+      GetAllAnswers({
+        limit: 12,
+        page: pageParam,
+        user_id: user?.id,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.flatMap((p) => p.answers).length;
@@ -44,11 +44,9 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       },
@@ -56,18 +54,14 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
     );
 
     const node = loadMoreRef.current;
-    if (node) observer.observe(node);
-
     return () => {
       if (node) observer.unobserve(node);
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  if (isLoading) {
-    return <LoadingState message="Đang tải câu trả lời..." />;
-  }
+  if (isLoading) return <LoadingState message="Đang tải câu trả lời..." />;
 
-  if (isError) {
+  if (isError)
     return (
       <div className="my-3 text-center">
         <p className="text-red-500">
@@ -75,7 +69,6 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
         </p>
       </div>
     );
-  }
 
   const allAnswers =
     data?.pages.flatMap((page) => page.answers as AnswerResponse[]) ?? [];
@@ -85,16 +78,7 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
       <AnimatePresence>
         {allAnswers.length > 0 ? (
           allAnswers.map((answer) => (
-            <motion.div
-              key={answer.id}
-              layout
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              <AnswerItem answer={answer} />
-            </motion.div>
+            <AnswerItem key={answer.id} answer={answer} />
           ))
         ) : (
           <NotFind
@@ -107,11 +91,9 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
         )}
       </AnimatePresence>
 
-      <div ref={loadMoreRef} className="py-4 text-center">
-        {isFetchingNextPage && <Skeleton className="w-full h-20 rounded-lg" />}
-      </div>
+      {hasNextPage && <LoadingState message="Đang tải câu trả lời..." />}
     </div>
   );
 };
 
-export default AnswerList;
+export default MyAnswerList;
