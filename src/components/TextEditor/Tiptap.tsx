@@ -59,7 +59,7 @@ const TiptapEditor = memo(function TiptapEditor({
   const editorProps = {
     attributes: {
       class: [
-        "prose",
+        "prose !w-full max-w-full ",
         theme?.includes("dark") ? "prose-invert" : "",
         "focus:outline-none",
       ]
@@ -97,7 +97,7 @@ const TiptapEditor = memo(function TiptapEditor({
     >
       {/* Khu vực soạn thảo */}
       <div className={cn("p-4 min-h-[65vh]", className)}>
-        <EditorContent editor={editor} />
+        <EditorContent editor={editor} className="w-full" />
       </div>
     </div>
   );

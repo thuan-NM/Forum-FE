@@ -1,4 +1,6 @@
 "use client";
+import DOMPurify from "dompurify";
+import { CiEdit } from "react-icons/ci";
 
 import {
   Modal,
@@ -6,26 +8,29 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  User,
-  Input,
-  Chip,
   useDisclosure,
   Card,
 } from "@heroui/react";
 import { AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TiptapEditor from "../TextEditor/Tiptap";
 import MenuBar from "../TextEditor/MenuBar";
 import EditorModal from "../TextEditor/EditorModal";
 import { UserResponse } from "../../store/interfaces/userInterfaces";
-import { useUpdateUser } from "../../hooks/users/useEditUser";
 import toast from "react-hot-toast";
+import { useSetUserInfo } from "../../utils/setUserInfo";
+import { UpdateUser } from "../../services";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { cn } from "../../lib/utils";
 
 interface MyBioProps {
   user: UserResponse;
 }
+
+const MAX_LINES = 6;
+const LINE_HEIGHT_PX = 24;
 
 const MyBio: React.FC<MyBioProps> = ({ user }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
@@ -33,13 +38,29 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
   const [openImage, setOpenImage] = useState<boolean>(false);
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
   const [bio, setBio] = useState<string>("");
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const setUserInfo = useSetUserInfo();
+  const queryClient = useQueryClient();
+  const [expanded, setExpanded] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const [textContent, setTextContent] = useState("");
+  const contentRef = useRef<HTMLDivElement>(null);
 
-  const { UpdateUser, isUpdating } = useUpdateUser(() => {
-    toast.success("Cập nhật mô tả thành công!");
-    // setUser
-    onClose();
+  const { mutate: updateAvatar, isPending } = useMutation({
+    mutationFn: async (bio: string) => {
+      return await UpdateUser(user?.id, { bio: bio });
+    },
+    onSuccess: (data) => {
+      toast.success("Cập nhật mô tả thành công");
+      setUserInfo(data.data);
+      queryClient.invalidateQueries({ queryKey: ["user", user?.id] });
+      onClose();
+    },
+    onError: () => {
+      toast.error("Cập nhật người dùng thất bại");
+    },
   });
 
   const onSubmit = () => {
@@ -47,29 +68,112 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
       toast.error("Mô tả không được để trống");
       return;
     }
-
-    UpdateUser(user?.id, { bio });
+    updateAvatar(bio);
   };
+
+  useEffect(() => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(user?.bio || "", "text/html");
+    const imgElements = doc.querySelectorAll("img");
+    const imgSrcs = Array.from(imgElements).map((img) => img.src);
+    setImages(imgSrcs);
+    imgElements.forEach((img) => img.remove());
+    const cleanText = DOMPurify.sanitize(doc.body.innerHTML, {
+      ADD_TAGS: ["ol", "ul", "li"],
+    });
+    setTextContent(cleanText);
+  }, [user?.bio]);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const maxHeight = MAX_LINES * LINE_HEIGHT_PX;
+      requestAnimationFrame(() => {
+        const scrollHeight = contentRef.current?.scrollHeight || 0;
+        setIsOverflowing(scrollHeight > maxHeight);
+      });
+    }
+  }, [textContent]);
+
+  const cleanContent = DOMPurify.sanitize(user?.bio || "", {
+    ADD_TAGS: ["ol", "ul", "li"],
+  });
+
+  // ✅ Khi mở modal, đổ bio hiện tại vào editor
+  const handleOpen = () => {
+    setBio(user?.bio || "");
+    onOpen();
+  };
+
   return (
     <>
       <Card className="rounded-md">
-        <div className="flex justify-center flex-col my-2 gap-y-1 mx-auto py-6 px-2 items-center">
-          {/* <BsMailbox className="w-10 h-10 opacity-60 mx-auto" /> */}
-          <div className="mx-auto font-bold text-sm opacity-60">
-            <div>Thêm mô tả về bản thân của bạn tại đây</div>
-          </div>
+        {user?.bio ? (
+          <div className="p-6 relative">
+            <Button
+              color="default"
+              radius="full"
+              className="w-fit mx-auto my-2 font-semibold absolute top-2 right-2"
+              size="sm"
+              isIconOnly
+              variant="light"
+              onPress={handleOpen}
+            >
+              <CiEdit className="size-4" />
+            </Button>
+            <motion.div
+              ref={contentRef}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className={cn(
+                `leading-[${LINE_HEIGHT_PX}px] bg-content1 mt-2 prose !max-w-full dark:!text-white !text-black dark:prose-invert${
+                  !expanded && isOverflowing ? "overflow-hidden" : ""
+                }`
+              )}
+              style={{
+                maxHeight:
+                  !expanded && isOverflowing
+                    ? `${MAX_LINES * LINE_HEIGHT_PX}px`
+                    : "none",
+              }}
+              dangerouslySetInnerHTML={{
+                __html: expanded ? cleanContent : textContent,
+              }}
+            />
 
-          <Button
-            color="primary"
-            radius="full"
-            className="w-fit mx-auto mt-4 font-semibold"
-            variant="bordered"
-            onPress={onOpen}
-          >
-            Thêm mô tả
-          </Button>
-        </div>
+            {isOverflowing && (
+              <div className="flex justify-end">
+                <motion.button
+                  onClick={() => setExpanded(!expanded)}
+                  className="text-blue-500 font-semibold hover:underline mt-2 mr-3 text-xs"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {expanded ? "Less" : "More"}
+                </motion.button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex justify-center flex-col my-2 gap-y-1 mx-auto py-6 px-2 items-center">
+            <div className="mx-auto font-bold text-sm opacity-60">
+              <div>Thêm mô tả về bản thân của bạn tại đây</div>
+            </div>
+
+            <Button
+              color="primary"
+              radius="full"
+              className="w-fit mx-auto mt-4 font-semibold"
+              variant="bordered"
+              onPress={handleOpen}
+            >
+              Thêm mô tả
+            </Button>
+          </div>
+        )}
       </Card>
+
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpen}
@@ -81,7 +185,6 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
       >
         <ModalContent className="flex flex-col h-fit">
           <>
-            {/* Header */}
             <div className="flex-0 sticky top-0 z-10">
               <div className="flex justify-center relative pt-3">
                 <Button
@@ -94,17 +197,16 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
               </div>
             </div>
 
-            {/* Body */}
             <ModalBody className="flex-1 overflow-y-auto mt-8 h-fit scrollbar-hide">
               <TiptapEditor
-                initialContent=""
+                initialContent={bio} // ✅ truyền bio hiện tại vào đây
                 onChange={(value) => setBio(value)}
                 isDisabled={false}
                 setEditor={setEditor}
+                className="max-h-[65vh] overflow-y-auto scrollbar-hide w-full"
               />
             </ModalBody>
 
-            {/* Footer */}
             <ModalFooter className="flex justify-between items-center">
               <div className="flex items-center">
                 <motion.div
@@ -173,15 +275,14 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
               <Button
                 color="primary"
                 size="sm"
-                onPress={() => onSubmit()}
-                isLoading={isUpdating}
+                onPress={onSubmit}
+                isLoading={isPending}
                 className="!px-6 !py-4"
               >
                 Thêm
               </Button>
             </ModalFooter>
 
-            {/* Modals */}
             <EditorModal
               editor={editor}
               setOpenImage={setOpenImage}

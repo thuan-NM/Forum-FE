@@ -10,7 +10,7 @@ const NotFind: React.FC<NotFindProps> = ({ className, icon, title }) => {
   return (
     <div className={className}>
       {icon}
-      <span>No {title} available.</span>
+      <span>{title}</span>
     </div>
   );
 };

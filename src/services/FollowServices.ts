@@ -1,4 +1,5 @@
 import { TopicResponse } from "../store/interfaces/topicInterfaces.ts";
+import { UserResponse } from "../store/interfaces/userInterfaces.ts";
 import axios from "../utils/configAxios.ts";
 
 // Interface để định nghĩa kiểu dữ liệu trả về từ API
@@ -70,7 +71,30 @@ const getFollowedTopics = async (): Promise<TopicResponse[]> => {
     );
   }
 };
-
+const getFollowedUsers = async (): Promise<UserResponse[]> => {
+  try {
+    const response = await axios.get(`/follows/me/user/followed`, {
+      withCredentials: true,
+    });
+    return response.data.topics || [];
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error || "Failed to get followed topics"
+    );
+  }
+};
+const getFollowingUsers = async (): Promise<UserResponse[]> => {
+  try {
+    const response = await axios.get(`/follows/me/user/following`, {
+      withCredentials: true,
+    });
+    return response.data.topics || [];
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.error || "Failed to get followed topics"
+    );
+  }
+};
 // Hàm kiểm tra trạng thái theo dõi của user đối với một entity
 const checkFollowStatus = async (
   id: string,
@@ -99,4 +123,6 @@ export {
   getFollows as GetFollowers,
   getFollowedTopics as GetFollowedTopics,
   checkFollowStatus as CheckFollowStatus,
+  getFollowedUsers as GetFollowedUsers,
+  getFollowingUsers as GetFollowingUsers,
 };

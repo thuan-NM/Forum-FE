@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import MainLayout from "../layouts/MainLayout";
 import AnswerPage from "../pages/AnswerPage";
 import QuestionList from "../components/Question/QuestionList";
@@ -8,6 +8,7 @@ import PrivateRoute from "./PrivateRoute";
 import VerifyEmail from "../components/Auth/VerifyEmail";
 import ResendVerification from "../components/Auth/ResendVerification";
 import ScrollWrapper from "../components/Common/ScrollToTop/ScrollToTop";
+import LoadingState from "../components/Common/LoadingState";
 
 const HomePage = lazy(() => import("../pages/HomePage"));
 const ProfilePage = lazy(() => import("../pages/ProfilePage"));
@@ -43,14 +44,36 @@ const protectedRoutes = [
   {
     path: "tags",
     children: [
-      { index: true, element: withPrivateRoute(<TagsPage />) },
-      { path: ":id", element: withPrivateRoute(<TagDetailPage />) },
+      {
+        index: true,
+
+        element: (
+          <Suspense fallback={<LoadingState message="" />}>
+            {withPrivateRoute(<TagsPage />)}
+          </Suspense>
+        ),
+      },
+      {
+        path: ":id",
+        element: (
+          <Suspense fallback={<LoadingState message="" />}>
+            {withPrivateRoute(<TagDetailPage />)}
+          </Suspense>
+        ),
+      },
     ],
   },
   {
     path: "question",
     children: [
-      { path: ":id", element: withPrivateRoute(<QuestionDetailPage />) }, // 👈 Route chi tiết
+      {
+        path: ":id",
+        element: (
+          <Suspense fallback={<LoadingState message="" />}>
+            {withPrivateRoute(<QuestionDetailPage />)}
+          </Suspense>
+        ),
+      },
     ],
   },
   {

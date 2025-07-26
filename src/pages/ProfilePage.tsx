@@ -20,9 +20,11 @@ import MyQuestionList from "../components/Profile/MyQuestionList";
 import AvatarUpload from "../components/Profile/AvatarUpload";
 import MyBio from "../components/Profile/MyBio";
 import KnowAbout from "../components/Profile/KnowAbout";
+import UserList from "../components/Profile/UserList";
+import { useGetUserInfo } from "../utils/getUserInfo";
 
 const ProfilePage = () => {
-  const user = useAppSelector((state: RootState) => state.user.user);
+  const user = useGetUserInfo();
   const [activeTab, setActiveTab] = useState<string>("bio");
   const navigate = useNavigate();
   const profileTabs = [
@@ -30,14 +32,9 @@ const ProfilePage = () => {
     { label: "Câu trả lời", value: "answers" },
     { label: "Câu hỏi", value: "questions" },
     { label: "Bài viết", value: "posts" },
-    { label: "Người theo doi", value: "followers" },
+    { label: "Người theo dõi", value: "followers" },
     { label: "Đang theo dõi", value: "following" },
   ];
-
-  const { data: allPostsData } = useQuery({
-    queryKey: ["posts"],
-    queryFn: () => GetAllPosts({}),
-  });
 
   React.useEffect(() => {
     if (!user) {
@@ -47,19 +44,16 @@ const ProfilePage = () => {
 
   if (!user) return null;
 
-  const posts = allPostsData?.posts || [];
-  console.log("post:", posts);
-
   return (
     <ProfileLayout>
       <div className="flex flex-col min-h-screen p-4">
         <div className="w-full max-w-screen-xl mx-auto">
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="basis-full lg:basis-4/6 space-y-6">
-              <Card className="w-full bg-content1 rounded-md">
+              <Card className="w-full !bg-content1 rounded-md">
                 <CardBody className="flex flex-col md:flex-row gap-2">
                   <div className="w-full md:w-1/3 flex flex-col items-center">
-                    <AvatarUpload />
+                    <AvatarUpload user={user} />
                   </div>
                   <Divider
                     orientation="vertical"
@@ -120,6 +114,20 @@ const ProfilePage = () => {
               {activeTab === "posts" && <MyPostList user={user} />}
               {activeTab === "answers" && <MyAnswerList user={user} />}
               {activeTab === "questions" && <MyQuestionList user={user} />}
+              {activeTab === "followers" && (
+                <UserList
+                  type="following"
+                  title="Những người bạn đang theo dõi"
+                  emptyTitle="Bạn chưa theo dõi ai cả"
+                />
+              )}
+              {activeTab === "following" && (
+                <UserList
+                  type="followed"
+                  title="Những người đang theo dõi bạn"
+                  emptyTitle="Bạn không có ai theo dõi"
+                />
+              )}
             </div>
 
             <div className="basis-full lg:basis-2/6">
