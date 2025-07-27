@@ -107,7 +107,9 @@ const UsersPage = () => {
                             key={user.id}
                             id={user.id}
                             name={user.fullName}
+                            avatarUrl={user.avatar || ""}
                             description={user.username || ""}
+                            type="users"
                           >
                             <Button
                               size="sm"

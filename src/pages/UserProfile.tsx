@@ -1,15 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Icon } from "@iconify/react";
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Divider,
-  useDisclosure,
-} from "@heroui/react";
+import { Card, CardBody, Divider } from "@heroui/react";
 import ProfileLayout from "../layouts/ProfileLayout";
 import MyPostList from "../components/Profile/MyPostList";
 import MyAnswerList from "../components/Profile/MyAnswerList";
@@ -18,22 +10,17 @@ import AvatarUpload from "../components/Profile/AvatarUpload";
 import MyBio from "../components/Profile/MyBio";
 import KnowAbout from "../components/Profile/KnowAbout";
 import UserList from "../components/Profile/UserList";
-import { useGetUserInfo } from "../utils/getUserInfo";
 import { GetUserById } from "../services";
 import { UserResponse } from "../store/interfaces/userInterfaces";
-import { CiEdit } from "react-icons/ci";
-import EditUserInfoModal from "../components/Common/Modal/EditUserInfoModal";
 import MoreInfo from "../components/Profile/MoreInfo";
 
-const ProfilePage = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
+const UserProfilePage = () => {
+  const { id } = useParams();
 
-  const user = useGetUserInfo();
-
-  const { data: userData = {} as UserResponse, refetch } = useQuery({
-    queryKey: ["user", user?.id],
-    queryFn: () => GetUserById(user?.id as string),
-    enabled: !!user?.id, // chỉ fetch khi có user.id
+  const { data: userData = {} as UserResponse } = useQuery({
+    queryKey: ["user", id],
+    queryFn: () => GetUserById(id as string),
+    enabled: !!id, // chỉ fetch khi có user.id
   });
   const [activeTab, setActiveTab] = useState<string>("bio");
   const navigate = useNavigate();
@@ -53,12 +40,12 @@ const ProfilePage = () => {
   ];
 
   React.useEffect(() => {
-    if (!user) {
-      navigate("/auth");
+    if (!id) {
+      navigate("/");
     }
-  }, [user, navigate]);
+  }, [id, navigate]);
 
-  if (!user) return null;
+  if (!id) return null;
 
   return (
     <ProfileLayout>
@@ -69,7 +56,7 @@ const ProfilePage = () => {
               <Card className="w-full !bg-content1 rounded-md ">
                 <CardBody className="flex flex-col md:flex-row gap-2 ">
                   <div className="w-full md:w-1/3 flex flex-col items-center my-auto">
-                    <AvatarUpload user={userData} />
+                    <AvatarUpload user={userData} isMe={false} />
                   </div>
                   <Divider
                     orientation="vertical"
@@ -85,17 +72,6 @@ const ProfilePage = () => {
                           @{userData?.username || ""}
                         </p>
                       </div>
-                      <Button
-                        color="default"
-                        radius="full"
-                        className="w-fit my-1 font-semibold "
-                        size="sm"
-                        isIconOnly
-                        variant="light"
-                        onPress={onOpen}
-                      >
-                        <CiEdit className="size-4" />
-                      </Button>
                     </div>
                     <div className="flex justify-between items-center mb-4 mx-auto md:mx-0">
                       <div className="flex gap-4">
@@ -139,7 +115,7 @@ const ProfilePage = () => {
                   </div>
                 ))}
               </div>
-              {activeTab === "bio" && <MyBio user={userData} />}
+              {activeTab === "bio" && <MyBio user={userData} isMe={false} />}
               {activeTab === "posts" && <MyPostList user={userData} />}
               {activeTab === "answers" && <MyAnswerList user={userData} />}
               {activeTab === "questions" && <MyQuestionList user={userData} />}
@@ -160,20 +136,14 @@ const ProfilePage = () => {
             </div>
 
             <div className="basis-full lg:basis-2/6">
-              <MoreInfo user={userData} refetch={refetch}/>
+              <MoreInfo user={userData} isMe={false} />
               <KnowAbout />
             </div>
           </div>
         </div>
       </div>
-      <EditUserInfoModal
-        isOpen={isOpen}
-        onClose={onClose}
-        user={userData}
-        refetch={refetch}
-      />
     </ProfileLayout>
   );
 };
 
-export default ProfilePage;
+export default UserProfilePage;

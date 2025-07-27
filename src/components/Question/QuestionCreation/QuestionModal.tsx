@@ -20,6 +20,7 @@ import { TopicResponse } from "../../../store/interfaces/topicInterfaces";
 import { useQuery } from "@tanstack/react-query";
 import { GetFollowedTopics } from "../../../services";
 import { Icon } from "@iconify/react";
+import { useGetUserInfo } from "../../../utils/getUserInfo";
 
 interface PostModalProps {
   setModalActive: (arg0: string) => void;
@@ -32,7 +33,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const [selectedTopic, setSelectedTopic] = useState<TopicResponse | null>(
     null
   );
-
+  const user = useGetUserInfo();
   const { createQuestion, isCreating } = useCreateQuestion();
   const { data: topics } = useQuery({
     queryKey: ["topics"],
@@ -98,7 +99,11 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 <div className="flex items-center">
                   <Avatar
                     className="w-6 h-6 text-tiny mr-1"
-                    src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                    src={
+                      user?.avatar
+                        ? user.avatar
+                        : "https://i.pravatar.cc/150?u=a042581f4e29026024d"
+                    }
                   />
                   <FaCaretRight className="mr-1" />
 

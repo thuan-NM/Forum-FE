@@ -21,6 +21,7 @@ const UserList: React.FC<UserListProps> = ({ type, title, emptyTitle }) => {
     queryFn: () =>
       type === "following" ? GetFollowingUsers() : GetFollowedUsers(),
   });
+
   if (isLoading) {
     return <LoadingState message="" />;
   }

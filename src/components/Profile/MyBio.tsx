@@ -27,12 +27,13 @@ import { cn } from "../../lib/utils";
 
 interface MyBioProps {
   user: UserResponse;
+  isMe?: boolean;
 }
 
 const MAX_LINES = 6;
 const LINE_HEIGHT_PX = 24;
 
-const MyBio: React.FC<MyBioProps> = ({ user }) => {
+const MyBio: React.FC<MyBioProps> = ({ user, isMe = true }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [editor, setEditor] = useState<any>(null);
   const [openImage, setOpenImage] = useState<boolean>(false);
@@ -109,17 +110,19 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
       <Card className="rounded-md">
         {user?.bio ? (
           <div className="p-6 relative">
-            <Button
-              color="default"
-              radius="full"
-              className="w-fit mx-auto my-2 font-semibold absolute top-2 right-2"
-              size="sm"
-              isIconOnly
-              variant="light"
-              onPress={handleOpen}
-            >
-              <CiEdit className="size-4" />
-            </Button>
+            {isMe && (
+              <Button
+                color="default"
+                radius="full"
+                className="w-fit mx-auto my-2 font-semibold absolute top-2 right-2"
+                size="sm"
+                isIconOnly
+                variant="light"
+                onPress={handleOpen}
+              >
+                <CiEdit className="size-4" />
+              </Button>
+            )}
             <motion.div
               ref={contentRef}
               initial={{ opacity: 0 }}
@@ -155,7 +158,7 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
               </div>
             )}
           </div>
-        ) : (
+        ) : isMe ? (
           <div className="flex justify-center flex-col my-2 gap-y-1 mx-auto py-6 px-2 items-center">
             <div className="mx-auto font-bold text-sm opacity-60">
               <div>Thêm mô tả về bản thân của bạn tại đây</div>
@@ -170,6 +173,12 @@ const MyBio: React.FC<MyBioProps> = ({ user }) => {
             >
               Thêm mô tả
             </Button>
+          </div>
+        ) : (
+          <div className="flex justify-center flex-col my-2 gap-y-1 mx-auto py-6 px-2 items-center">
+            <div className="mx-auto font-medium text-sm opacity-60">
+              Người dùng này chưa có mô tả
+            </div>
           </div>
         )}
       </Card>

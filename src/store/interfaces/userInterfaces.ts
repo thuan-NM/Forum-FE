@@ -53,12 +53,12 @@ export interface UserResponse {
   role: "root" | "admin" | "employee" | "user";
   status: "active" | "inactive" | "banned";
   emailVerified: boolean;
-  lastLogin?: Date;
+  lastLogin: Date;
   followersCount: number;
   followingCount: number;
-  postsCount: number;
-  answersCount: number;
-  questionsCount: number;
+  postCount: number;
+  answerCount: number;
+  questionCount: number;
   createdAt: Date;
   updatedAt: Date;
 }

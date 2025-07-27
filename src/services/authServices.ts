@@ -33,4 +33,17 @@ const GetUserFromToken = async (token: string) => {
   return response.data;
 };
 
-export { Register, Login, LogoutAccount, VerifyEmail, ResendEmail, GetUserFromToken };
+const ChangePassword = async (data: object) => {
+  const response = await axios.post("/change-password", data);
+  return response.data;
+};
+
+export {
+  Register,
+  Login,
+  LogoutAccount,
+  VerifyEmail,
+  ResendEmail,
+  GetUserFromToken,
+  ChangePassword,
+};

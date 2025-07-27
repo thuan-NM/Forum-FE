@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { RouterProvider } from "react-router-dom";
 import "./App.css";
 import router from "./routes";
-import ChatBotModal from "./components/Common/Modal/ChatBotModal";
+import AIChat from "./components/Common/Modal";
 
 const App: React.FC = () => {
   return (
@@ -17,10 +17,7 @@ const App: React.FC = () => {
           <Toaster />
           {/* <ToasterNotification position="bottom-right" richColors /> */}
         </NextThemesProvider>
-        <ChatBotModal
-          apiEndpoint="https://your-api-endpoint.com"
-          avatarUrl="https://img.heroui.chat/image/avatar?w=200&h=200&u=1"
-        />
+        <AIChat />
       </Suspense>
     </HeroUIProvider>
   );

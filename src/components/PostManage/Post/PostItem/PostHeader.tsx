@@ -64,11 +64,17 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
             size="sm"
             radius="full"
             className="w-6 h-6 sm:w-8 sm:h-8"
-            src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+            src={
+              post.author.avatar
+                ? post.author.avatar
+                : "https://i.pravatar.cc/150?u=a042581f4e29026704d"
+            }
           />
           <div className="flex flex-col !text-xs md:text-sm gap-y-1">
             <div className="font-bold flex flex-wrap items-center gap-x-1">
-              <div className="cursor-pointer hover:underline">{user?.username}</div>
+              <div className="cursor-pointer hover:underline">
+                {user?.username}
+              </div>
 
               {post.author.id !== userData?.id && (
                 <>

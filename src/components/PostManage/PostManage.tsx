@@ -12,11 +12,12 @@ import { GrEdit } from "react-icons/gr";
 import { useState } from "react";
 import PostModal from "./Post/PostCreation/PostModal";
 import QuestionModal from "../Question/QuestionCreation/QuestionModal";
+import { useGetUserInfo } from "../../utils/getUserInfo";
 
 const PostManage = () => {
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
   const [modalActive, setModalActive] = useState("Ask");
-
+  const user = useGetUserInfo();
   const handleModalOpen = (modal: string) => {
     setModalActive(modal);
     onOpen();
@@ -27,7 +28,9 @@ const PostManage = () => {
       <div className="flex w-full">
         <User
           avatarProps={{
-            src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
+            src: user?.avatar
+              ? user?.avatar
+              : "https://i.pravatar.cc/150?u=a04258114e29026702d",
           }}
           description=""
           name=""

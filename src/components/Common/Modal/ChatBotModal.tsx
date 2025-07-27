@@ -1,165 +1,234 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Card,
+  Input,
+  ScrollShadow,
+  Button,
+  Chip,
+  Avatar,
+  Divider,
+} from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { Button, Input, Avatar, Tooltip } from "@heroui/react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import axios from "axios";
-import { twMerge } from "tailwind-merge";
 import { motion, AnimatePresence } from "framer-motion";
 
+interface AIChatModalProps {
+  onClose: () => void;
+  isMobile: boolean;
+}
+
 interface Message {
-  id: string;
-  content: string;
+  id: number;
+  text: string;
   sender: "user" | "ai";
-  timestamp: Date;
 }
 
-interface ChatModalProps {
-  apiEndpoint: string;
-  avatarUrl?: string;
-  className?: string;
-}
+const predefinedQuestions = [
+  "What can you do?",
+  "Tell me a joke",
+  "What's the weather like?",
+  "How do I reset my password?",
+];
 
-const ChatBotModal: React.FC<ChatModalProps> = ({
-  apiEndpoint,
-  avatarUrl,
-  className,
-}) => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
-  const [input, setInput] = React.useState("");
-  const [messages, setMessages] = React.useState<Message[]>([]);
+const AIChatModal: React.FC<AIChatModalProps> = ({ onClose, isMobile }) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: initialMessage } = useQuery({
-    queryKey: ["initialMessage"],
-    queryFn: async () => {
-      const response = await axios.get(`${apiEndpoint}/initial-message`);
-      return response.data as Message;
-    },
-    enabled: isExpanded,
-  });
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  const sendMessageMutation = useMutation({
-    mutationFn: async (content: string) => {
-      const response = await axios.post(`${apiEndpoint}/send-message`, {
-        content,
-      });
-      return response.data as Message;
-    },
-    onSuccess: (data) => {
-      setMessages((prev) => [...prev, data]);
-    },
-  });
-
-  React.useEffect(() => {
-    if (initialMessage && messages.length === 0) {
-      setMessages([initialMessage]);
-    }
-  }, [initialMessage, messages]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = () => {
     if (input.trim()) {
-      const userMessage: Message = {
-        id: Date.now().toString(),
-        content: input,
+      const newMessage: Message = {
+        id: Date.now(),
+        text: input,
         sender: "user",
-        timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, userMessage]);
-      sendMessageMutation.mutate(input);
+      setMessages([...messages, newMessage]);
       setInput("");
+      // Simulate AI response
+      setTimeout(() => {
+        const aiResponse: Message = {
+          id: Date.now(),
+          text: "I'm processing your request. How else can I assist you?",
+          sender: "ai",
+        };
+        setMessages((prev) => [...prev, aiResponse]);
+      }, 1000);
     }
   };
 
+  const handlePredefinedQuestion = (question: string) => {
+    const newMessage: Message = {
+      id: Date.now(),
+      text: question,
+      sender: "user",
+    };
+    setMessages([...messages, newMessage]);
+    // Simulate AI response
+    setTimeout(() => {
+      const aiResponse: Message = {
+        id: Date.now(),
+        text: `Here's a response to "${question}". How else can I assist you?`,
+        sender: "ai",
+      };
+      setMessages((prev) => [...prev, aiResponse]);
+    }, 1000);
+  };
+
   return (
-    <AnimatePresence>
-      {!isExpanded ? (
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          exit={{ scale: 0 }}
-          transition={{ duration: 0.2 }}
-          className={twMerge("fixed bottom-6 right-10 z-50", className)}
-        >
-          <Tooltip content="Chat with AI" placement="left">
+    <Card
+      className={`w-full bg-white shadow-xl flex flex-col overflow-hidden ${
+        isMobile ? "h-[100vh] rounded-none" : "h-[600px] rounded-2xl"
+      }`}
+    >
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-500 to-purple-500">
+          <div className="flex items-center space-x-4">
+            <motion.div
+              className="relative w-12 h-12 bg-white rounded-full flex items-center justify-center"
+              animate={{
+                scale: [1, 1.1, 1],
+                rotate: [0, 360, 0],
+              }}
+              transition={{
+                duration: 4,
+                ease: "easeInOut",
+                repeat: Infinity,
+              }}
+            >
+              <Icon
+                icon="lucide:bot"
+                className="text-blue-600"
+                width={24}
+                height={24}
+              />
+            </motion.div>
+            <h2 className="text-xl font-semibold text-white">AI Assistant</h2>
+          </div>
+          {isMobile && (
             <Button
               isIconOnly
-              color="primary"
-              variant="shadow"
-              onPress={() => setIsExpanded(true)}
-              className="rounded-full w-14 h-14"
+              color="default"
+              variant="light"
+              onPress={onClose}
+              className="rounded-full text-white"
             >
-              <Icon icon="lucide:message-circle" width={24} height={24} />
+              <Icon icon="lucide:x" width={24} />
             </Button>
-          </Tooltip>
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.2 }}
-          className="fixed bottom-6 right-6 z-50"
-        >
-          <div className="w-80 h-[500px] flex flex-col bg-content2 rounded-xl shadow-xl overflow-hidden border-content4">
-            <div className="flex justify-between items-center p-4 bg-content1 text-primary-foreground">
-              <div className="flex items-center gap-2">
-                <Avatar src={avatarUrl} name="AI Assistant" size="sm" />
-                <span className="font-semibold">Hệ thống hỗ trợ</span>
-              </div>
-              <Button
-                isIconOnly
-                variant="light"
-                onPress={() => setIsExpanded(false)}
-                className="text-primary-foreground"
+          )}
+        </div>
+
+        <div className="flex-grow flex flex-col p-4 space-y-4 overflow-hidden">
+          {/* Predefined Questions */}
+          <ScrollShadow
+            className="flex flex-wrap gap-2 pb-2"
+            orientation="horizontal"
+          >
+            {predefinedQuestions.map((question, index) => (
+              <Chip
+                key={index}
+                color="primary"
+                variant="flat"
+                className="cursor-pointer transition-all hover:scale-105"
+                onClick={() => handlePredefinedQuestion(question)}
               >
-                <Icon icon="lucide:x" width={20} height={20} />
-              </Button>
-            </div>
-            <div className="flex-grow overflow-y-auto p-4 space-y-4">
+                {question}
+              </Chip>
+            ))}
+          </ScrollShadow>
+
+          <Divider />
+
+          {/* Chat Messages */}
+          <ScrollShadow className="flex-grow overflow-y-auto px-2" size={20}>
+            <AnimatePresence>
               {messages.map((message) => (
-                <div
+                <motion.div
                   key={message.id}
-                  className={`flex ${
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className={`flex mb-4 ${
                     message.sender === "user" ? "justify-end" : "justify-start"
                   }`}
                 >
                   <div
-                    className={`inline-block p-3 rounded-lg max-w-[80%] ${
+                    className={`flex items-end space-x-2 ${
                       message.sender === "user"
-                        ? "bg-primary text-primary-foreground rounded-br-none"
-                        : "bg-default-100 dark:bg-default-700 rounded-bl-none"
+                        ? "flex-row-reverse space-x-reverse"
+                        : ""
                     }`}
                   >
-                    {message.content}
+                    <Avatar
+                      src={
+                        message.sender === "user"
+                          ? "https://img.heroui.chat/image/avatar?w=40&h=40&u=user"
+                          : "https://img.heroui.chat/image/ai?w=40&h=40&u=assistant"
+                      }
+                      size="sm"
+                    />
+                    <div
+                      className={`p-3 rounded-lg max-w-[80%] ${
+                        message.sender === "user"
+                          ? "bg-blue-100"
+                          : "bg-gray-100"
+                      }`}
+                    >
+                      <p className="text-gray-800 text-sm">{message.text}</p>
+                    </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-            <div className="p-4 bg-default-50 dark:bg-default-800">
-              <Input
-                fullWidth
-                placeholder="Type a message..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                className="rounded-full"
-                endContent={
-                  <Button
-                    isIconOnly
-                    color="primary"
-                    variant="flat"
-                    onPress={handleSendMessage}
-                    className="rounded-full"
-                  >
-                    <Icon icon="lucide:send" width={18} height={18} />
-                  </Button>
-                }
-              />
-            </div>
+            </AnimatePresence>
+            <div ref={messagesEndRef} />
+          </ScrollShadow>
+
+          {/* Input for sending messages */}
+          <div className="w-full bg-gray-100 rounded-full p-2">
+            <Input
+              classNames={{
+                base: "h-10",
+                mainWrapper: "h-full",
+                input: "text-small",
+                inputWrapper:
+                  "h-full font-normal text-default-500 bg-transparent",
+              }}
+              placeholder="Type your message..."
+              size="sm"
+              startContent={
+                <Icon
+                  icon="lucide:message-circle"
+                  className="text-gray-400"
+                  width={20}
+                />
+              }
+              endContent={
+                <Button
+                  isIconOnly
+                  color="primary"
+                  size="sm"
+                  onPress={handleSendMessage}
+                  className="rounded-full bg-gradient-to-r from-blue-500 to-purple-500"
+                >
+                  <Icon icon="lucide:send" width={16} className="text-white" />
+                </Button>
+              }
+              value={input}
+              onValueChange={setInput}
+              onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+            />
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+        </div>
+      </div>
+    </Card>
   );
 };
 
-export default ChatBotModal;
+export default AIChatModal;

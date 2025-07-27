@@ -1,97 +1,102 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { AnimatePresence, motion } from "framer-motion";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
-import { AnimatePresence } from "framer-motion";
-import { GetAllAnswers, ListAnswers } from "../../services";
-import NotFind from "../Common/NotFind";
-import LoadingState from "../Common/LoadingState";
-import { AnswerResponse } from "../../store/interfaces/answerInterfaces";
+
+import { GetAllAnswers } from "../../services";
 import AnswerItem from "../Answer/AnswerItem/AnswerItem";
-import { useAppSelector } from "../../store/hooks";
-import { RootState } from "../../store/store";
+import LoadingState from "../Common/LoadingState";
+import NotFind from "../Common/NotFind";
+import ErrorState from "../Common/ErrorState";
+import { AnswerResponse } from "../../store/interfaces/answerInterfaces";
 import { UserResponse } from "../../store/interfaces/userInterfaces";
 
 interface MyAnswerListProps {
   user: UserResponse;
 }
+
+const PAGE_SIZE = 12;
+
 const MyAnswerList: React.FC<MyAnswerListProps> = ({ user }) => {
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    isError,
-    error,
-  } = useInfiniteQuery<{
-    answers: AnswerResponse[];
-    total: number;
-  }>({
-    queryKey: ["answers"],
-    queryFn: ({ pageParam }: { pageParam?: any }) =>
+  const [currentPage, setCurrentPage] = useState(1);
+  const [allAnswers, setAllAnswers] = useState<AnswerResponse[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+
+  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
+    queryKey: ["answers", user.id, currentPage],
+    queryFn: () =>
       GetAllAnswers({
-        limit: 12,
-        page: pageParam,
+        limit: PAGE_SIZE,
+        page: currentPage,
         user_id: user?.id,
       }),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      const totalFetched = allPages.flatMap((p) => p.answers).length;
-      return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
-    },
   });
 
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 1 }
-    );
+    if (data?.answers) {
+      setAllAnswers((prev) => [...prev, ...data.answers]);
+      if (allAnswers.length + data.answers.length >= data.total) {
+        setHasMore(false);
+      }
+    }
+  }, [data]);
 
-    const node = loadMoreRef.current;
-    return () => {
-      if (node) observer.unobserve(node);
-    };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const fetchMoreData = () => {
+    if (hasMore && !isFetching) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
 
-  if (isLoading) return <LoadingState message="Đang tải câu trả lời..." />;
+  if (isLoading && currentPage === 1) {
+    return <LoadingState message="Đang tải câu trả lời..." />;
+  }
 
-  if (isError)
+  if (isError) {
     return (
-      <div className="my-3 text-center">
-        <p className="text-red-500">
-          {error?.message || "Lỗi khi tải dữ liệu"}
-        </p>
-      </div>
+      <ErrorState
+        message={(error as any)?.message || "Không thể tải câu trả lời"}
+        onRetry={refetch}
+      />
     );
-
-  const allAnswers =
-    data?.pages.flatMap((page) => page.answers as AnswerResponse[]) ?? [];
+  }
 
   return (
     <div className="mt-3 space-y-4">
-      <AnimatePresence>
-        {allAnswers.length > 0 ? (
-          allAnswers.map((answer) => (
-            <AnswerItem key={answer.id} answer={answer} />
-          ))
-        ) : (
-          <NotFind
-            className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
-            title="answer"
-            icon={
-              <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
-            }
-          />
-        )}
-      </AnimatePresence>
-
-      {hasNextPage && <LoadingState message="Đang tải câu trả lời..." />}
+      <motion.div
+        key={allAnswers.length}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.25 }}
+      >
+        <AnimatePresence mode="wait">
+          {allAnswers.length > 0 ? (
+            <InfiniteScroll
+              dataLength={allAnswers.length}
+              next={fetchMoreData}
+              hasMore={hasMore}
+              loader={<LoadingState message="Đang tải câu trả lời..." />}
+            >
+              <div className="space-y-4">
+                {allAnswers.map((answer) => (
+                  <AnswerItem key={answer.id} answer={answer} />
+                ))}
+              </div>
+            </InfiniteScroll>
+          ) : (
+            <NotFind
+              className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
+              title="Người dùng chưa trả lời câu hỏi nào"
+              icon={
+                <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
+              }
+            />
+          )}
+        </AnimatePresence>
+      </motion.div>
     </div>
   );
 };

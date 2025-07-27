@@ -21,7 +21,6 @@ const DeleteUser = async (id: string) => {
 };
 
 const UpdateUser = async (id: string, data: any) => {
-  console.log(data);
   return (await axios.put(`/users/${id}`, data)).data;
 };
 

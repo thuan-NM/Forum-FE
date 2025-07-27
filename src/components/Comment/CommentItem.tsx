@@ -13,6 +13,7 @@ import MoreActionsPopover from "../Common/MoreActionsPopover";
 import { PiWarningBold } from "react-icons/pi";
 import ReportModal from "../Report/ReportModal";
 import { stripHTML } from "../../utils/stripHTML";
+import { Link } from "react-router-dom";
 
 interface CommentItemProps {
   comment: CommentResponse;
@@ -52,13 +53,17 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
           size="sm"
           radius="full"
           className="w-full h-full object-cover"
-          src={`https://i.pravatar.cc/150?img=${comment.author}`}
+          src={
+            comment.author.avatar
+              ? comment.author.avatar
+              : `https://i.pravatar.cc/150?img=${comment.author}`
+          }
         />
       </div>
       <div className="flex flex-col gap-y-1 pl-2 !text-xs md:text-sm w-full">
         <div className="flex gap-x-1">
           <div className="font-bold flex flex-wrap items-center gap-x-1">
-            <div>{comment.author.fullName}</div>
+            <Link to={`/users/${comment.author.id}`} className="hover:underline cursor-pointer">{comment.author.fullName}</Link>
             <GoDotFill className="w-2 h-2 hidden sm:block" />
           </div>
           <div className="opacity-90 text-xs flex flex-wrap !items-center">

@@ -37,7 +37,9 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
       <DropdownTrigger className="flex items-center">
         <User
           avatarProps={{
-            src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
+            src: user.avatar
+              ? user.avatar
+              : "https://i.pravatar.cc/150?u=a04258114e29026702d",
           }}
           description=""
           name=""
@@ -58,7 +60,9 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
             >
               <User
                 avatarProps={{
-                  src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
+                  src: user.avatar
+                    ? user.avatar
+                    : "https://i.pravatar.cc/150?u=a04258114e29026702d",
                 }}
                 description=""
                 name=""

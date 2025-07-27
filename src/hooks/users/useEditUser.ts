@@ -8,18 +8,20 @@ export const useUpdateUser = (onSuccessCallback?: () => void) => {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       UpdateUser(id, data),
-    onSuccess: () => {
+    onSuccess: (id) => {
       if (onSuccessCallback) onSuccessCallback();
       toast.success(`Edit user successfully`);
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user", id] });
+      queryClient.refetchQueries({ queryKey: ["user", id] });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.error || "Failed to update user");
     },
   });
 
-  const handleUpdate = (id: string, data: any) => {
-    updateMutation.mutate({ id, data });
+  const handleUpdate = async (id: string, data: any) => {
+    return await updateMutation.mutateAsync({ id, data });
   };
 
   return {

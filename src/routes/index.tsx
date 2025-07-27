@@ -18,6 +18,7 @@ const TopicDetailPage = lazy(() => import("../pages/TopicDetailPage"));
 const QuestionDetailPage = lazy(() => import("../pages/QuestionDetailPage"));
 const TagsPage = lazy(() => import("../pages/TagsPage"));
 const UsersPage = lazy(() => import("../pages/UserListPage"));
+const UsersProfilePage = lazy(() => import("../pages/UserProfile"));
 const TagDetailPage = lazy(() => import("../pages/TagDetailPage"));
 
 const withPrivateRoute = (element: JSX.Element) => (
@@ -80,7 +81,7 @@ const protectedRoutes = [
     path: "users",
     children: [
       { index: true, element: withPrivateRoute(<UsersPage />) },
-      // { path: ":id", element: withPrivateRoute(<QuestionDetailPage />) }, // 👈 Route chi tiết
+      { path: ":id", element: withPrivateRoute(<UsersProfilePage />) }, // 👈 Route chi tiết
     ],
   },
   {

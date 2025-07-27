@@ -76,7 +76,7 @@ const getFollowedUsers = async (): Promise<UserResponse[]> => {
     const response = await axios.get(`/follows/me/user/followed`, {
       withCredentials: true,
     });
-    return response.data.topics || [];
+    return response.data.users || [];
   } catch (error: any) {
     throw new Error(
       error.response?.data?.error || "Failed to get followed topics"
@@ -88,7 +88,7 @@ const getFollowingUsers = async (): Promise<UserResponse[]> => {
     const response = await axios.get(`/follows/me/user/following`, {
       withCredentials: true,
     });
-    return response.data.topics || [];
+    return response.data.users || [];
   } catch (error: any) {
     throw new Error(
       error.response?.data?.error || "Failed to get followed topics"
