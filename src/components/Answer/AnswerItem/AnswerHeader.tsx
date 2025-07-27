@@ -71,18 +71,28 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
           />
           <div className="flex flex-col !text-xs md:text-sm gap-y-1">
             <div className="font-bold flex flex-wrap items-center gap-x-1">
-              <Link to={`/users/${user?.id}`} className="hover:underline cursor-pointer transition-all">{user?.fullName}</Link>
-              <GoDotFill className="w-2 h-2 hidden sm:block" />
-              <div
-                className={cn(
-                  "text-xs text-primary-500 hover:underline transition-all cursor-pointer",
-                  isPending && "disabled"
-                )}
-                onClick={handleToggleFollow}
-                // disabled={isPending}
+              <Link
+                to={`/users/${answer?.author?.id}`}
+                className="hover:underline cursor-pointer transition-all"
               >
-                {isFollowing ? "Unfollow" : "Follow"}
-              </div>
+                {answer?.author?.fullName}
+              </Link>
+              <GoDotFill className="w-2 h-2 hidden sm:block" />
+              {answer.author.id !== userData?.id && (
+                <>
+                  <GoDotFill className="w-2 h-2 hidden sm:block" />
+                  <div
+                    className={cn(
+                      "text-xs text-primary-500 hover:underline transition-all cursor-pointer",
+                      isPending && "disabled"
+                    )}
+                    onClick={handleToggleFollow}
+                    // disabled={isPending}
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </div>
+                </>
+              )}
             </div>
             <div className="opacity-90 text-xs flex flex-wrap !items-center gap-x-1">
               <div className="hidden sm:block">{user?.email}</div>

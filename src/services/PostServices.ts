@@ -54,6 +54,13 @@ const CreatePost = async (post: PostCreateDto) => {
   const response = await axios.post("/posts/", post, { withCredentials: true });
   return response.data;
 };
+
+const UpdatePost = async (id: string, post: PostCreateDto) => {
+  const response = await axios.put(`/posts/${id}`, post, {
+    withCredentials: true,
+  });
+  return response.data;
+};
 export {
   GetPost,
   DeletePost,
@@ -62,4 +69,5 @@ export {
   UpdatePostStatus,
   AcceptPost,
   CreatePost,
+  UpdatePost
 };

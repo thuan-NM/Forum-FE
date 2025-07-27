@@ -1,6 +1,4 @@
-"use client"; // Thêm nếu cần, giả sử component này là client-side
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; // Thêm useEffect để đổ dữ liệu initial
 import {
   Button,
   Chip,
@@ -17,111 +15,62 @@ import { useAppSelector } from "../../../../store/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { RootState } from "../../../../store/store";
 import { GetAllTags } from "../../../../services";
-import { PostCreateDto } from "../../../../store/interfaces/postInterfaces";
+import {
+  PostCreateDto,
+  PostResponse,
+} from "../../../../store/interfaces/postInterfaces"; // Thêm PostResponse
 import TiptapEditor from "../../../TextEditor/Tiptap";
 import { AnimatePresence } from "framer-motion";
 import MenuBar from "../../../TextEditor/MenuBar";
 import EditorModal from "../../../TextEditor/EditorModal";
-import TagSelectionModal from "./TagSelectionModal";
+import TagSelectionModal from "../PostCreation/TagSelectionModal";
 import { motion } from "framer-motion";
 import { TagResponse } from "../../../../store/interfaces/tagInterfaces";
-import { useCreatePost } from "../../../../hooks/posts/useCreatePost";
-import { Upload } from "../../../../services/UploadServices";
-
-// Hàm upload ảnh dựa trên logic từ AvatarUpload
-async function uploadImage(file: File): Promise<string> {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
-    const res = await Upload(formData);
-    if (!res || !res.attachment || !res.attachment.url) {
-      throw new Error("Upload thất bại: Không có URL trả về");
-    }
-    return res.attachment.url;
-  } catch (error) {
-    console.error("Lỗi upload:", error);
-    throw error; // Throw để handle ở trên
-  }
-}
+import { useUpdatePost } from "../../../../hooks/posts/useUpdatePost";
 
 interface PostModalProps {
-  setModalActive: (arg0: string) => void;
+  post?: PostResponse; // Thêm prop post optional cho edit
 }
 
-const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
+const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [editor, setEditor] = useState<any>(null);
   const [openImage, setOpenImage] = useState<boolean>(false);
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
-  const [content, setContent] = useState<string>("");
+  const [content, setContent] = useState<string>(post?.content || "");
   const [title, setTitle] = useState<string>("");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedTags, setSelectedTags] = useState<TagResponse[]>([]);
   const userData = useAppSelector((state: RootState) => state.user.user);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onOpen, onClose: onTagClose } = useDisclosure(); // Đổi tên để tránh conflict
 
   const { data: tags } = useQuery({
     queryKey: ["tags"],
     queryFn: () => GetAllTags({}),
   });
 
-  const { createPost, isCreating } = useCreatePost();
+  const { updatePost, isUpdating } = useUpdatePost(); // Thêm hook update
 
-  // Hàm xử lý upload ảnh từ data URL trong content
-  async function processContent(htmlContent: string): Promise<string> {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(htmlContent, "text/html");
-    const imgs = doc.querySelectorAll("img");
-    const uploadPromises: Promise<void>[] = [];
+  // Đổ dữ liệu initial nếu là edit (có post)
+  useEffect(() => {
+    if (post) {
+      setTitle(post.title || "");
+      setContent(post.content || "");
+      setSelectedTags(post.tags || []);
+    }
+  }, [post]);
 
-    for (let img of Array.from(imgs)) {
-      const src = img.getAttribute("src");
-      if (src && src.startsWith("data:")) {
-        // Chuyển data URL thành Blob/File
-        const blob = await fetch(src).then((r) => r.blob());
-        const file = new File([blob], `image.${blob.type.split("/")[1]}`, {
-          type: blob.type,
-        });
-
-        // Push promise upload và thay src
-        uploadPromises.push(
-          uploadImage(file)
-            .then((url) => {
-              img.setAttribute("src", url);
-            })
-            .catch((error) => {
-              // Handle error: Ví dụ toast hoặc log
-              console.error("Lỗi upload ảnh:", error);
-              // Nếu muốn giữ data URL hoặc bỏ img, tùy chỉnh ở đây
-            })
-        );
-      }
+  const onSubmit = (onCloseModal: () => void) => {
+    const data: PostCreateDto = {
+      content,
+      title,
+      tags: selectedTags.map((tag) => tag.id),
+    };
+    if (post?.id) {
+      updatePost({ id: post.id, data: data }); // ✅ đúng cấu trúc truyền vào mutation
     }
 
-    // Await tất cả upload song song
-    await Promise.all(uploadPromises);
-
-    // Trả về HTML đã cập nhật
-    return doc.body.innerHTML;
-  }
-
-  const onSubmit = async (onClose: () => void) => {
-    try {
-      // Xử lý upload ảnh trước
-      const processedContent = await processContent(content);
-
-      const data: PostCreateDto = {
-        content: processedContent,
-        title,
-        tags: selectedTags.map((tag) => tag.id),
-      };
-
-      createPost(data);
-      onClose();
-    } catch (error) {
-      console.error("Lỗi khi submit:", error);
-      // Thêm toast nếu cần: toast.error("Có lỗi xảy ra khi đăng bài");
-    }
+    onCloseModal();
   };
 
   const handleTagSelection = (tags: TagResponse[]) => {
@@ -129,16 +78,16 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   };
 
   return (
-    <div>
+    <>
       <ModalContent className="flex flex-col h-[100vh]">
-        {(onClose) => (
+        {(onCloseModal) => (
           <>
             <div className="flex-0 sticky top-0 z-10">
-              <div className="flex justify-center relative pt-3">
+              <div className="flex justify-center relative py-1.5">
                 <Button
                   isIconOnly
                   className="border-none cursor-pointer w-fit bg-transparent ml-3 mt-3 hover:bg-neutral-700 rounded-full absolute left-0 top-0"
-                  onPress={onClose}
+                  onPress={onCloseModal}
                 >
                   <Icon icon="lucide:x" className="w-6 h-6" />
                 </Button>
@@ -154,22 +103,6 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 </Button>
               </div>
             </div>
-            <ModalHeader className="flex flex-col gap-1 pt-1 relative">
-              <div className="flex justify-between border-b-2 border-content3">
-                <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out"
-                  onPress={() => setModalActive("Ask")}
-                >
-                  Add Question
-                </Button>
-                <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out border-b-2 border-blue-400"
-                  onPress={() => setModalActive("Post")}
-                >
-                  Create Post
-                </Button>
-              </div>
-            </ModalHeader>
             <ModalBody className="flex-1 overflow-y-auto">
               <div className="flex justify-start">
                 <User
@@ -195,10 +128,11 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 className="!text-2xl mb-2"
                 placeholder="Enter your post title"
                 required
+                value={title} // Đổ value initial
                 onChange={(e) => setTitle(e.target.value)}
               />
               <TiptapEditor
-                initialContent=""
+                initialContent={content} // Đổ initialContent từ post.content
                 onChange={(value) => {
                   setContent(value);
                 }}
@@ -293,13 +227,14 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 </AnimatePresence>
               </div>
               <Button
-                isLoading={isCreating}
+                isLoading={isUpdating} // Loading cho cả create và update
                 color="primary"
                 size="sm"
-                onPress={() => onSubmit(onClose)}
+                onPress={() => onSubmit(onCloseModal)}
                 className="!px-6 !py-4"
               >
-                Đăng bài
+                {post ? "Cập nhật" : "Đăng bài"}{" "}
+                {/* Thay đổi text button nếu edit */}
               </Button>
             </ModalFooter>
             <EditorModal
@@ -316,13 +251,13 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
       </ModalContent>
       <TagSelectionModal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={onTagClose}
         tags={tags?.tags || []}
         selectedTags={selectedTags}
         onTagSelection={handleTagSelection}
       />
-    </div>
+    </>
   );
 };
 
-export default PostModal;
+export default PostEditModal;
