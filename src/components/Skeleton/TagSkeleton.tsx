@@ -15,7 +15,7 @@ const TagSkeleton = ({ count = 6 }: { count?: number }) => {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="border border-border rounded-xl p-4 shadow-sm bg-card"
+          className="border border-border rounded-xl p-4 shadow-sm bg-card w-full"
         >
           <Skeleton className="h-4 w-1/3 mb-2" />
           <Skeleton className="h-3 w-full mb-1" />

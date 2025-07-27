@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import MainLayout from "../layouts/MainLayout";
 import AnswerPage from "../pages/AnswerPage";
 import QuestionList from "../components/Question/QuestionList";
@@ -8,6 +8,7 @@ import PrivateRoute from "./PrivateRoute";
 import VerifyEmail from "../components/Auth/VerifyEmail";
 import ResendVerification from "../components/Auth/ResendVerification";
 import ScrollWrapper from "../components/Common/ScrollToTop/ScrollToTop";
+import LoadingState from "../components/Common/LoadingState";
 
 const HomePage = lazy(() => import("../pages/HomePage"));
 const ProfilePage = lazy(() => import("../pages/ProfilePage"));
@@ -17,6 +18,7 @@ const TopicDetailPage = lazy(() => import("../pages/TopicDetailPage"));
 const QuestionDetailPage = lazy(() => import("../pages/QuestionDetailPage"));
 const TagsPage = lazy(() => import("../pages/TagsPage"));
 const UsersPage = lazy(() => import("../pages/UserListPage"));
+const UsersProfilePage = lazy(() => import("../pages/UserProfile"));
 const TagDetailPage = lazy(() => import("../pages/TagDetailPage"));
 
 const withPrivateRoute = (element: JSX.Element) => (
@@ -43,26 +45,48 @@ const protectedRoutes = [
   {
     path: "tags",
     children: [
-      { index: true, element: withPrivateRoute(<TagsPage />) },
-      { path: ":id", element: withPrivateRoute(<TagDetailPage />) },
+      {
+        index: true,
+
+        element: (
+          <Suspense fallback={<LoadingState message="" />}>
+            {withPrivateRoute(<TagsPage />)}
+          </Suspense>
+        ),
+      },
+      {
+        path: ":id",
+        element: (
+          <Suspense fallback={<LoadingState message="" />}>
+            {withPrivateRoute(<TagDetailPage />)}
+          </Suspense>
+        ),
+      },
     ],
   },
   {
     path: "question",
     children: [
-      { path: ":id", element: withPrivateRoute(<QuestionDetailPage />) }, // 👈 Route chi tiết
+      {
+        path: ":id",
+        element: (
+          <Suspense fallback={<LoadingState message="" />}>
+            {withPrivateRoute(<QuestionDetailPage />)}
+          </Suspense>
+        ),
+      },
     ],
   },
   {
     path: "users",
     children: [
       { index: true, element: withPrivateRoute(<UsersPage />) },
-      // { path: ":id", element: withPrivateRoute(<QuestionDetailPage />) }, // 👈 Route chi tiết
+      { path: ":id", element: withPrivateRoute(<UsersProfilePage />) }, // 👈 Route chi tiết
     ],
   },
   {
-    path: "profile",
-    element: withPrivateRoute(<ProfilePage />),
+    path: "my-profile",
+    children: [{ index: true, element: withPrivateRoute(<ProfilePage />) }],
   },
 ];
 const publicRoutes = [

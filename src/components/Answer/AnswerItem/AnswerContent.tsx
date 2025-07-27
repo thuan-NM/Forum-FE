@@ -51,7 +51,7 @@ const AnswerContent: React.FC<{ answer: AnswerResponse }> = ({ answer }) => {
         <AnswerContentSkeleton />
       ) : (
         <>
-          <h2 className="font-bold mt-5 text-lg">{answer.title}</h2>
+          <h2 className="font-bold mt-5 text-lg">{answer?.title}</h2>
           <motion.div
             ref={contentRef}
             initial={{ opacity: 0 }}

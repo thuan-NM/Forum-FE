@@ -1,3 +1,5 @@
+"use client"; // Thêm nếu cần, giả sử component này là client-side
+
 import React, { useState } from "react";
 import {
   Button,
@@ -12,7 +14,7 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAppSelector } from "../../../../store/hooks";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { RootState } from "../../../../store/store";
 import { GetAllTags } from "../../../../services";
 import { PostCreateDto } from "../../../../store/interfaces/postInterfaces";
@@ -24,6 +26,23 @@ import TagSelectionModal from "./TagSelectionModal";
 import { motion } from "framer-motion";
 import { TagResponse } from "../../../../store/interfaces/tagInterfaces";
 import { useCreatePost } from "../../../../hooks/posts/useCreatePost";
+import { Upload } from "../../../../services/UploadServices";
+
+// Hàm upload ảnh dựa trên logic từ AvatarUpload
+async function uploadImage(file: File): Promise<string> {
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await Upload(formData);
+    if (!res || !res.attachment || !res.attachment.url) {
+      throw new Error("Upload thất bại: Không có URL trả về");
+    }
+    return res.attachment.url;
+  } catch (error) {
+    console.error("Lỗi upload:", error);
+    throw error; // Throw để handle ở trên
+  }
+}
 
 interface PostModalProps {
   setModalActive: (arg0: string) => void;
@@ -48,15 +67,61 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
 
   const { createPost, isCreating } = useCreatePost();
 
-  const onSubmit = (onClose: () => void) => {
-    const data: PostCreateDto = {
-      content,
-      title,
-      tags: selectedTags.map((tag) => tag.id),
-    };
+  // Hàm xử lý upload ảnh từ data URL trong content
+  async function processContent(htmlContent: string): Promise<string> {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, "text/html");
+    const imgs = doc.querySelectorAll("img");
+    const uploadPromises: Promise<void>[] = [];
 
-    createPost(data);
-    onClose();
+    for (let img of Array.from(imgs)) {
+      const src = img.getAttribute("src");
+      if (src && src.startsWith("data:")) {
+        // Chuyển data URL thành Blob/File
+        const blob = await fetch(src).then((r) => r.blob());
+        const file = new File([blob], `image.${blob.type.split("/")[1]}`, {
+          type: blob.type,
+        });
+
+        // Push promise upload và thay src
+        uploadPromises.push(
+          uploadImage(file)
+            .then((url) => {
+              img.setAttribute("src", url);
+            })
+            .catch((error) => {
+              // Handle error: Ví dụ toast hoặc log
+              console.error("Lỗi upload ảnh:", error);
+              // Nếu muốn giữ data URL hoặc bỏ img, tùy chỉnh ở đây
+            })
+        );
+      }
+    }
+
+    // Await tất cả upload song song
+    await Promise.all(uploadPromises);
+
+    // Trả về HTML đã cập nhật
+    return doc.body.innerHTML;
+  }
+
+  const onSubmit = async (onClose: () => void) => {
+    try {
+      // Xử lý upload ảnh trước
+      const processedContent = await processContent(content);
+
+      const data: PostCreateDto = {
+        content: processedContent,
+        title,
+        tags: selectedTags.map((tag) => tag.id),
+      };
+
+      createPost(data);
+      onClose();
+    } catch (error) {
+      console.error("Lỗi khi submit:", error);
+      // Thêm toast nếu cần: toast.error("Có lỗi xảy ra khi đăng bài");
+    }
   };
 
   const handleTagSelection = (tags: TagResponse[]) => {

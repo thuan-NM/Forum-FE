@@ -7,7 +7,7 @@ const HomeReel = () => {
     <div>
         <PostManage/>
         <PostList/>
-        <QuestionList/>
+        {/* <QuestionList/> */}
     </div>
   )
 }

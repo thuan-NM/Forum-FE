@@ -37,7 +37,9 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
       <DropdownTrigger className="flex items-center">
         <User
           avatarProps={{
-            src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
+            src: user.avatar
+              ? user.avatar
+              : "https://i.pravatar.cc/150?u=a04258114e29026702d",
           }}
           description=""
           name=""
@@ -47,10 +49,10 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
       <DropdownMenu aria-label="Static Actions" className="!px-0 !rounded-none">
         <DropdownItem
           className="rounded-none !px-0"
-          key="profile"
+          key="my-profile"
           textValue="Profile"
         >
-          <Link to="/profile">
+          <Link to="/my-profile">
             <Button
               className="bg-tranparent px-4 py-14 !pt-16 flex flex-col items-start !w-full border-b !border-neutral-300 rounded-none"
               size="sm"
@@ -58,7 +60,9 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
             >
               <User
                 avatarProps={{
-                  src: "https://i.pravatar.cc/150?u=a04258114e29026702d",
+                  src: user.avatar
+                    ? user.avatar
+                    : "https://i.pravatar.cc/150?u=a04258114e29026702d",
                 }}
                 description=""
                 name=""

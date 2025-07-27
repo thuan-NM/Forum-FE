@@ -1,4 +1,4 @@
-import { Avatar, Button, Link } from "@heroui/react";
+import { Avatar, Button } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { GoDotFill } from "react-icons/go";
 import { MdClear } from "react-icons/md";
@@ -14,6 +14,8 @@ import { UserResponse } from "../../../store/interfaces/userInterfaces";
 import { AnswerHeaderSkeleton } from "../../Skeleton/AnswerSkeleton";
 import AlertAction from "../../Common/AlertAction";
 import { useDeleteAnswer } from "../../../hooks/answers/useDeleteAnswer";
+import { Link } from "react-router-dom";
+import { cn } from "../../../lib/utils";
 
 interface AnswerHeaderProps {
   answer: AnswerResponse;
@@ -61,21 +63,36 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
             size="sm"
             radius="full"
             className="w-6 h-6 sm:w-8 sm:h-8"
-            src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+            src={
+              user?.avatar
+                ? user.avatar
+                : "https://i.pravatar.cc/150?u=a042581f4e29026704d"
+            }
           />
           <div className="flex flex-col !text-xs md:text-sm gap-y-1">
             <div className="font-bold flex flex-wrap items-center gap-x-1">
-              <div>{user?.username}</div>
-              <GoDotFill className="w-2 h-2 hidden sm:block" />
               <Link
-                underline="hover"
-                size="sm"
-                className="text-xs"
-                onPress={handleToggleFollow}
-                isDisabled={isPending}
+                to={`/users/${answer?.author?.id}`}
+                className="hover:underline cursor-pointer transition-all"
               >
-                {isFollowing ? "Unfollow" : "Follow"}
+                {answer?.author?.fullName}
               </Link>
+              <GoDotFill className="w-2 h-2 hidden sm:block" />
+              {answer.author.id !== userData?.id && (
+                <>
+                  <GoDotFill className="w-2 h-2 hidden sm:block" />
+                  <div
+                    className={cn(
+                      "text-xs text-primary-500 hover:underline transition-all cursor-pointer",
+                      isPending && "disabled"
+                    )}
+                    onClick={handleToggleFollow}
+                    // disabled={isPending}
+                  >
+                    {isFollowing ? "Unfollow" : "Follow"}
+                  </div>
+                </>
+              )}
             </div>
             <div className="opacity-90 text-xs flex flex-wrap !items-center gap-x-1">
               <div className="hidden sm:block">{user?.email}</div>

@@ -37,7 +37,7 @@ const TopicQuestionList: React.FC<TopicQuestionListProps> = ({ topic }) => {
   } = useInfiniteQuery({
     queryKey: ["questions", topic?.id],
     queryFn: ({ pageParam = 1 }) =>
-      GetAllQuestions({ topic_id: topic?.id, page: pageParam, limit: 2 }),
+      GetAllQuestions({ topic_id: topic?.id, page: pageParam, limit: 12 }),
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.reduce(
         (sum, page) => sum + (page.questions?.length || 0),

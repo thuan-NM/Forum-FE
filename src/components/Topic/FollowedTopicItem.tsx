@@ -5,27 +5,33 @@ import { useFollowItem } from "../../hooks/follows/useFollowItem";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { cn } from "../../lib/utils";
 import { useFollowTopic } from "../../hooks/follows/useFollowTopic";
+import TopicSkeleton from "../Skeleton/TopicSkeleton";
 
 interface FollowedTopicsItemProps {
   topic: TopicResponse;
   showButton?: boolean;
   className?: string;
+  showFollowCount?: boolean;
+  subDataClassName?: string;
 }
 
 const FollowedTopicsItem: React.FC<FollowedTopicsItemProps> = ({
   topic,
   showButton = false,
   className,
+  showFollowCount = false,
+  subDataClassName,
 }) => {
   const avatarUrl = `https://api.dicebear.com/7.x/shapes/svg?seed=${encodeURIComponent(
     topic.name
   )}`;
   const navigate = useNavigate();
-  const { isFollowing, toggleFollow, isPending } = useFollowTopic(topic.id);
+  const { toggleFollow, isPending } = useFollowTopic(topic.id);
 
   const handleClick = () => {
     navigate(`/topics/${topic.id}`);
   };
+
   return (
     <div className="flex items-center justify-between rounded-md w-full">
       <div
@@ -42,10 +48,17 @@ const FollowedTopicsItem: React.FC<FollowedTopicsItemProps> = ({
             width={32}
             height={32}
             className="rounded-md "
-          />
-          <span className="text-xs font-medium group-hover:underline">
-            {topic.name}
-          </span>
+          />{" "}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs font-medium group-hover:underline">
+              {topic.name}
+            </span>
+            {showFollowCount && (
+              <div className={cn(subDataClassName)}>
+                {topic.followersCount} người theo dõi
+              </div>
+            )}
+          </div>
         </div>
         {showButton && (
           <Button

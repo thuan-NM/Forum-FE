@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { RouterProvider } from "react-router-dom";
 import "./App.css";
 import router from "./routes";
+import AIChat from "./components/Common/Modal";
 
 const App: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const App: React.FC = () => {
           <Toaster />
           {/* <ToasterNotification position="bottom-right" richColors /> */}
         </NextThemesProvider>
+        <AIChat />
       </Suspense>
     </HeroUIProvider>
   );

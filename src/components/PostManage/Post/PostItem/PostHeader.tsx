@@ -1,4 +1,4 @@
-import { Avatar, Button, Link } from "@heroui/react";
+import { Avatar, Button, useDisclosure } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { GoDotFill } from "react-icons/go";
 import { MdClear } from "react-icons/md";
@@ -15,6 +15,11 @@ import { useFollowItem } from "../../../../hooks/follows/useFollowItem";
 import { PostHeaderSkeleton } from "../../../Skeleton/PostSkeleton";
 import { useDeletePost } from "../../../../hooks/posts/useDeletePost";
 import AlertAction from "../../../Common/AlertAction";
+import { cn } from "../../../../lib/utils";
+import { Link } from "react-router-dom";
+import { CiEdit } from "react-icons/ci";
+import { Modal } from "@heroui/react"; // Thêm import Modal
+import PostEditModal from "../PostEdit/PostEditModal"; // Giả định path đến PostEditModal
 
 interface PostHeaderProps {
   post: PostResponse;
@@ -22,6 +27,8 @@ interface PostHeaderProps {
 }
 
 const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+
   const userData = useAppSelector((state: RootState) => state.user.user);
   const {
     data: user,
@@ -64,24 +71,33 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
             size="sm"
             radius="full"
             className="w-6 h-6 sm:w-8 sm:h-8"
-            src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+            src={
+              post.author.avatar
+                ? post.author.avatar
+                : "https://i.pravatar.cc/150?u=a042581f4e29026704d"
+            }
           />
           <div className="flex flex-col !text-xs md:text-sm gap-y-1">
             <div className="font-bold flex flex-wrap items-center gap-x-1">
-              <div className="cursor-pointer hover:underline">{user?.username}</div>
+              <Link
+                to={`/users/${user?.id}`}
+                className="hover:underline cursor-pointer transition-all"
+              >
+                {user?.fullName}
+              </Link>
 
               {post.author.id !== userData?.id && (
                 <>
                   <GoDotFill className="w-2 h-2 hidden sm:block" />
-                  <Link
-                    underline="hover"
-                    size="sm"
-                    className="text-xs cursor-pointer"
-                    onPress={handleToggleFollow}
-                    isDisabled={isPending}
+                  <div
+                    className={cn(
+                      "text-xs text-primary-500 hover:underline transition-all cursor-pointer",
+                      isPending && "disabled"
+                    )}
+                    onClick={handleToggleFollow}
                   >
                     {isFollowing ? "Unfollow" : "Follow"}
-                  </Link>
+                  </div>
                 </>
               )}
             </div>
@@ -94,18 +110,31 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
         </div>
 
         {post.author.id === userData?.id && (
-          <Button
-            isIconOnly
-            className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
-            size="sm"
-            onPress={() => setOpenAlert(true)}
-          >
-            <MdClear className="w-3 h-3" />
-          </Button>
+          <div className="flex items-center gap-x-2">
+            <Button
+              color="default"
+              radius="full"
+              className="w-fit mx-auto font-semibold "
+              size="sm"
+              isIconOnly
+              variant="light"
+              onPress={() => onOpen()} // Mở modal edit
+            >
+              <CiEdit className="size-4" />
+            </Button>
+            <Button
+              isIconOnly
+              className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
+              size="sm"
+              onPress={() => setOpenAlert(true)}
+            >
+              <MdClear className="w-3 h-3" />
+            </Button>
+          </div>
         )}
       </div>
 
-      {/* Alert Modal dùng Iconify */}
+      {/* Alert Modal */}
       <AlertAction
         open={openAlert}
         onClose={() => setOpenAlert(false)}
@@ -118,6 +147,20 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
         isDanger
         loading={isDeleting}
       />
+
+      {/* Modal Edit Post */}
+      <Modal
+        isOpen={isOpen}
+        size={"3xl"}
+        onOpenChange={onOpenChange}
+        className="rounded-md z-20"
+        isDismissable={false}
+        backdrop="blur"
+        hideCloseButton
+        isKeyboardDismissDisabled={false}
+      >
+        <PostEditModal post={post} />
+      </Modal>
     </>
   );
 };

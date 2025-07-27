@@ -12,9 +12,15 @@ h1 {
 
 html {
     background-color: #f4f4f5 !important;
+    scrollbar-width: none;
 }
 
 
 .dark {
     background-color: #27272a !important;
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
 }

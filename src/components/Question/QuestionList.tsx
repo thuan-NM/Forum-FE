@@ -1,40 +1,65 @@
-import { AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { FaRegLightbulb, FaChevronRight } from "react-icons/fa6";
-import QuestionItem from "./QuestionItem/QuestionItem";
-import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  DeleteQuestion,
-  GetAllQuestions,
-} from "../../services/QuestionServices";
-import { QuestionSkeleton } from "../Skeleton/QuestionSkeleton";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import InfiniteScroll from "react-infinite-scroll-component";
+
+import {
+  GetAllQuestions,
+  DeleteQuestion,
+} from "../../services/QuestionServices";
+import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
+import QuestionItem from "./QuestionItem/QuestionItem";
+import { QuestionSkeleton } from "../Skeleton/QuestionSkeleton";
 import NotFind from "../Common/NotFind";
 import { Button } from "@heroui/react";
-import { useNavigate } from "react-router-dom";
+
+const PAGE_SIZE = 12;
 
 const QuestionList = () => {
-  const { data, isLoading, isError, error } = useQuery<{
-    questions: QuestionResponse[];
-    total: number;
-  }>({
-    queryKey: ["questions"],
-    queryFn: () => GetAllQuestions({}),
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [allQuestions, setAllQuestions] = useState<QuestionResponse[]>([]);
+  const [hasMore, setHasMore] = useState(true);
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["questions", currentPage],
+    queryFn: () => GetAllQuestions({ page: currentPage, limit: PAGE_SIZE }),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  useEffect(() => {
+    if (data?.questions) {
+      setAllQuestions((prev) => [...prev, ...data.questions]);
+
+      const totalLoaded = allQuestions.length + data.questions.length;
+      if (totalLoaded >= data.total) {
+        setHasMore(false);
+      }
+    }
+  }, [data]);
+
+  const fetchMoreData = () => {
+    if (hasMore) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
   const deleteMutation = useMutation({
     mutationFn: DeleteQuestion,
     onSuccess: (data) => {
-      toast.success(data?.message || "Question deleted successfully");
+      toast.success(data?.message || "Xóa câu hỏi thành công");
       queryClient.invalidateQueries({ queryKey: ["questions"] });
+      setAllQuestions([]);
+      setCurrentPage(1);
+      setHasMore(true);
     },
     onError: (error: any) => {
-      toast.error(
-        error?.response?.data?.message || "Failed to delete question"
-      );
+      toast.error(error?.response?.data?.message || "Xóa thất bại");
     },
   });
 
@@ -42,7 +67,7 @@ const QuestionList = () => {
     deleteMutation.mutate(postId);
   };
 
-  if (isLoading) {
+  if (isLoading && currentPage === 1) {
     return (
       <div className="my-3 text-center">
         <QuestionSkeleton />
@@ -53,7 +78,12 @@ const QuestionList = () => {
   if (isError) {
     return (
       <div className="my-3 text-center">
-        <p className="text-red-500">{error?.message || "An error occurred"}</p>
+        <p className="text-red-500">
+          {(error as any)?.message || "Lỗi tải dữ liệu"}
+        </p>
+        <Button onPress={() => refetch()} variant="bordered" className="mt-2">
+          Thử lại
+        </Button>
       </div>
     );
   }
@@ -73,22 +103,38 @@ const QuestionList = () => {
         </div>
         <FaChevronRight />
       </Button>
-      <AnimatePresence>
-        {data?.questions && data.questions.length > 0 ? (
-          data.questions.map((question) => (
-            <QuestionItem
-              key={question.id}
-              question={question}
-              onDelete={handleDelete}
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={allQuestions.length}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.25 }}
+        >
+          {allQuestions.length > 0 ? (
+            <InfiniteScroll
+              dataLength={allQuestions.length}
+              next={fetchMoreData}
+              hasMore={hasMore}
+              loader={<QuestionSkeleton />}
+            >
+              {allQuestions.map((question) => (
+                <QuestionItem
+                  key={question.id}
+                  question={question}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </InfiniteScroll>
+          ) : (
+            <NotFind
+              title="questions"
+              className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6"
+              icon={<FaRegLightbulb className="size-10 !text-foreground/20" />}
             />
-          ))
-        ) : (
-          <NotFind
-            title="questions"
-            className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6"
-            icon={<FaRegLightbulb className="size-10 !text-foreground/20" />}
-          />
-        )}
+          )}
+        </motion.div>
       </AnimatePresence>
     </div>
   );

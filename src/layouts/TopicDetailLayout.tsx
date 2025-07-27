@@ -7,7 +7,7 @@ const TopicDetailLayout: React.FC<LayoutProps> = ({ children }) => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="!bg-content2"
+      className="!bg-content2 px-4"
     >
       {children}
     </motion.div>
