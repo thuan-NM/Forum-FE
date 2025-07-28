@@ -83,7 +83,7 @@ const CommentCreation: React.FC<Props> = ({ id, type ,onSuccess}) => {
           }
         }}
       >
-        Add comment
+        Thêm bình luận
       </Button>
       <EditorModal
         editor={editor}

@@ -80,7 +80,7 @@ const AnswerContent: React.FC<{ answer: AnswerResponse }> = ({ answer }) => {
               className="mt-2"
             >
               <Image
-                alt="Answer content image"
+                alt="Hình ảnh nội dung câu trả lời"
                 src={images[0]}
                 width="100%"
                 radius="none"
@@ -97,7 +97,7 @@ const AnswerContent: React.FC<{ answer: AnswerResponse }> = ({ answer }) => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               >
-                {expanded ? "Less" : "More"}
+                {expanded ? "Thu gọn" : "Tải thêm"}
               </motion.button>
             </div>
           )}
