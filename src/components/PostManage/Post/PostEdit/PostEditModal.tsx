@@ -79,7 +79,7 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
 
   return (
     <>
-      <ModalContent className="flex flex-col h-[100vh]">
+      <ModalContent className="flex flex-col h-[100vh] relative">
         {(onCloseModal) => (
           <>
             <div className="flex-0 sticky top-0 z-10">
@@ -245,6 +245,7 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
               openYoutube={openYoutube}
               showEmojiPicker={showEmojiPicker}
               setShowEmojiPicker={setShowEmojiPicker}
+              emojiClassName="left-1/2"
             />
           </>
         )}

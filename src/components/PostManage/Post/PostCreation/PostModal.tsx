@@ -313,7 +313,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
         openYoutube={openYoutube}
         showEmojiPicker={showEmojiPicker}
         setShowEmojiPicker={setShowEmojiPicker}
-        emojiClassName="left-1/2"
+        emojiClassName="left-1/2 bottom-10"
       />
       <TagSelectionModal
         isOpen={isOpen}

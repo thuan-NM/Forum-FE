@@ -77,7 +77,7 @@ const PostManage = () => {
           isDismissable={false}
           backdrop="blur"
           hideCloseButton
-          isKeyboardDismissDisabled={false}
+          isKeyboardDismissDisabled={true}
         >
           {modalActive == "Ask" ? (
             <QuestionModal setModalActive={setModalActive} />

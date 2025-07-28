@@ -70,20 +70,16 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className={`relative bg-content1 py-1 text-sm leading-[${LINE_HEIGHT_PX}px] ${
-              hasList ? "px-4" : "px-1.5"
-            } ${!expanded && isOverflowing ? "overflow-hidden" : ""}`}
-            style={{
-              maxHeight:
-                !expanded && isOverflowing
-                  ? `${MAX_LINES * LINE_HEIGHT_PX}px`
-                  : "none",
-            }}
+            className={`relative bg-content1 py-1 text-sm  prose dark:prose-invert ${expanded ? "" : "line-clamp-5"} !w-full max-w-full px-0 ${!expanded && isOverflowing ? "overflow-hidden" : ""}`}
             dangerouslySetInnerHTML={{
               __html: expanded ? cleanContent : textContent,
             }}
           />
-
+          {post?.tags?.map((tag) => (
+            <div key={tag.id}>
+              <span className="text-blue-500 mr-2">#{tag.name}</span>
+            </div>
+          ))}
           {/* Hiệu ứng bóng mờ cuối nội dung */}
           {!expanded && isOverflowing && (
             <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent pointer-events-none rounded-b-md" />
@@ -101,6 +97,7 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
                 alt="Post preview image"
                 src={images[0]}
                 width="100%"
+                className="max-h-[300px] rounded-md object-cover"
                 radius="sm"
               />
             </motion.div>

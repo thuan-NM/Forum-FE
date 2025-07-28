@@ -80,7 +80,6 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
               <GoDotFill className="w-2 h-2 hidden sm:block" />
               {answer.author.id !== userData?.id && (
                 <>
-                  <GoDotFill className="w-2 h-2 hidden sm:block" />
                   <div
                     className={cn(
                       "text-xs text-primary-500 hover:underline transition-all cursor-pointer",

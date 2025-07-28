@@ -16,12 +16,10 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TableCell } from "@tiptap/extension-table-cell";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { useTheme } from "next-themes";
 import { cn } from "../../lib/utils";
 import debounce from "lodash/debounce";
-import CustomImage from "./CustomImageExtension";
-
+import ImageResize from "tiptap-extension-resize-image";
 interface TiptapEditorProps {
   initialContent?: string;
   onChange?: (value: string) => void;
@@ -44,7 +42,7 @@ const TiptapEditor = memo(function TiptapEditor({
   const extensions: AnyExtension[] = [
     StarterKit.configure({ codeBlock: false }),
     Youtube,
-    CustomImage as AnyExtension,
+    ImageResize,
     Color,
     Highlight.configure({ multicolor: true }),
     TextStyle,
