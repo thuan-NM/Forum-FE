@@ -1,11 +1,10 @@
-import { memo, useEffect } from "react";
-import { EditorContent, useEditor } from "@tiptap/react";
+import { memo, useEffect, useCallback } from "react";
+import { AnyExtension, EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
 import ListItem from "@tiptap/extension-list-item";
 import Youtube from "@tiptap/extension-youtube";
-import Image from "@tiptap/extension-image";
 import Color from "@tiptap/extension-color";
 import Placeholder from "@tiptap/extension-placeholder";
 import Highlight from "@tiptap/extension-highlight";
@@ -13,8 +12,15 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { useTheme } from "next-themes";
 import { cn } from "../../lib/utils";
+import debounce from "lodash/debounce";
+import CustomImage from "./CustomImageExtension";
 
 interface TiptapEditorProps {
   initialContent?: string;
@@ -35,56 +41,69 @@ const TiptapEditor = memo(function TiptapEditor({
 }: TiptapEditorProps) {
   const { theme } = useTheme();
 
-  // Tạo danh sách extension cần sử dụng
-  const extensions = [
-    StarterKit,
+  const extensions: AnyExtension[] = [
+    StarterKit.configure({ codeBlock: false }),
     Youtube,
-    Image,
+    CustomImage as AnyExtension,
     Color,
-    Highlight,
+    Highlight.configure({ multicolor: true }),
     TextStyle,
     Underline,
     Link.configure({ openOnClick: true }),
-    TextAlign.configure({
-      types: ["heading", "paragraph"],
-      defaultAlignment: "left",
-    }),
+    TextAlign.configure({ types: ["heading", "paragraph", "customImage"] }),
     Placeholder.configure({ placeholder: "Hãy chia sẻ điều gì đó..." }),
     BulletList,
     OrderedList,
     ListItem,
+    Table.configure({ resizable: true }),
+    TableRow,
+    TableHeader,
+    TableCell,
   ];
 
-  // Thuộc tính cho editor (ví dụ: className, custom element attributes...)
   const editorProps = {
     attributes: {
-      class: [
-        "prose !w-full max-w-full ",
-        theme?.includes("dark") ? "prose-invert" : "",
-        "focus:outline-none",
-      ]
-        .filter(Boolean)
-        .join(" "),
+      class: cn(
+        "prose !w-full max-w-full",
+        theme?.includes("dark") && "prose-invert",
+        "focus:outline-none"
+      ),
+    },
+    handleDrop: (view: any, event: DragEvent) => {
+      event.preventDefault();
+      const files = Array.from(event.dataTransfer?.files || []);
+      files.forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const src = e.target?.result as string;
+            const { state, dispatch } = view;
+            const tr = state.tr.insert(
+              state.selection.from,
+              state.schema.nodes.customImage.create({ src })
+            );
+            dispatch(tr);
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+      return true;
     },
   };
 
-  // Khởi tạo editor
+  const debouncedOnChange = useCallback(debounce(onChange, 300), [onChange]);
+
   const editor = useEditor({
     extensions,
     content: initialContent,
     editorProps,
     autofocus: true,
     editable: !isDisabled,
-    onUpdate({ editor }) {
-      onChange(editor.getHTML());
-    },
+    onUpdate: ({ editor }) => debouncedOnChange(editor.getHTML()),
   });
 
-  // Trả editor ra ngoài (nếu cần dùng trong component cha)
   useEffect(() => {
-    if (editor && setEditor) {
-      setEditor(editor);
-    }
+    if (editor && setEditor) setEditor(editor);
   }, [editor, setEditor]);
 
   return (
@@ -95,7 +114,6 @@ const TiptapEditor = memo(function TiptapEditor({
         containerClassName
       )}
     >
-      {/* Khu vực soạn thảo */}
       <div className={cn("p-4 min-h-[65vh]", className)}>
         <EditorContent editor={editor} className="w-full" />
       </div>

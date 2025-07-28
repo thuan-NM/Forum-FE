@@ -7,6 +7,12 @@ import {
   FaStrikethrough,
   FaLink,
   FaHighlighter,
+  FaUndo,
+  FaRedo,
+  FaAlignLeft,
+  FaAlignCenter,
+  FaAlignRight,
+  FaTable,
 } from "react-icons/fa";
 import { LuListOrdered } from "react-icons/lu";
 import { MdOutlineFormatListBulleted } from "react-icons/md";
@@ -14,9 +20,9 @@ import { TbBlockquote } from "react-icons/tb";
 import { RxUnderline } from "react-icons/rx";
 import { IoImageOutline } from "react-icons/io5";
 import { BsYoutube, BsEmojiSmile } from "react-icons/bs";
+import { HexColorPicker } from "react-colorful";
 import ToolbarButton from "./ToolbarButton";
 
-// Các loại công cụ hỗ trợ
 export type ToolbarItemKey =
   | "bold"
   | "italic"
@@ -33,14 +39,21 @@ export type ToolbarItemKey =
   | "link"
   | "h1"
   | "h2"
-  | "h3";
+  | "h3"
+  | "undo"
+  | "redo"
+  | "alignLeft"
+  | "alignCenter"
+  | "alignRight"
+  | "table"
+  | "color";
 
 interface MenuBarProps {
   editor: Editor | null;
   onAddImage?: () => void;
   onAddYoutube?: () => void;
   setShowEmojiPicker?: () => void;
-  include?: ToolbarItemKey[]; // chỉ render các item được truyền
+  include?: ToolbarItemKey[];
   className?: string;
 }
 
@@ -69,7 +82,12 @@ export default function MenuBar({
     blockquote: false,
     code: false,
     link: false,
+    alignLeft: false,
+    alignCenter: false,
+    alignRight: false,
   });
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [currentColor, setCurrentColor] = useState("#000000");
 
   const updateActiveStates = useCallback(() => {
     if (editor) {
@@ -84,6 +102,9 @@ export default function MenuBar({
         blockquote: editor.isActive("blockquote"),
         code: editor.isActive("code"),
         link: editor.isActive("link"),
+        alignLeft: editor.isActive({ textAlign: "left" }),
+        alignCenter: editor.isActive({ textAlign: "center" }),
+        alignRight: editor.isActive({ textAlign: "right" }),
       });
     }
   }, [editor]);
@@ -92,26 +113,24 @@ export default function MenuBar({
     if (!editor) return;
 
     updateActiveStates();
-
-    const handler = () => updateActiveStates();
-    editor.on("transaction", handler);
+    editor.on("transaction", updateActiveStates);
 
     return () => {
-      editor?.off("transaction", handler);
+      editor.off("transaction", updateActiveStates);
     };
   }, [editor, updateActiveStates]);
 
-  const toggleHeading = (level: Level) => {
+  const toggleHeading = (level: Level) =>
     editor?.chain().focus().toggleHeading({ level }).run();
+
+  const handleColorChange = (color: string) => {
+    setCurrentColor(color);
+    editor?.chain().focus().setColor(color).run();
   };
 
   const toolbarMap: Record<
     ToolbarItemKey,
-    {
-      icon: React.ReactNode;
-      onClick: () => void;
-      isActive: boolean;
-    }
+    { icon: React.ReactNode; onClick: () => void; isActive: boolean }
   > = {
     bold: {
       icon: <FaBold />,
@@ -155,7 +174,7 @@ export default function MenuBar({
     },
     code: {
       icon: <FaCode />,
-      onClick: () => editor?.chain().focus().toggleCode().run(),
+      onClick: () => editor?.chain().focus().toggleCodeBlock().run(),
       isActive: activeStates.code,
     },
     emoji: {
@@ -176,7 +195,7 @@ export default function MenuBar({
     link: {
       icon: <FaLink />,
       onClick: () => {
-        const url = window.prompt("Nhập URL:");
+        const url = prompt("Nhập URL:");
         if (url) editor?.chain().focus().setLink({ href: url }).run();
       },
       isActive: activeStates.link,
@@ -196,10 +215,52 @@ export default function MenuBar({
       onClick: () => toggleHeading(Level.Three),
       isActive: editor?.isActive("heading", { level: 3 }) ?? false,
     },
+    undo: {
+      icon: <FaUndo />,
+      onClick: () => editor?.chain().focus().undo().run(),
+      isActive: false,
+    },
+    redo: {
+      icon: <FaRedo />,
+      onClick: () => editor?.chain().focus().redo().run(),
+      isActive: false,
+    },
+    alignLeft: {
+      icon: <FaAlignLeft />,
+      onClick: () => editor?.chain().focus().setTextAlign("left").run(),
+      isActive: activeStates.alignLeft,
+    },
+    alignCenter: {
+      icon: <FaAlignCenter />,
+      onClick: () => editor?.chain().focus().setTextAlign("center").run(),
+      isActive: activeStates.alignCenter,
+    },
+    alignRight: {
+      icon: <FaAlignRight />,
+      onClick: () => editor?.chain().focus().setTextAlign("right").run(),
+      isActive: activeStates.alignRight,
+    },
+    table: {
+      icon: <FaTable />,
+      onClick: () =>
+        editor
+          ?.chain()
+          .focus()
+          .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+          .run(),
+      isActive: false,
+    },
+    color: {
+      icon: (
+        <div className="w-4 h-4 rounded" style={{ background: currentColor }} />
+      ),
+      onClick: () => setShowColorPicker(!showColorPicker),
+      isActive: false,
+    },
   };
 
   return (
-    <div className={`flex flex-wrap gap-1 ${className}`}>
+    <div className={`flex flex-wrap gap-1 relative ${className}`}>
       {include.map((key) => {
         const item = toolbarMap[key];
         if (!item) return null;
@@ -212,6 +273,11 @@ export default function MenuBar({
           />
         );
       })}
+      {showColorPicker && (
+        <div className="absolute z-10 top-full left-0 bg-white dark:bg-gray-800 p-2 rounded shadow-lg">
+          <HexColorPicker color={currentColor} onChange={handleColorChange} />
+        </div>
+      )}
     </div>
   );
 }

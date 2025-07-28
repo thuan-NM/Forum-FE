@@ -302,18 +302,19 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 Đăng bài
               </Button>
             </ModalFooter>
-            <EditorModal
-              editor={editor}
-              setOpenImage={setOpenImage}
-              setOpenYoutube={setOpenYoutube}
-              openImage={openImage}
-              openYoutube={openYoutube}
-              showEmojiPicker={showEmojiPicker}
-              setShowEmojiPicker={setShowEmojiPicker}
-            />
           </>
         )}
       </ModalContent>
+      <EditorModal
+        editor={editor}
+        setOpenImage={setOpenImage}
+        setOpenYoutube={setOpenYoutube}
+        openImage={openImage}
+        openYoutube={openYoutube}
+        showEmojiPicker={showEmojiPicker}
+        setShowEmojiPicker={setShowEmojiPicker}
+        emojiClassName="left-1/2"
+      />
       <TagSelectionModal
         isOpen={isOpen}
         onClose={onClose}
