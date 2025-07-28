@@ -5,15 +5,16 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Input,
 } from "@heroui/react";
 import React, { useRef, useState } from "react";
 import { Editor } from "@tiptap/react";
-// Thư viện Emoji Mart v5+
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { cn } from "../../lib/utils";
 import { useClickOutside } from "../../hooks/custom/outsideclick";
 import { AnimatePresence, motion } from "framer-motion";
+import { BiImageAdd, BiX } from "react-icons/bi";
 
 interface EditorModalProp {
   setOpenImage: (value: boolean) => void;
@@ -25,6 +26,7 @@ interface EditorModalProp {
   setShowEmojiPicker: (value: boolean) => void;
   emojiClassName?: string;
 }
+
 const EditorModal: React.FC<EditorModalProp> = ({
   emojiClassName,
   setOpenImage,
@@ -36,29 +38,47 @@ const EditorModal: React.FC<EditorModalProp> = ({
   setShowEmojiPicker,
 }) => {
   const [youtubeURL, setYoutubeURL] = useState<string>("");
+  const [previews, setPreviews] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Hàm chèn emoji
   const insertEmoji = (emoji: any) => {
-    if (editor) {
-      // emoji.native là ký tự emoji
-      editor.chain().focus().insertContent(emoji.native).run();
-    }
-    setShowEmojiPicker(false); // đóng popup sau khi chọn
+    editor?.chain().focus().insertContent(emoji.native).run();
+    setShowEmojiPicker(false);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !editor) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result;
-      if (result && typeof result === "string") {
-        // Chèn ảnh vào editor
-        editor.chain().focus().setImage({ src: result }).run();
-        setOpenImage(false);
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setPreviews(newPreviews);
+  };
+
+  const handleInsertImages = () => {
+    if (!editor) return;
+    previews.forEach((preview, index) => {
+      const file = fileInputRef.current?.files?.[index];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const result = event.target?.result as string;
+          // Fix: Insert dùng customImage thay vì setImage
+          editor
+            .chain()
+            .focus()
+            .insertContent({
+              type: "customImage",
+              attrs: { src: result, width: "300", height: "auto" },
+            })
+            .run();
+        };
+        reader.readAsDataURL(file);
       }
-    };
-    reader.readAsDataURL(file);
+    });
+    setOpenImage(false);
+    setPreviews([]);
+  };
+
+  const handleRemovePreview = (index: number) => {
+    setPreviews(previews.filter((_, i) => i !== index));
   };
 
   const insertYoutubeVideo = () => {
@@ -67,37 +87,71 @@ const EditorModal: React.FC<EditorModalProp> = ({
     setOpenYoutube(false);
     setYoutubeURL("");
   };
-  const emojiRef = useRef<HTMLDivElement>(null);
 
-  useClickOutside(emojiRef, () => {
-    if (showEmojiPicker) setShowEmojiPicker(false);
-  });
+  const emojiRef = useRef<HTMLDivElement>(null);
+  useClickOutside(emojiRef, () => setShowEmojiPicker(false));
+
+  const triggerFileInput = () => fileInputRef.current?.click();
+
   return (
     <div>
-      {/* ========== Modal chèn ảnh (cùng cấp) ========== */}
       <Modal
         isOpen={openImage}
-        size="md"
+        size="lg"
         onOpenChange={setOpenImage}
         closeButton
       >
         <ModalContent>
           {() => (
             <>
-              <ModalHeader>
-                <h3 className="text-lg font-semibold">Chọn ảnh từ máy</h3>
-              </ModalHeader>
-              <ModalBody>
+              <ModalHeader>Chèn ảnh</ModalHeader>
+              <ModalBody className="grid grid-cols-3 gap-4">
+                {previews.map((preview, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={preview}
+                      alt={`Preview ${index}`}
+                      className="w-full h-32 object-cover rounded"
+                    />
+                    <Button
+                      onPress={() => handleRemovePreview(index)}
+                      className="absolute top-1 right-1"
+                      variant="solid"
+                      color="danger"
+                      isIconOnly
+                      size="sm"
+                    >
+                      <BiX />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  onPress={triggerFileInput}
+                  variant="bordered"
+                  className="h-32 flex items-center justify-center"
+                >
+                  <BiImageAdd className="text-4xl" />
+                </Button>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
-                  className="block w-full mb-3"
+                  multiple
+                  onChange={handleImageSelect}
+                  className="hidden"
                 />
               </ModalBody>
-              <ModalFooter className="flex justify-end">
+              <ModalFooter>
                 <Button variant="bordered" onPress={() => setOpenImage(false)}>
                   Hủy
+                </Button>
+                <Button
+                  variant="solid"
+                  color="primary"
+                  onPress={handleInsertImages}
+                  disabled={!previews.length}
+                >
+                  Chèn ({previews.length})
                 </Button>
               </ModalFooter>
             </>
@@ -105,7 +159,6 @@ const EditorModal: React.FC<EditorModalProp> = ({
         </ModalContent>
       </Modal>
 
-      {/* ========== Modal chèn YouTube (cùng cấp) ========== */}
       <Modal
         isOpen={openYoutube}
         size="md"
@@ -115,26 +168,26 @@ const EditorModal: React.FC<EditorModalProp> = ({
         <ModalContent>
           {() => (
             <>
-              <ModalHeader>
-                <h3 className="text-lg font-semibold">Chèn video YouTube</h3>
-              </ModalHeader>
+              <ModalHeader>Chèn video YouTube</ModalHeader>
               <ModalBody>
-                <input
-                  type="text"
+                <Input
                   placeholder="Nhập URL YouTube"
                   value={youtubeURL}
                   onChange={(e) => setYoutubeURL(e.target.value)}
-                  className="w-full border p-2 rounded"
                 />
               </ModalBody>
-              <ModalFooter className="flex justify-end gap-2">
+              <ModalFooter>
                 <Button
                   variant="bordered"
                   onPress={() => setOpenYoutube(false)}
                 >
                   Hủy
                 </Button>
-                <Button variant="bordered" onPress={insertYoutubeVideo}>
+                <Button
+                  variant="solid"
+                  color="primary"
+                  onPress={insertYoutubeVideo}
+                >
                   Chèn
                 </Button>
               </ModalFooter>
@@ -152,7 +205,7 @@ const EditorModal: React.FC<EditorModalProp> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className={cn("absolute top-10 right-20 z-[20]", emojiClassName)}
+              className={cn("absolute top-10 right-20 z-[100]", emojiClassName)}
             >
               {/* ❗ Đừng animate Picker – để nó load thẳng */}
               <div className="will-change-auto">

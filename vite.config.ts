@@ -9,5 +9,15 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5000,
-  }
+  },
+  optimizeDeps: {
+    include: [
+      "@tiptap/extension-table",
+      "@tiptap/extension-table-row",
+      "@tiptap/extension-table-header",
+      "@tiptap/extension-table-cell",
+      "@tiptap/extension-code-block-lowlight",
+      "lowlight"
+    ],
+  },
 })
