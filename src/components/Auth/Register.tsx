@@ -49,26 +49,12 @@ const RegisterComponent = () => {
         mutation.mutate(formData)
     }
 
-    // const handleSubmit = async (e: FormEvent) => {
-    //     setLoading(true)
-    //     e.preventDefault();
-    //     try {
-    //         const response = await Register(formData);
-    //         toast.success(response.data.message);
-    //         setLoading(false);
-    //         onClose()
-    //     } catch (error:any) {
-    //         setLoading(false);
-    //         toast.error(error.response.data.error);
-    //     }
-    // };
-
     const steps = ["Personal Information", "Password"];
 
     return (
         <div className='px-3'>
             <Button size='sm' variant="flat" className='mr-2 bg-content1 w-full' onPress={onOpen}>
-                Sign up with email
+                Đăng ký bằng email
             </Button>
             <Modal
                 isOpen={isOpen}
@@ -90,7 +76,7 @@ const RegisterComponent = () => {
                                 <MdClear className='w-7 h-7 !text-neutral-300' />
                             </Button>
                             <ModalHeader className="flex flex-col gap-1 pt-1">
-                                <div className='text-xl'>Sign up</div>
+                                <div className='text-xl'>Tạo tài khoản</div>
                             </ModalHeader>
                             <ModalBody className='pb-16 border-b border-content2'>
                                 <Form className="w-full flex flex-col gap-y-8" onSubmit={handleSubmit}>
@@ -99,10 +85,10 @@ const RegisterComponent = () => {
                                             <Input
                                                 autoComplete=''
                                                 isRequired
-                                                label={<span className='text-base font-semibold'>Username</span>}
+                                                label={<span className='text-base font-semibold'>Tên người dùng</span>}
                                                 labelPlacement="outside"
                                                 name="username"
-                                                placeholder="What would you like to be called?"
+                                                placeholder="Bạn muốn được gọi là gì?"
                                                 type="text"
                                                 maxLength={60}
                                                 minLength={10}
@@ -113,10 +99,10 @@ const RegisterComponent = () => {
                                             <Input
                                                 autoComplete=''
                                                 isRequired
-                                                label={<span className='text-base font-semibold'>FullName</span>}
+                                                label={<span className='text-base font-semibold'>Họ và tên</span>}
                                                 labelPlacement="outside"
                                                 name="fullName"
-                                                placeholder="Your fullName"
+                                                placeholder="Nhập họ tên của bạn"
                                                 type="text"
                                                 variant="bordered"
                                                 value={formData.fullName}
@@ -128,7 +114,7 @@ const RegisterComponent = () => {
                                                 label={<span className='text-base font-semibold'>Email</span>}
                                                 labelPlacement="outside"
                                                 name="email"
-                                                placeholder="Your email address"
+                                                placeholder="Nhập địa chỉ email"
                                                 type="email"
                                                 variant="bordered"
                                                 value={formData.email}
@@ -141,10 +127,10 @@ const RegisterComponent = () => {
                                             <Input
                                                 autoComplete=''
                                                 isRequired
-                                                label={<span className='text-base font-semibold'>Password</span>}
+                                                label={<span className='text-base font-semibold'>Mật khẩu</span>}
                                                 labelPlacement="outside"
                                                 name="password"
-                                                placeholder="Enter your password"
+                                                placeholder="Nhập mật khẩu"
                                                 type="password"
                                                 variant="bordered"
                                                 value={formData.password}
@@ -153,10 +139,10 @@ const RegisterComponent = () => {
                                             <Input
                                                 isRequired
                                                 autoComplete=''
-                                                label={<span className='text-base font-semibold'>Confirm Password</span>}
+                                                label={<span className='text-base font-semibold'>Xác nhận mật khẩu</span>}
                                                 labelPlacement="outside"
                                                 name="confirmpassword"
-                                                placeholder="Confirm your password"
+                                                placeholder="Nhập lại mật khẩu"
                                                 type="password"
                                                 variant="bordered"
                                                 value={formData.confirmpassword}
@@ -167,16 +153,16 @@ const RegisterComponent = () => {
                                     <div className='flex justify-end gap-3'>
                                         {activeStep > 0 && (
                                             <Button variant="ghost" onPress={() => setActiveStep(activeStep - 1)} radius='full'>
-                                                Back
+                                                Quay lại
                                             </Button>
                                         )}
                                         {activeStep === steps.length - 1 ? (
                                             <Button color="primary" type="submit" radius='full' isLoading={mutation.status === 'pending'}>
-                                                Submit
+                                                Gửi đăng ký
                                             </Button>
                                         ) : (
                                             <Button color="primary" onPress={() => setActiveStep(activeStep + 1)} radius='full'>
-                                                Next
+                                                Tiếp theo
                                             </Button>
                                         )}
                                     </div>

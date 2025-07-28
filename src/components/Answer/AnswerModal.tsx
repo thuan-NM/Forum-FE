@@ -1,4 +1,3 @@
-
 import {
   Modal,
   ModalContent,
@@ -114,12 +113,12 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                   }}
                   name={
                     <p className="text-xs font-semibold mb-1">
-                      {userData?.fullName || "Anonymous"}
+                      {userData?.fullName || "Ẩn danh"}
                     </p>
                   }
                   description={
                     <Button variant="bordered" size="sm" radius="full">
-                      @{userData?.username || "user"}
+                      @{userData?.username || "người dùng"}
                     </Button>
                   }
                 />
@@ -127,7 +126,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
               <Input
                 variant="underlined"
                 className="!text-2xl mb-2"
-                placeholder="Enter your post title"
+                placeholder="Nhập tiêu đề câu trả lời"
                 required
                 defaultValue={question.title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -157,7 +156,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                 onPress={onOpenTag}
                 startContent={<Icon icon="lucide:plus" />}
               >
-                Add Tags
+                Thêm thẻ
               </Button>
             </div>
             {/* Footer */}

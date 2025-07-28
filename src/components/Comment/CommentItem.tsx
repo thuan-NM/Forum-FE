@@ -80,7 +80,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
           <div className="flex justify-between items-center">
             <div className="w-fit mt-2 flex gap-x-2 flex-row items-center">
               <Tooltip
-                content={hasReacted ? "Unlike" : "Like"}
+                content={hasReacted ? "Bỏ thích" : "Thích"}
                 placement="top"
                 offset={5}
                 closeDelay={100}
@@ -103,7 +103,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
                       <AiOutlineLike className="size-5 text-foreground" />
                     )}
                     <span className="text-xs">
-                      {hasReacted ? "Unlike" : "Like"}
+                      {hasReacted ? "Bỏ thích" : "Thích"}
                     </span>
                   </Button>
                   <span className="text-xs">{reactionsCount}</span>
@@ -115,13 +115,13 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
                 radius="full"
                 onPress={() => setShowReplyForm((prev) => !prev)}
               >
-                {showReplyForm ? "Cancel" : "Reply"}
+                {showReplyForm ? "Hủy" : "Phản hồi"}
               </Button>
             </div>
             <MoreActionsPopover
               actions={[
                 {
-                  label: "Report",
+                  label: "Báo cáo",
                   icon: <PiWarningBold />,
                   onClick: () => setIsReportOpen(true),
                 },
@@ -152,10 +152,10 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
                 isLoading={isLoadingReplies}
               >
                 {isLoadingReplies
-                  ? "Loading..."
+                  ? "Đang tải..."
                   : showReplies
-                    ? "Hide replies"
-                    : `Show ${reply?.total || ""} replies`}
+                    ? "Ẩn phản hồi"
+                    : `Xem ${reply?.total || ""} phản hồi`}
               </Button>
 
               {showReplies && reply && reply?.total > 0 && (
@@ -178,7 +178,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
         onClose={() => setIsReportOpen(false)}
         contentId={String(comment.id)}
         contentType="comment"
-        contentPreview={stripHTML(comment.content) || "No title"}
+        contentPreview={stripHTML(comment.content) || "Không có nội dung"}
       />
     </div>
   );
