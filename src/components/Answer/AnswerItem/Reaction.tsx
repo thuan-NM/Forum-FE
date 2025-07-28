@@ -28,7 +28,7 @@ const Reaction: React.FC<AnswerFooterProps> = ({
     <div className="flex flex-col gap-y-4">
       <div className="flex gap-x-2 items-center">
         <Tooltip
-          content={hasReacted ? "Unlike" : "Like"}
+          content={hasReacted ? "Bỏ thích" : "Thích"}
           placement="top"
           offset={5}
           closeDelay={100}
@@ -50,12 +50,12 @@ const Reaction: React.FC<AnswerFooterProps> = ({
               ) : (
                 <AiOutlineLike className="size-5 text-foreground" />
               )}
-              <span className="text-xs">{hasReacted ? "Unlike" : "Like"}</span>
+              <span className="text-xs">{hasReacted ? "Bỏ thích" : "Thích"}</span>
             </Button>
             <span className="text-xs">{reactionsCount}</span>
           </div>
         </Tooltip>
-        <Tooltip content="Comment" placement="top" offset={5} closeDelay={100}>
+        <Tooltip content="Bình luận" placement="top" offset={5} closeDelay={100}>
           <div className="rounded-full p-1 px-3 flex items-center !text-sm gap-x-2 group cursor-pointer">
             <Button
               size="sm"
@@ -65,7 +65,7 @@ const Reaction: React.FC<AnswerFooterProps> = ({
               disabled={!setIsShowComment || isCheckingReaction}
             >
               <FaRegComment className="size-5" />
-              <span className="text-xs">Comments</span>
+              <span className="text-xs">Bình luận</span>
             </Button>
             <span className="text-xs">{totalComment ?? 0}</span>
           </div>

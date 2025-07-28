@@ -28,27 +28,27 @@ const SocialLogin: React.FC = () => {
         dispatch(loginSuccess({ token }));
         dispatch(setUser(user));
         setToken(token); // Cập nhật AuthContext
-        toast.success("Login successful");
+        toast.success("Đăng nhập thành công");
         navigate("/");
       } else {
         throw new Error("Invalid response from server");
       }
     } catch (error: any) {
       console.error("Google login failed:", error);
-      toast.error(error.response?.data?.error || "Login failed");
+      toast.error(error.response?.data?.error || "Đăng nhập thất bại");
     }
   };
 
   const handleGoogleError = () => {
-    toast.error("Google login failed");
+    toast.error("Đăng nhập bằng Google thất bại");
   };
 
   return (
     <div className="flex flex-col space-y-2 w-1/2 px-6 mt-2">
       <p className="text-xs mb-4 text-content5">
-        By continuing you indicate that you agree to Quora’s{" "}
-        <span className="text-blue-500">Terms of Service</span> and{" "}
-        <span className="text-blue-500">Privacy Policy</span>.
+        Khi tiếp tục, bạn đồng ý với{" "}
+        <span className="text-blue-500">Điều khoản dịch vụ</span> và{" "}
+        <span className="text-blue-500">Chính sách quyền riêng tư</span> của KatzBlog.
       </p>
       <div className="w-full flex flex-col gap-y-3">
         <GoogleLogin

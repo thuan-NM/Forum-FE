@@ -88,7 +88,7 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
                     onClick={handleToggleFollow}
                     // disabled={isPending}
                   >
-                    {isFollowing ? "Unfollow" : "Follow"}
+                    {isFollowing ? "Bỏ theo dõi" : "Theo dõi"}
                   </div>
                 </>
               )}
@@ -118,7 +118,7 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
         open={openAlert}
         onClose={() => setOpenAlert(false)}
         onConfirm={handleDelete}
-        title="Xoá bài viết này?"
+        title="Xoá câu trả lời này?"
         description="Hành động này không thể hoàn tác. Bạn chắc chắn muốn xoá chứ?"
         iconName="ph:trash"
         confirmText="Xoá"

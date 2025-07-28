@@ -66,7 +66,7 @@ const CommentList: React.FC<CommentListProps> = ({
       <CommentCreation id={id} type={type} />
 
       <div className="flex justify-between items-center my-3">
-        <div className="font-semibold">Comments</div>
+        <div className="font-semibold">Bình luận</div>
         <Popover
           showArrow
           offset={20}
@@ -81,9 +81,9 @@ const CommentList: React.FC<CommentListProps> = ({
               className="px-2 py-0 font-semibold text-xs"
               size="sm"
             >
-              {typeOfComment === "recommended" && "Recommended"}
-              {typeOfComment === "most" && "Most recent"}
-              {typeOfComment === "least" && "Least recent"}
+              {typeOfComment === "recommended" && "Đề xuất"}
+              {typeOfComment === "most" && "Mới nhất"}
+              {typeOfComment === "least" && "Cũ nhất"}
               <FaChevronDown className="ml-1" />
             </Button>
           </PopoverTrigger>
@@ -99,9 +99,9 @@ const CommentList: React.FC<CommentListProps> = ({
                   radius="none"
                   onPress={() => handleChange(type)}
                 >
-                  {type === "recommended" && "Recommended"}
-                  {type === "most" && "Most recent"}
-                  {type === "least" && "Least recent"}
+                  {type === "recommended" && "Đề xuất"}
+                  {type === "most" && "Mới nhất"}
+                  {type === "least" && "Cũ nhất"}
                 </Button>
               ))}
             </div>
@@ -112,12 +112,12 @@ const CommentList: React.FC<CommentListProps> = ({
       {sortedComments.length === 0 && (
         <NotFind
           className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
-          title="comments"
+          title="bình luận"
           icon={<FaRegComment className="size-10 !text-foreground/20" />}
         />
       )}
       {isError && (
-        <ErrorState message={error?.message || "Error loading comments."} />
+        <ErrorState message={error?.message || "Lỗi tải bình luận."} />
       )}
 
       <motion.div layout>
@@ -135,7 +135,7 @@ const CommentList: React.FC<CommentListProps> = ({
         ))}
 
         {isFetchingNextPage && (
-          <LoadingState message="Loading more comments..." />
+          <LoadingState message="Đang tải thêm bình luận..." />
         )}
 
         {hasNextPage && !isFetchingNextPage && (
@@ -146,7 +146,7 @@ const CommentList: React.FC<CommentListProps> = ({
             radius="full"
             onPress={fetchNextPage}
           >
-            View more comments <FaChevronDown className="ml-2" />
+            Xem thêm bình luận <FaChevronDown className="ml-2" />
           </Button>
         )}
       </motion.div>
