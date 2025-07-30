@@ -1,15 +1,20 @@
 "use client";
 
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { GetAllPosts } from "../../../services/PostServices";
-import { Skeleton } from "@heroui/react";
+import InfiniteScroll from "react-infinite-scroll-component";
 import { AnimatePresence, motion } from "framer-motion";
-import PostItem from "./PostItem/PostItem";
+import { BsFileEarmarkPostFill } from "react-icons/bs";
+import { useEffect } from "react";
+import type { InfiniteData } from "@tanstack/react-query";
+
+import { GetAllPosts } from "../../../services/PostServices";
 import { useDeletePost } from "../../../hooks/posts/useDeletePost";
 import { PostResponse } from "../../../store/interfaces/postInterfaces";
+
+import PostItem from "./PostItem/PostItem";
+import { Skeleton } from "@heroui/react";
 import NotFind from "../../Common/NotFind";
-import { BsFileEarmarkPostFill } from "react-icons/bs";
-import { useRef, useEffect } from "react";
+import ErrorState from "../../Common/ErrorState";
 
 const LIMIT = 10;
 
@@ -24,45 +29,41 @@ const PostList: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    refetch,
   } = useInfiniteQuery<
-    // 👇 FIX kiểu dữ liệu
-    { posts: PostResponse[]; total: number },
-    Error
+    { posts: PostResponse[]; total: number }, // TQueryFnData
+    Error,
+    InfiniteData<{ posts: PostResponse[]; total: number }, number>, // 👈 FIX TData
+    string[],
+    number
   >({
-    queryKey: ["posts"],
+    queryKey: ["posts", "list"],
     queryFn: ({ pageParam = 1 }) =>
       GetAllPosts({ limit: LIMIT, page: pageParam }),
-    initialPageParam: 1, // 👈 FIX thiếu cái này
     getNextPageParam: (lastPage, allPages) => {
-      const totalFetched = allPages.flatMap((p) => p.posts).length;
+      const totalFetched = allPages.reduce(
+        (acc, page) => acc + page.posts.length,
+        0
+      );
       return totalFetched < lastPage.total ? allPages.length + 1 : undefined;
     },
+    initialPageParam: 1,
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    placeholderData: (previous) => previous,
   });
 
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
+  // Debug: Log data để kiểm tra
   useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) return;
+    console.log("PostList data:", data);
+  }, [data]);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-
-    return () => {
-      if (loadMoreRef.current) {
-        observer.unobserve(loadMoreRef.current);
-      }
-    };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  // Flatten posts từ các page
+  const allPosts =
+    data?.pages?.flatMap(
+      (page: { posts: PostResponse[] }) => page.posts ?? []
+    ) ?? [];
 
   if (isLoading) {
     return (
@@ -74,44 +75,50 @@ const PostList: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="my-3 text-center">
-        <p className="text-red-500">{error?.message || "An error occurred"}</p>
-      </div>
+      <ErrorState
+        message={error?.message || "Không thể tải bài viết"}
+        onRetry={refetch}
+      />
     );
   }
 
-  const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
-
   return (
     <div className="mt-3 space-y-3">
-      <AnimatePresence>
-        {allPosts.length > 0 ? (
-          allPosts.map((post) => (
-            <motion.div
-              key={post.id}
-              layout
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-            >
-              <PostItem post={post} onDelete={DeletePost} />
-            </motion.div>
-          ))
-        ) : (
-          <NotFind
-            className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
-            title="post"
-            icon={
-              <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
-            }
-          />
-        )}
-      </AnimatePresence>
-
-      <div ref={loadMoreRef} className="py-4 text-center">
-        {isFetchingNextPage && <Skeleton className="w-full h-20 rounded-lg" />}
-      </div>
+      {allPosts.length === 0 ? (
+        <NotFind
+          className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
+          title="post"
+          icon={
+            <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
+          }
+        />
+      ) : (
+        <InfiniteScroll
+          dataLength={allPosts.length}
+          next={fetchNextPage}
+          hasMore={hasNextPage ?? false}
+          loader={
+            isFetchingNextPage ? (
+              <Skeleton className="w-full h-20 rounded-lg" />
+            ) : null
+          }
+        >
+          <AnimatePresence>
+            {allPosts.map((post: PostResponse) => (
+              <motion.div
+                key={post.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+              >
+                <PostItem post={post} onDelete={DeletePost} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </InfiniteScroll>
+      )}
     </div>
   );
 };

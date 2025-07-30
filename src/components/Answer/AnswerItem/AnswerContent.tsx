@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Image } from "@heroui/react";
 import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
 import { AnswerContentSkeleton } from "../../Skeleton/AnswerSkeleton";
+import { Link } from "react-router-dom";
 
 const MAX_LINES = 6;
 const LINE_HEIGHT_PX = 24;
@@ -56,20 +57,24 @@ const AnswerContent: React.FC<{ answer: AnswerResponse }> = ({ answer }) => {
             ref={contentRef}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className={`leading-[${LINE_HEIGHT_PX}px] bg-content1 ${
-              !expanded && isOverflowing ? "overflow-hidden" : ""
-            }`}
-            style={{
-              maxHeight:
-                !expanded && isOverflowing
-                  ? `${MAX_LINES * LINE_HEIGHT_PX}px`
-                  : "none",
-            }}
+            transition={{ duration: 0.4 }}
+            className={`relative bg-content1 py-1 text-sm  prose dark:prose-invert ${expanded ? "" : "line-clamp-5"} !w-full max-w-full px-0 ${!expanded && isOverflowing ? "overflow-hidden" : ""}`}
             dangerouslySetInnerHTML={{
               __html: expanded ? cleanContent : textContent,
             }}
           />
+          <div className="flex flex-row line-clamp-1 gap-x-2">
+            {answer?.tags?.map((tag) => (
+              <div key={tag.id} className="flex">
+                <Link
+                  to={`/tags/${tag.id}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  #{tag.name}
+                </Link>
+              </div>
+            ))}
+          </div>
 
           {/* Hiển thị hình ảnh đầu tiên khi chưa mở rộng */}
           {!expanded && images.length > 0 && (

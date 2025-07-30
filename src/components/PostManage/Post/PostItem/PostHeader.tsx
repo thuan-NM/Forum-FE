@@ -20,6 +20,7 @@ import { Link } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
 import { Modal } from "@heroui/react"; // Thêm import Modal
 import PostEditModal from "../PostEdit/PostEditModal"; // Giả định path đến PostEditModal
+import { useGetUserInfo } from "../../../../utils/getUserInfo";
 
 interface PostHeaderProps {
   post: PostResponse;
@@ -29,7 +30,7 @@ interface PostHeaderProps {
 const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
-  const userData = useAppSelector((state: RootState) => state.user.user);
+  const userData = useGetUserInfo();
   const {
     data: user,
     isLoading,

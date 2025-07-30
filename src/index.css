@@ -12,7 +12,7 @@ h1 {
 
 html {
     background-color: #f4f4f5 !important;
-    scrollbar-width: none;
+    scrollbar-width: thin;
 }
 
 

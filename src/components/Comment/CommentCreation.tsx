@@ -12,7 +12,7 @@ interface Props {
   onSuccess?: () => void;
 }
 
-const CommentCreation: React.FC<Props> = ({ id, type ,onSuccess}) => {
+const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
   const [editor, setEditor] = useState<any>(null);
   const [content, setContent] = useState<string>("");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
@@ -30,11 +30,11 @@ const CommentCreation: React.FC<Props> = ({ id, type ,onSuccess}) => {
         />
       </div>
 
-      <div className="flex !w-full flex-col !bg-content2 rounded-md py-1 pt-2">
+      <div className="flex !w-full flex-col !bg-content2 rounded-md py-1 pt-2 max-w-[70%]">
         <TiptapEditor
           initialContent=""
-          className="h-fit max-h-[400px] min-h-0 border-none !rounded-none p-0 px-5 !bg-content2 "
-          containerClassName="!rounded-none shadow-none max-h-auto  !bg-content2 "
+          className="h-fit max-h-[400px] min-h-0 border-none !rounded-none p-0 px-5 !bg-content2  "
+          containerClassName="!rounded-none shadow-none max-h-auto  !bg-content2 max-h-[400px] min-h-0 overflow-y-auto scrollbar-hide m"
           onChange={(value) => {
             setContent(value);
           }}
@@ -73,11 +73,11 @@ const CommentCreation: React.FC<Props> = ({ id, type ,onSuccess}) => {
         onPress={() => {
           createComment({
             content,
-            [`${type}`]: id, 
+            [`${type}`]: id,
           });
 
           if (editor && isCreating == false) {
-            onSuccess?.()
+            onSuccess?.();
             editor.commands.clearContent();
             setContent("");
           }

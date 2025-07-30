@@ -113,7 +113,10 @@ const TiptapEditor = memo(function TiptapEditor({
       )}
     >
       <div className={cn("p-4 min-h-[65vh]", className)}>
-        <EditorContent editor={editor} className="w-full" />
+        <EditorContent
+          editor={editor}
+          className="!w-full max-w-full prose prose-img:!max-w-full"
+        />
       </div>
     </div>
   );

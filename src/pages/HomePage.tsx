@@ -11,7 +11,7 @@ const HomePage = () => {
             <TopicTab className="ml-0" />
           </div>
         </div>
-        <div className="md:basis-2/5 relative ">
+        <div className="w-full md:basis-2/5 md:max-w-[40%] relative">
           <HomeReel />
         </div>
       </div>

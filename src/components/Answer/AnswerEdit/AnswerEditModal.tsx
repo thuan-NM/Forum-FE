@@ -1,118 +1,112 @@
 "use client";
+
+import React, { useState, useEffect } from "react";
 import {
-  Modal,
-  ModalContent,
-  ModalBody,
-  ModalFooter,
   Button,
-  User,
-  Input,
   Chip,
+  Input,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  Tooltip,
+  User,
   useDisclosure,
 } from "@heroui/react";
-import { AnimatePresence } from "framer-motion";
 import { Icon } from "@iconify/react";
-import { motion } from "framer-motion";
-import { useState } from "react";
-import TiptapEditor from "../TextEditor/Tiptap";
-import MenuBar from "../TextEditor/MenuBar";
-import EditorModal from "../TextEditor/EditorModal";
-import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
 import { useQuery } from "@tanstack/react-query";
-import { AnswerCreateDto } from "../../store/interfaces/answerInterfaces";
-import { useAppSelector } from "../../store/hooks";
-import { RootState } from "../../store/store";
-import { GetAllTags } from "../../services";
-import { TagResponse } from "../../store/interfaces/tagInterfaces";
-import TagSelectionModal from "../PostManage/Post/PostCreation/TagSelectionModal";
-import { useCreateAnswer } from "../../hooks/answers/useCreateAnswer";
-import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
+import { motion, AnimatePresence } from "framer-motion";
+
+import { useGetUserInfo } from "../../../utils/getUserInfo";
+import { GetAllTags } from "../../../services";
+import { useUpdateAnswer } from "../../../hooks/answers/useUpdateAnswer";
+import { useUploadImages } from "../../../hooks/attachments/useUploadAttachment";
+
+import type { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
+import type { TagResponse } from "../../../store/interfaces/tagInterfaces";
+import type { AnswerCreateDto } from "../../../store/interfaces/answerInterfaces";
+
+import TiptapEditor from "../../TextEditor/Tiptap";
+import MenuBar from "../../TextEditor/MenuBar";
+import EditorModal from "../../TextEditor/EditorModal";
+import TagSelectionModal from "../../PostManage/Post/PostCreation/TagSelectionModal";
 
 interface AnswerModalProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  question: QuestionResponse;
+  answer?: AnswerResponse;
 }
 
-const AnswerModal: React.FC<AnswerModalProps> = ({
-  isOpen,
-  onOpenChange,
-  question,
-}) => {
-  const [isVisible, setIsVisible] = useState<boolean>(true);
+const AnswerEditModal: React.FC<AnswerModalProps> = ({ answer }) => {
+  const [content, setContent] = useState<string>(answer?.content || "");
   const [editor, setEditor] = useState<any>(null);
-  const [openImage, setOpenImage] = useState<boolean>(false);
-  const [openYoutube, setOpenYoutube] = useState<boolean>(false);
-  const [content, setContent] = useState<string>("");
+  const [openImage, setOpenImage] = useState(false);
+  const [openYoutube, setOpenYoutube] = useState(false);
+  const [title, setTitle] = useState<string>(answer?.title || "");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState<TagResponse[]>([]);
-  const {
-    isOpen: isOpenTag,
-    onOpen: onOpenTag,
-    onClose: onCloseTag,
-  } = useDisclosure();
-  const [title, setTitle] = useState<string>(question.title);
-  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-  const userData = useAppSelector((state: RootState) => state.user.user);
-  const { createAnswer, isCreating } = useCreateAnswer();
-  const { processContentWithUploads, isUploading } = useUploadImages(); // ✅ Hook xử lý ảnh
+  const [isVisible, setIsVisible] = useState(true);
 
-  const onSubmit = async (onClose: () => void) => {
-    try {
-      const processedContent = await processContentWithUploads(content); // ✅ upload ảnh
-      const data: AnswerCreateDto = {
-        content: processedContent,
-        questionId: question.id,
-        tags: selectedTags.map((tag) => tag.id),
-        title: title,
-      };
-      createAnswer(data, {
-        onSuccess: () => {
-          onClose();
-        },
-      });
-    } catch (error) {
-      console.error("Lỗi khi đăng câu trả lời:", error);
-    }
-  };
+  const userData = useGetUserInfo();
+  const { isOpen, onOpen, onClose: onTagClose } = useDisclosure();
 
   const { data: tags } = useQuery({
     queryKey: ["tags"],
     queryFn: () => GetAllTags({}),
   });
 
+  const { updateAnswer, isUpdating } = useUpdateAnswer(() => {
+    console.log("Answer updated successfully");
+  });
+
+  const { processContentWithUploads, isUploading } = useUploadImages();
+
+  useEffect(() => {
+    if (answer) {
+      setTitle(answer.title || "");
+      setContent(answer.content || "");
+      setSelectedTags(answer.tags || []);
+    }
+  }, [answer]);
+
+  const onSubmit = async (onCloseModal: () => void) => {
+    try {
+      const processedContent = await processContentWithUploads(content);
+      const data: AnswerCreateDto = {
+        questionId: answer?.question?.id || "",
+        title: answer?.title || "",
+        content: processedContent,
+        tags: selectedTags.map((tag) => tag.id),
+      };
+
+      if (answer?.id) {
+        updateAnswer({ id: answer.id, data });
+      }
+
+      onCloseModal();
+    } catch (error) {
+      console.error("Lỗi khi cập nhật câu trả lời:", error);
+    }
+  };
+
   const handleTagSelection = (tags: TagResponse[]) => {
     setSelectedTags(tags);
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      isDismissable={false}
-      backdrop="blur"
-      hideCloseButton
-      isKeyboardDismissDisabled={false}
-      size="3xl"
-    >
-      <ModalContent className="flex flex-col h-[100vh]">
-        {(onClose) => (
+    <>
+      <ModalContent className="flex flex-col h-[100vh] relative">
+        {(onCloseModal) => (
           <>
-            {/* Header */}
-            <div className="flex-0 sticky top-0 z-10">
-              <div className="flex justify-center relative pt-3">
-                <Button
-                  isIconOnly
-                  className="border-none cursor-pointer w-fit bg-transparent ml-3 mt-3 hover:bg-neutral-700 rounded-full absolute left-0 top-0"
-                  onPress={onClose}
-                >
-                  <Icon icon="lucide:x" className="w-6 h-6" />
-                </Button>
-              </div>
+            <div className="flex justify-between items-start p-4">
+              <Button
+                isIconOnly
+                className="bg-transparent hover:bg-neutral-700 rounded-full"
+                onPress={onCloseModal}
+              >
+                <Icon icon="lucide:x" className="w-6 h-6" />
+              </Button>
             </div>
 
-            {/* Body */}
-            <ModalBody className="flex-1 overflow-y-auto mt-8 scrollbar-hide">
-              <div className="flex justify-start mb-1">
+            <ModalBody className="flex-1 overflow-y-auto mt-2">
+              <div className="flex justify-start mb-3">
                 <User
                   avatarProps={{
                     src:
@@ -121,12 +115,12 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                   }}
                   name={
                     <p className="text-xs font-semibold mb-1">
-                      {userData?.fullName || "Ẩn danh"}
+                      {userData?.fullName}
                     </p>
                   }
                   description={
                     <Button variant="bordered" size="sm" radius="full">
-                      @{userData?.username || "người dùng"}
+                      @{userData?.username}
                     </Button>
                   }
                 />
@@ -134,35 +128,49 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
               <Input
                 variant="underlined"
                 className="!text-2xl mb-2"
-                placeholder="Nhập tiêu đề câu trả lời"
+                placeholder="Enter your post title"
                 required
-                defaultValue={question.title}
+                value={title} // Đổ value initial
                 onChange={(e) => setTitle(e.target.value)}
               />
               <TiptapEditor
-                initialContent=""
+                initialContent={content}
                 onChange={setContent}
                 isDisabled={false}
                 setEditor={setEditor}
                 containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
-              />{" "}
-              <div className="flex flex-row gap-x-2">
-                {selectedTags.map((tag) => (
+              />
+              <div className="flex flex-row gap-2 flex-wrap mt-2">
+                {selectedTags.slice(0, 5).map((tag) => (
                   <Chip
                     key={tag.id}
                     onClose={() =>
-                      setSelectedTags(selectedTags.filter((t) => t !== tag))
+                      setSelectedTags(
+                        selectedTags.filter((t) => t.id !== tag.id)
+                      )
                     }
                   >
                     {tag.name}
                   </Chip>
                 ))}
+                {selectedTags.length > 5 && (
+                  <Tooltip
+                    content={selectedTags
+                      .slice(5)
+                      .map((t) => t.name)
+                      .join(", ")}
+                    placement="top"
+                  >
+                    <Chip className="cursor-pointer" variant="bordered">
+                      +{selectedTags.length - 5}
+                    </Chip>
+                  </Tooltip>
+                )}
               </div>
             </ModalBody>
 
-            {/* Footer */}
             <ModalFooter className="flex justify-between items-center">
-              <div className="flex items-center">
+              <div className="flex items-center overflow-x-scroll scrollbar-hide flex-nowrap">
                 <motion.div
                   onClick={() => setIsVisible(!isVisible)}
                   whileTap={{ y: 1 }}
@@ -190,6 +198,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                     </Button>
                   )}
                 </motion.div>
+
                 <AnimatePresence initial={false}>
                   {isVisible && editor && (
                     <motion.div
@@ -225,12 +234,12 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                 </AnimatePresence>
               </div>
               <div className="flex flex-row items-center gap-2">
-                <div className="flex flex-wrap gap-2 items-center">
+                <div className="flex flex-wrap gap-2 my-auto">
                   <Button
                     size="sm"
                     variant="bordered"
                     color="default"
-                    onPress={onOpenTag}
+                    onPress={onOpen}
                     startContent={<Icon icon="lucide:plus" />}
                   >
                     Add Tags
@@ -238,18 +247,17 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                 </div>
 
                 <Button
-                  isLoading={isCreating || isUploading}
+                  isLoading={isUpdating || isUploading} // ✅ thêm isUploading
                   color="primary"
                   size="sm"
-                  onPress={() => onSubmit(onClose)}
+                  onPress={() => onSubmit(onCloseModal)}
                   className="!px-6 !py-4"
                 >
-                  Trả lời{" "}
+                  {answer ? "Cập nhật" : "Trả lời"}
                 </Button>
               </div>
             </ModalFooter>
 
-            {/* Modals */}
             <EditorModal
               editor={editor}
               setOpenImage={setOpenImage}
@@ -258,19 +266,21 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
               openYoutube={openYoutube}
               showEmojiPicker={showEmojiPicker}
               setShowEmojiPicker={setShowEmojiPicker}
+              emojiClassName="left-1/2"
             />
           </>
         )}
       </ModalContent>
+
       <TagSelectionModal
-        isOpen={isOpenTag}
-        onClose={onCloseTag}
+        isOpen={isOpen}
+        onClose={onTagClose}
         tags={tags?.tags || []}
         selectedTags={selectedTags}
         onTagSelection={handleTagSelection}
       />
-    </Modal>
+    </>
   );
 };
 
-export default AnswerModal;
+export default AnswerEditModal;

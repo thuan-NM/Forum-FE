@@ -110,7 +110,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   <Button
                     variant="bordered"
                     radius="full"
-                    className="px-2 py-0 text-sm text-white/80"
+                    className="px-2 py-0 text-sm texxt-black/80 dark:text-white/80"
                     onPress={() => setIsTopicModalOpen(true)}
                     size="sm"
                   >

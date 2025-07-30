@@ -1,4 +1,4 @@
-import { Avatar, Button } from "@heroui/react";
+import { Avatar, Button, Modal, useDisclosure } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { GoDotFill } from "react-icons/go";
 import { MdClear } from "react-icons/md";
@@ -16,13 +16,17 @@ import AlertAction from "../../Common/AlertAction";
 import { useDeleteAnswer } from "../../../hooks/answers/useDeleteAnswer";
 import { Link } from "react-router-dom";
 import { cn } from "../../../lib/utils";
+import { useGetUserInfo } from "../../../utils/getUserInfo";
+import { CiEdit } from "react-icons/ci";
+import AnswerEditModal from "../AnswerEdit/AnswerEditModal";
 
 interface AnswerHeaderProps {
   answer: AnswerResponse;
 }
 
 const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
-  const userData = useAppSelector((state: RootState) => state.user.user);
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+  const userData = useGetUserInfo();
   const {
     data: user,
     isLoading,
@@ -102,17 +106,29 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
         </div>
 
         {answer.author.id === userData?.id && (
-          <Button
-            isIconOnly
-            className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
-            size="sm"
-            onPress={() => setOpenAlert(true)}
-          >
-            <MdClear className="w-3 h-3" />
-          </Button>
+          <div className="flex items-center gap-x-2">
+            <Button
+              color="default"
+              radius="full"
+              className="w-fit mx-auto font-semibold "
+              size="sm"
+              isIconOnly
+              variant="light"
+              onPress={() => onOpen()} // Mở modal edit
+            >
+              <CiEdit className="size-4" />
+            </Button>
+            <Button
+              isIconOnly
+              className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
+              size="sm"
+              onPress={() => setOpenAlert(true)}
+            >
+              <MdClear className="w-3 h-3" />
+            </Button>
+          </div>
         )}
       </div>
-
       {/* Alert Modal dùng Iconify */}
       <AlertAction
         open={openAlert}
@@ -125,7 +141,19 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
         cancelText="Huỷ"
         isDanger
         loading={isDeleting}
-      />
+      />{" "}
+      <Modal
+        isOpen={isOpen}
+        size={"3xl"}
+        onOpenChange={onOpenChange}
+        className="rounded-md z-20"
+        isDismissable={false}
+        backdrop="blur"
+        hideCloseButton
+        isKeyboardDismissDisabled={false}
+      >
+        <AnswerEditModal answer={answer} />
+      </Modal>
     </>
   );
 };

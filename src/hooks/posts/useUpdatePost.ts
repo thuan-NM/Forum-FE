@@ -12,6 +12,9 @@ export const useUpdatePost = (onSuccessCallback?: () => void) => {
     onSuccess: (data: any) => {
       toast.success(data.message || "Cập nhật bài viết thành công");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["posts", "list"], // Thêm "list" để tránh conflict với TagPostList
+      });
       if (onSuccessCallback) onSuccessCallback();
     },
     onError: (error: any) => {

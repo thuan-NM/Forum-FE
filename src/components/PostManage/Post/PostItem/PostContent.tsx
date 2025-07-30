@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { PostContentSkeleton } from "../../../Skeleton/PostSkeleton";
 import { Image } from "@heroui/react";
+import { Link } from "react-router-dom";
 
 const MAX_LINES = 6;
 const LINE_HEIGHT_PX = 24;
@@ -70,16 +71,24 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
-            className={`relative bg-content1 py-1 text-sm  prose dark:prose-invert ${expanded ? "" : "line-clamp-5"} !w-full max-w-full px-0 ${!expanded && isOverflowing ? "overflow-hidden" : ""}`}
+            className={`relative bg-content1 py-1 text-sm prose dark:prose-invert max-w-full w-full px-0 prose-img:!max-w-full prose-img:rounded-md prose-img:!h-auto ${expanded ? "" : "line-clamp-5"} ${!expanded && isOverflowing ? "overflow-hidden" : ""}`}
             dangerouslySetInnerHTML={{
               __html: expanded ? cleanContent : textContent,
             }}
+            content="text/html"
           />
-          {post?.tags?.map((tag) => (
-            <div key={tag.id}>
-              <span className="text-blue-500 mr-2">#{tag.name}</span>
-            </div>
-          ))}
+          <div className="flex flex-row line-clamp-1 gap-x-2">
+            {post?.tags?.map((tag) => (
+              <div key={tag.id} className="flex">
+                <Link
+                  to={`/tags/${tag.id}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  #{tag.name}
+                </Link>
+              </div>
+            ))}
+          </div>
           {/* Hiệu ứng bóng mờ cuối nội dung */}
           {!expanded && isOverflowing && (
             <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-background to-transparent pointer-events-none rounded-b-md" />
