@@ -1,6 +1,7 @@
 import type {
   AnswerCreateDto,
   AnswerResponse,
+  AnswerUpdateDto,
 } from "../store/interfaces/answerInterfaces.ts";
 import axios from "../utils/configAxios.ts";
 
@@ -55,8 +56,8 @@ const CreateAnswer = async (data: any) => {
   });
   return response.data;
 };
-const UpdateAnswer = async (id: string, post: AnswerCreateDto) => {
-  const response = await axios.put(`/posts/${id}`, post, {
+const UpdateAnswer = async (id: string, answer: AnswerUpdateDto) => {
+  const response = await axios.put(`/answers/${id}`, answer, {
     withCredentials: true,
   });
   return response.data;

@@ -88,11 +88,11 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
 
   return (
     <>
-      <ModalContent className="flex flex-col h-[100vh] relative">
+      <ModalContent className="flex flex-col h-[100vh]">
         {(onCloseModal) => (
           <>
             <div className="flex-0 sticky top-0 z-10">
-              <div className="flex justify-center relative py-1.5">
+              <div className="flex justify-center relative pt-3">
                 <Button
                   isIconOnly
                   className="border-none cursor-pointer w-fit bg-transparent ml-3 mt-3 hover:bg-neutral-700 rounded-full absolute left-0 top-0"
@@ -100,20 +100,10 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
                 >
                   <Icon icon="lucide:x" className="w-6 h-6" />
                 </Button>
-
-                <Button
-                  className="bg-content2 rounded-full"
-                  variant="flat"
-                  size="sm"
-                >
-                  <div className="flex !items-center gap-2 text-xs font-semibold">
-                    <Icon icon="lucide:globe" className="text-lg" /> Everyone
-                  </div>
-                </Button>
               </div>
             </div>
-            <ModalBody className="flex-1 overflow-y-auto">
-              <div className="flex justify-start">
+            <ModalBody className="flex-1 overflow-y-auto mt-8">
+              <div className="flex justify-start mb-1">
                 <User
                   avatarProps={{
                     src:
@@ -145,11 +135,13 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
                 onChange={(value) => {
                   setContent(value);
                 }}
+                className="min-h-[58vh] max-h-[58vh] overflow-y-auto scrollbar-hide"
                 isDisabled={false}
                 setEditor={setEditor}
+                containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
               />
               {/* Tag display section with +n */}
-              <div className="flex flex-row gap-2 flex-wrap mt-2">
+              <div className="flex flex-row gap-2 flex-wrap">
                 {selectedTags.slice(0, 5).map((tag) => (
                   <Chip
                     key={tag.id}

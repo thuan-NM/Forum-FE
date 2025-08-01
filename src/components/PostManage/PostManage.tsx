@@ -73,7 +73,7 @@ const PostManage = () => {
           isOpen={isOpen}
           size={"3xl"}
           onOpenChange={onOpenChange}
-          className="rounded-md z-20"
+          className="rounded-md z-20 max-h-[100vg] !my-0"
           isDismissable={false}
           backdrop="blur"
           hideCloseButton

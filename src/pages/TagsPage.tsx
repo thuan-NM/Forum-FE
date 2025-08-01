@@ -106,7 +106,7 @@ const TagsPage = () => {
         </div>
 
         {/* Cột bên phải */}
-        <div className="flex md:basis-2/6 md:pl-4 w-full mx-auto">
+        <div className="flex md:basis-2/6 md:pl-4 md:h-fit md:sticky md:top-20 w-full mx-auto">
           <TopicTab className="ml-0" />
         </div>
       </div>

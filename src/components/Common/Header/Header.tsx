@@ -55,7 +55,7 @@ const Header: React.FC = () => {
 
   return (
     <Navbar
-      className="bg-content1 flex-wrap"
+      className="bg-content1 flex-wrap w-auto"
       maxWidth="full"
       isBordered
       isMenuOpen={isMenuOpen}
@@ -102,7 +102,7 @@ const Header: React.FC = () => {
           </Tooltip>
         ))}
 
-        <NavbarItem className="mx-2">
+        <NavbarItem className="mx-2 lg:block hidden">
           <Input
             isClearable
             labelPlacement="outside"

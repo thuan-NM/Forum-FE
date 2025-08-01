@@ -91,6 +91,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
       isDismissable={false}
       backdrop="blur"
       hideCloseButton
+      className="rounded-md z-20 max-h-[100vg] !my-0"
       isKeyboardDismissDisabled={false}
       size="3xl"
     >
@@ -111,7 +112,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
             </div>
 
             {/* Body */}
-            <ModalBody className="flex-1 overflow-y-auto mt-8 scrollbar-hide">
+            <ModalBody className="flex-1 overflow-y-auto mt-8">
               <div className="flex justify-start mb-1">
                 <User
                   avatarProps={{
@@ -144,8 +145,9 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                 onChange={setContent}
                 isDisabled={false}
                 setEditor={setEditor}
+                className="min-h-[58vh] max-h-[58vh] overflow-y-auto scrollbar-hide"
                 containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
-              />{" "}
+              />
               <div className="flex flex-row gap-x-2">
                 {selectedTags.map((tag) => (
                   <Chip

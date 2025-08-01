@@ -154,6 +154,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 onChange={setContent}
                 isDisabled={false}
                 setEditor={setEditor}
+                className="min-h-[48vh] max-h-[48vh] overflow-y-auto scrollbar-hide"
                 containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
               />
 

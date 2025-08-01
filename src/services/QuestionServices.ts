@@ -28,7 +28,10 @@ const UpdateQuestionStatus = async (id: string, status: string) => {
   const response = await axios.put(`/questions/${id}/status`, { status });
   return response.data;
 };
-
+const UpdateInteractionStatus = async (id: string, interaction_status: string) => {
+  const response = await axios.put(`/questions/${id}/interaction-status`, { interaction_status });
+  return response.data;
+};
 const CloseQuestion = async (id: string) => {
   const response = await axios.put(`/questions/${id}/interaction-status`, {
     interaction_status: "closed",
@@ -45,4 +48,5 @@ export {
   UpdateQuestionStatus,
   CloseQuestion,
   GetAllQuestions,
+  UpdateInteractionStatus
 };

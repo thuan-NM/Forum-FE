@@ -1,5 +1,6 @@
 import React from "react";
 import { Chip } from "@heroui/react";
+import { cn } from "../../lib/utils";
 
 interface StatusChipProps {
   status: string;
@@ -13,6 +14,15 @@ interface StatusChipProps {
     | "interaction_status";
   variant?: "flat" | "solid" | "bordered" | "dot";
   size?: "sm" | "md" | "lg";
+  className?: string;
+  color?:
+    | "success"
+    | "warning"
+    | "danger"
+    | "default"
+    | "secondary"
+    | "primary"
+    | undefined;
 }
 
 const StatusChip: React.FC<StatusChipProps> = ({
@@ -20,6 +30,8 @@ const StatusChip: React.FC<StatusChipProps> = ({
   type = "post",
   variant = "dot",
   size = "sm",
+  className,
+  color,
 }) => {
   const getStatusColor = () => {
     if (type === "user") {
@@ -122,7 +134,12 @@ const StatusChip: React.FC<StatusChipProps> = ({
   };
 
   return (
-    <Chip color={getStatusColor()} variant={variant} size={size}>
+    <Chip
+      color={color ? color : getStatusColor()}
+      variant={variant}
+      size={size}
+      className={cn(className)}
+    >
       {status}
     </Chip>
   );

@@ -1,13 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { UpdateAnswer } from "../../services"; // đường dẫn có thể cần sửa lại theo dự án bạn
-import type { AnswerCreateDto } from "../../store/interfaces/answerInterfaces";
+import { AnswerUpdateDto } from "../../store/interfaces/answerInterfaces";
 
 export const useUpdateAnswer = (onSuccessCallback?: () => void) => {
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: AnswerCreateDto }) =>
+    mutationFn: ({ id, data }: { id: string; data: AnswerUpdateDto }) =>
       UpdateAnswer(id, data),
     onSuccess: (_data, variables) => {
       toast.success("Cập nhật câu trả lời thành công");

@@ -7,8 +7,8 @@ export const useUpdateQuestionStatus = () => {
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: string }) =>
-      UpdateQuestionStatus(id, status),
+    mutationFn: ({ id, interaction_status }: { id: string; interaction_status: string }) =>
+      UpdateQuestionStatus(id, interaction_status),
     onSuccess: (data) => {
       toast.success(
         `${capitalize(data.question.status)} question successfully`
@@ -22,8 +22,8 @@ export const useUpdateQuestionStatus = () => {
     },
   });
 
-  const handleUpdateStatus = (id: string, status: string) => {
-    updateMutation.mutate({ id, status });
+  const handleUpdateStatus = (id: string, interaction_status: string) => {
+    updateMutation.mutate({ id, interaction_status });
   };
 
   return {

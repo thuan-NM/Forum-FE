@@ -21,9 +21,11 @@ import { GetAllTags } from "../../../services";
 import { useUpdateAnswer } from "../../../hooks/answers/useUpdateAnswer";
 import { useUploadImages } from "../../../hooks/attachments/useUploadAttachment";
 
-import type { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
+import type {
+  AnswerResponse,
+  AnswerUpdateDto,
+} from "../../../store/interfaces/answerInterfaces";
 import type { TagResponse } from "../../../store/interfaces/tagInterfaces";
-import type { AnswerCreateDto } from "../../../store/interfaces/answerInterfaces";
 
 import TiptapEditor from "../../TextEditor/Tiptap";
 import MenuBar from "../../TextEditor/MenuBar";
@@ -69,8 +71,8 @@ const AnswerEditModal: React.FC<AnswerModalProps> = ({ answer }) => {
   const onSubmit = async (onCloseModal: () => void) => {
     try {
       const processedContent = await processContentWithUploads(content);
-      const data: AnswerCreateDto = {
-        questionId: answer?.question?.id || "",
+      const data: AnswerUpdateDto = {
+        // questionId: answer?.question?.id || "",
         title: answer?.title || "",
         content: processedContent,
         tags: selectedTags.map((tag) => tag.id),
@@ -92,21 +94,23 @@ const AnswerEditModal: React.FC<AnswerModalProps> = ({ answer }) => {
 
   return (
     <>
-      <ModalContent className="flex flex-col h-[100vh] relative">
+      <ModalContent className="flex flex-col h-[100vh]">
         {(onCloseModal) => (
           <>
-            <div className="flex justify-between items-start p-4">
-              <Button
-                isIconOnly
-                className="bg-transparent hover:bg-neutral-700 rounded-full"
-                onPress={onCloseModal}
-              >
-                <Icon icon="lucide:x" className="w-6 h-6" />
-              </Button>
+            <div className="flex-0 sticky top-0 z-10">
+              <div className="flex justify-between items-start pt-3">
+                <Button
+                  isIconOnly
+                  className="border-none cursor-pointer w-fit bg-transparent ml-3 mt-3 hover:bg-neutral-700 rounded-full absolute left-0 top-0"
+                  onPress={onCloseModal}
+                >
+                  <Icon icon="lucide:x" className="w-6 h-6" />
+                </Button>
+              </div>
             </div>
 
-            <ModalBody className="flex-1 overflow-y-auto mt-2">
-              <div className="flex justify-start mb-3">
+            <ModalBody className="flex-1 overflow-y-auto mt-8">
+              <div className="flex justify-start mb-1">
                 <User
                   avatarProps={{
                     src:
@@ -137,10 +141,11 @@ const AnswerEditModal: React.FC<AnswerModalProps> = ({ answer }) => {
                 initialContent={content}
                 onChange={setContent}
                 isDisabled={false}
+                className="min-h-[58vh] max-h-[58vh] overflow-y-auto scrollbar-hide"
                 setEditor={setEditor}
                 containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
               />
-              <div className="flex flex-row gap-2 flex-wrap mt-2">
+              <div className="flex flex-row gap-2 flex-wrap">
                 {selectedTags.slice(0, 5).map((tag) => (
                   <Chip
                     key={tag.id}
