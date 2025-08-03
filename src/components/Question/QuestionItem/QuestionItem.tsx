@@ -14,25 +14,41 @@ import { useDisclosure } from "@heroui/react";
 import AnswerModal from "../../Answer/AnswerModal";
 import { motion } from "framer-motion";
 import { format } from "timeago.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // ✅ Custom hooks
 import { usePassQuestion } from "../../../hooks/questions/usePassQuestion";
 import { useFollowItem } from "../../../hooks/follows/useFollowItem";
 import MoreActionsPopover from "../../Common/MoreActionsPopover";
 import ReportModal from "../../Report/ReportModal";
+import { IoIosSwitch } from "react-icons/io";
+import { useGetUserInfo } from "../../../utils/getUserInfo";
+import QuestionStatusModal from "../QuestionEdit/QuestionStatusModal";
+import { CiEdit } from "react-icons/ci";
+import AlertAction from "../../Common/AlertAction";
 
 interface QuestionItemProps {
   question: QuestionResponse;
   onDelete: (questionId: string) => void;
+  isDeleting?: boolean;
 }
 
-const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
+const QuestionItem: React.FC<QuestionItemProps> = ({
+  question,
+  onDelete,
+  isDeleting,
+}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [isReportOpen, setIsReportOpen] = useState(false);
-
+  const [openAlert, setOpenAlert] = useState(false);
+  const userData = useGetUserInfo();
   const { passQuestion, isPassing } = usePassQuestion();
-
+  const navigate = useNavigate();
+  const {
+    isOpen: isStatusOpen,
+    onOpenChange: onStatusOpenChange,
+    onOpen: onOpenStatusModal,
+  } = useDisclosure();
   const {
     isFollowing,
     isCheckingFollow,
@@ -43,6 +59,11 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
   const date = question.lastFollowed
     ? new Date(question.lastFollowed).getTime()
     : null;
+
+  const handleDelete = () => {
+    onDelete(question?.id || "");
+    setOpenAlert(false);
+  };
 
   return (
     <motion.div
@@ -59,14 +80,40 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
           >
             {question.title}
           </Link>
-          <Button
-            isIconOnly
-            className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
-            size="sm"
-            onPress={() => onDelete(question.id)}
-          >
-            <MdClear className="w-3 h-3" />
-          </Button>
+          {question && question?.author?.id === userData?.id && (
+            <div className="flex items-center gap-x-2">
+              <Button
+                color="default"
+                radius="full"
+                className="w-fit mx-auto font-semibold"
+                size="sm"
+                onPress={onOpenStatusModal}
+                isIconOnly
+                variant="light"
+              >
+                <IoIosSwitch className="size-4" />
+              </Button>
+              <Button
+                color="default"
+                radius="full"
+                className="w-fit mx-auto font-semibold"
+                size="sm"
+                isIconOnly
+                onPress={() => navigate(`/question/${question.id}`)}
+                variant="light"
+              >
+                <CiEdit className="size-4" />
+              </Button>
+              <Button
+                isIconOnly
+                className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
+                size="sm"
+                onPress={() => setOpenAlert(true)}
+              >
+                <MdClear className="w-3 h-3" />
+              </Button>
+            </div>
+          )}
         </div>
         <div className="flex gap-x-1 opacity-80 text-xs flex-wrap !items-center mt-1">
           <Link
@@ -143,6 +190,18 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
           onOpenChange={onOpenChange}
           question={question}
         />
+        <AlertAction
+          open={openAlert}
+          onClose={() => setOpenAlert(false)}
+          onConfirm={handleDelete}
+          title="Xoá câu hỏi này?"
+          description="Hành động này không thể hoàn tác. Bạn chắc chắn muốn xoá chứ?"
+          iconName="ph:trash"
+          confirmText="Xoá"
+          cancelText="Huỷ"
+          isDanger
+          loading={isDeleting}
+        />
         <ReportModal
           isOpen={isReportOpen}
           onClose={() => setIsReportOpen(false)}
@@ -150,6 +209,14 @@ const QuestionItem: React.FC<QuestionItemProps> = ({ question, onDelete }) => {
           contentType="question"
           contentPreview={question.title || "No title"}
         />
+        {question && (
+          <QuestionStatusModal
+            isOpen={isStatusOpen}
+            onOpenChange={onStatusOpenChange}
+            questionId={question.id}
+            currentStatus={question.interactionStatus}
+          />
+        )}
       </div>
     </motion.div>
   );

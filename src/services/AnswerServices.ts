@@ -38,7 +38,10 @@ const ListAnswers = async (
 };
 const GetAllAnswers = async (filters: any) => {
   const response = await axios.get("/answers/", { params: filters });
-  return response.data;
+  return {
+    answers: response.data.answers || [],
+    total: response.data.total || 0,
+  };
 };
 
 const UpdateAnswerStatus = async (id: string, status: string) => {

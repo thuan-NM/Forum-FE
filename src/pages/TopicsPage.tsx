@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useDisclosure, Button } from "@heroui/react";
@@ -19,38 +19,42 @@ import TopicModal from "../components/Topic/TopicModal";
 import NoTopic from "../components/Topic/NoTopic";
 import TagSkeleton from "../components/Skeleton/TagSkeleton";
 import FollowedTopicsItem from "../components/Topic/FollowedTopicItem";
+import CompactFilter from "../components/Common/Filter/CompactFilter";
+import { useAppSelector } from "../store/hooks";
 
 const PAGE_SIZE = 12;
 
 const TopicsPage = () => {
   const { onOpen, isOpen, onOpenChange } = useDisclosure();
+  const filter = useAppSelector((state) => state.filter);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [allTopics, setAllTopics] = useState<TopicResponse[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-
-  // Query danh sách chủ đề
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["topics", currentPage],
-    queryFn: () => GetAllTopics({ limit: PAGE_SIZE, page: currentPage }),
+  // Query danh sách chủ đề (infinite)
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["topics", filter],
+    queryFn: ({ pageParam = 1 }) =>
+      GetAllTopics({
+        limit: PAGE_SIZE,
+        page: pageParam,
+        search: filter.search || undefined,
+        sort: filter.sort || undefined,
+      }),
+    getNextPageParam: (lastPage, pages) => {
+      const totalLoaded = pages.flatMap((p) => p.topics).length;
+      return totalLoaded < lastPage.total ? pages.length + 1 : undefined;
+    },
+    initialPageParam: 1,
   });
 
-  useEffect(() => {
-    if (data?.topics) {
-      setAllTopics((prev) => [...prev, ...data.topics]);
-
-      const totalLoaded = allTopics.length + data.topics.length;
-      if (totalLoaded >= data.total) {
-        setHasMore(false);
-      }
-    }
-  }, [data]);
-
-  const fetchMoreData = () => {
-    if (hasMore) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
+  const allTopics = data?.pages.flatMap((page) => page.topics) || [];
 
   // Query các chủ đề đang theo dõi
   const {
@@ -103,7 +107,7 @@ const TopicsPage = () => {
               Những chủ đề bạn có thể thích
             </p>
 
-            {isLoading && currentPage === 1 ? (
+            {isLoading && !data ? (
               <LoadingState message="Đang tải chủ đề..." />
             ) : isError ? (
               <ErrorState
@@ -121,8 +125,8 @@ const TopicsPage = () => {
                 >
                   <InfiniteScroll
                     dataLength={allTopics.length}
-                    next={fetchMoreData}
-                    hasMore={hasMore}
+                    next={fetchNextPage}
+                    hasMore={!!hasNextPage}
                     loader={<TagSkeleton count={6} />}
                   >
                     <CardList
@@ -167,11 +171,8 @@ const TopicsPage = () => {
         </div>
 
         {/* Cột bên phải */}
-        <div className="md:basis-2/6 md:pl-4 md:h-fit md:sticky md:top-18">
-          <div className="bg-content1 rounded-md p-4 h-[200px]">
-            <h3 className="font-semibold mb-4">Lời mời đang chờ</h3>
-            <div className="text-center opacity-60">Chưa có lời mời nào</div>
-          </div>
+        <div className="md:basis-2/6 md:pl-4 md:h-fit md:sticky md:top-[60px]">
+          <CompactFilter sort search className="max-w-full" />
         </div>
       </div>
 

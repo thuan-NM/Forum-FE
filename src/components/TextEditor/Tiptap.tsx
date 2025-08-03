@@ -112,7 +112,10 @@ const TiptapEditor = memo(function TiptapEditor({
         containerClassName
       )}
     >
-      <div className={cn("p-4 min-h-[65vh]", className)}>
+      <div
+        className={cn("p-4 min-h-[65vh]", className)}
+        style={{ scrollbarWidth: "thin" }}
+      >
         <EditorContent
           editor={editor}
           className="!w-full max-w-full prose prose-img:!max-w-full"

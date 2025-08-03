@@ -28,9 +28,8 @@ const useMediaQuery = (query: string) => {
 };
 
 const AIChat: React.FC = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const isMobile = useMediaQuery("(max-width: 640px)");
-
+  const [open, setOpen] = React.useState(false);
   return (
     <div className="relative">
       {/* Background decoration */}
@@ -48,7 +47,7 @@ const AIChat: React.FC = () => {
         <Tooltip content="Chat with AI Assistant" placement="left">
           <Button
             color="primary"
-            onPress={onOpen}
+            onPress={() => setOpen(!open)}
             className="font-semibold text-lg p-4 size-14 rounded-full shadow-lg bg-gradient-to-r from-blue-500 to-purple-500"
             isIconOnly
           >
@@ -56,7 +55,7 @@ const AIChat: React.FC = () => {
           </Button>
         </Tooltip>
       </motion.div>
-      <Modal
+      {/* <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         size={isMobile ? "full" : "lg"}
@@ -67,12 +66,14 @@ const AIChat: React.FC = () => {
       >
         <ModalContent>
           {(onClose) => (
-            <ModalBody className="p-0 overflow-hidden">
-              <AIChatModal onClose={onClose} isMobile={isMobile} />
-            </ModalBody>
+            <ModalBody className="p-0 overflow-hidden"> */}
+      {open && (
+        <AIChatModal onClose={() => setOpen(false)} isMobile={isMobile} />
+      )}
+      {/* </ModalBody>
           )}
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };

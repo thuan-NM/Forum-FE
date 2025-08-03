@@ -15,11 +15,13 @@ import PostItem from "./PostItem/PostItem";
 import { Skeleton } from "@heroui/react";
 import NotFind from "../../Common/NotFind";
 import ErrorState from "../../Common/ErrorState";
+import { useAppSelector } from "../../../store/hooks";
 
 const LIMIT = 10;
 
 const PostList: React.FC = () => {
   const { DeletePost } = useDeletePost();
+  const filter = useAppSelector((state) => state.filter);
 
   const {
     data,
@@ -30,16 +32,21 @@ const PostList: React.FC = () => {
     hasNextPage,
     isFetchingNextPage,
     refetch,
-  } = useInfiniteQuery<
-    { posts: PostResponse[]; total: number }, // TQueryFnData
-    Error,
-    InfiniteData<{ posts: PostResponse[]; total: number }, number>, // 👈 FIX TData
-    string[],
-    number
-  >({
-    queryKey: ["posts", "list"],
+  } = useInfiniteQuery({
+    queryKey: ["posts", "list", filter],
     queryFn: ({ pageParam = 1 }) =>
-      GetAllPosts({ limit: LIMIT, page: pageParam }),
+      GetAllPosts({
+        limit: LIMIT,
+        page: pageParam,
+        status: "approved",
+        search: filter.search || undefined,
+        sort: filter.sort || undefined,
+        tagfilter:
+          Array.isArray(filter.tag) && filter.tag.length > 0
+            ? filter.tag.map((id) => Number(id)).join(",")
+            : undefined,
+      }),
+
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.reduce(
         (acc, page) => acc + page.posts.length,
@@ -54,12 +61,8 @@ const PostList: React.FC = () => {
     placeholderData: (previous) => previous,
   });
 
-  // Debug: Log data để kiểm tra
-  useEffect(() => {
-    console.log("PostList data:", data);
-  }, [data]);
+  console.log(filter);
 
-  // Flatten posts từ các page
   const allPosts =
     data?.pages?.flatMap(
       (page: { posts: PostResponse[] }) => page.posts ?? []

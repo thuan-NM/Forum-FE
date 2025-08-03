@@ -50,6 +50,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const { data: topics } = useQuery({
     queryKey: ["topics"],
     queryFn: () => GetFollowedTopics(),
+    enabled: true,
   });
 
   const onSubmit = async (onClose: () => void) => {

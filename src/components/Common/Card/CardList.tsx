@@ -2,6 +2,8 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import NotFind from "../NotFind";
+import { FaRegLightbulb } from "react-icons/fa";
 
 interface CardListProps<T> {
   items: T[];
@@ -13,8 +15,10 @@ const CardList = <T extends { id: string }>({
   renderItem,
 }: CardListProps<T>) => {
   return (
-    <div
-      className="grid gap-4
+    <>
+      {items.length > 0 ? (
+        <div
+          className="grid gap-4
         grid-cols-1
         sm:grid-cols-2
         md:grid-cols-3
@@ -22,11 +26,19 @@ const CardList = <T extends { id: string }>({
         xl:grid-cols-4
         2xl:grid-cols-5
         min-[1700px]:grid-cols-6"
-    >
-      {items.map((item) => (
-        <React.Fragment key={item.id}>{renderItem(item)}</React.Fragment>
-      ))}
-    </div>
+        >
+          {items.map((item) => (
+            <React.Fragment key={item.id}>{renderItem(item)}</React.Fragment>
+          ))}
+        </div>
+      ) : (
+        <NotFind
+          title="Không có chủ đề nào"
+          className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 rounded-md"
+          icon={<FaRegLightbulb className="size-10 !text-foreground/20" />}
+        />
+      )}
+    </>
   );
 };
 

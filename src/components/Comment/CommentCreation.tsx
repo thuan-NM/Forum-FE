@@ -6,6 +6,8 @@ import MenuBar from "../TextEditor/MenuBar";
 import { motion } from "framer-motion";
 import EditorModal from "../TextEditor/EditorModal";
 import { useCreateComment } from "../../hooks/comments/useCreateComment";
+import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
+
 interface Props {
   id: string;
   type: string;
@@ -19,6 +21,25 @@ const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
   const [openImage, setOpenImage] = useState<boolean>(false);
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
   const { createComment, isCreating } = useCreateComment();
+  const { processContentWithUploads, isUploading } = useUploadImages(); // ✅ Hook xử lý ảnh
+
+  const handleSubmit = async () => {
+    try {
+      const processedContent = await processContentWithUploads(content); // ✅ upload ảnh
+      createComment({
+        content: processedContent,
+        [`${type}`]: id,
+      });
+      onSuccess?.();
+      if (editor) {
+        editor.commands.clearContent();
+      }
+      setContent("");
+    } catch (error) {
+      console.error("Lỗi khi đăng bình luận:", error);
+    }
+  };
+
   return (
     <div className="flex pt-3 items-start gap-x-2  !py-3 bg-content1 rounded-lg ">
       <div className="flex">
@@ -68,20 +89,9 @@ const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
         size="sm"
         color="primary"
         radius="full"
-        isLoading={isCreating}
+        isLoading={isCreating || isUploading}
         className="h-8 font-semibold px-5"
-        onPress={() => {
-          createComment({
-            content,
-            [`${type}`]: id,
-          });
-
-          if (editor && isCreating == false) {
-            onSuccess?.();
-            editor.commands.clearContent();
-            setContent("");
-          }
-        }}
+        onPress={handleSubmit}
       >
         Thêm bình luận
       </Button>

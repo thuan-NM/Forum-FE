@@ -1,4 +1,3 @@
-// hooks/questions/useUpdateInteractionStatus.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { UpdateInteractionStatus } from "../../services";

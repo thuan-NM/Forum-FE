@@ -99,6 +99,7 @@ const QuestionEditModal: React.FC<QuestionEditModalProps> = ({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       isDismissable={false}
+      className="rounded-md z-20 max-h-[100vg] !my-0"
       backdrop="blur"
       hideCloseButton
       isKeyboardDismissDisabled={false}
@@ -117,20 +118,14 @@ const QuestionEditModal: React.FC<QuestionEditModalProps> = ({
             <ModalHeader className="flex flex-col gap-1 pt-1">
               <div className="flex justify-between border-b-2 border-content3">
                 <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out border-b-2 border-blue-400"
+                  className="bg-transparent w-full rounded-none text-base font-semibold transition duration-300 ease-in-out border-b-2 border-blue-400"
                   disabled
                 >
                   Sửa câu hỏi
                 </Button>
-                <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out"
-                  disabled
-                >
-                  Tạo bài viết
-                </Button>
               </div>
             </ModalHeader>
-            <ModalBody className="flex-1 overflow-y-auto scrollbar-hide">
+            <ModalBody className="flex-1">
               <div className="bg-content2 rounded-sm backdrop-opacity-60 p-4">
                 <p className="font-bold">Mẹo để nhận được câu trả lời tốt</p>
                 <ul className="list-disc list-inside font-light">
