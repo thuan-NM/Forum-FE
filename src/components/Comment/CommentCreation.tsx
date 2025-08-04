@@ -6,19 +6,40 @@ import MenuBar from "../TextEditor/MenuBar";
 import { motion } from "framer-motion";
 import EditorModal from "../TextEditor/EditorModal";
 import { useCreateComment } from "../../hooks/comments/useCreateComment";
+import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
+
 interface Props {
   id: string;
   type: string;
   onSuccess?: () => void;
 }
 
-const CommentCreation: React.FC<Props> = ({ id, type ,onSuccess}) => {
+const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
   const [editor, setEditor] = useState<any>(null);
   const [content, setContent] = useState<string>("");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [openImage, setOpenImage] = useState<boolean>(false);
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
   const { createComment, isCreating } = useCreateComment();
+  const { processContentWithUploads, isUploading } = useUploadImages(); // ✅ Hook xử lý ảnh
+
+  const handleSubmit = async () => {
+    try {
+      const processedContent = await processContentWithUploads(content); // ✅ upload ảnh
+      createComment({
+        content: processedContent,
+        [`${type}`]: id,
+      });
+      onSuccess?.();
+      if (editor) {
+        editor.commands.clearContent();
+      }
+      setContent("");
+    } catch (error) {
+      console.error("Lỗi khi đăng bình luận:", error);
+    }
+  };
+
   return (
     <div className="flex pt-3 items-start gap-x-2  !py-3 bg-content1 rounded-lg ">
       <div className="flex">
@@ -30,11 +51,11 @@ const CommentCreation: React.FC<Props> = ({ id, type ,onSuccess}) => {
         />
       </div>
 
-      <div className="flex !w-full flex-col !bg-content2 rounded-md py-1 pt-2">
+      <div className="flex !w-full flex-col !bg-content2 rounded-md py-1 pt-2 max-w-[70%]">
         <TiptapEditor
           initialContent=""
-          className="h-fit max-h-[400px] min-h-0 border-none !rounded-none p-0 px-5 !bg-content2 "
-          containerClassName="!rounded-none shadow-none max-h-auto  !bg-content2 "
+          className="h-fit max-h-[400px] min-h-0 border-none !rounded-none p-0 px-5 !bg-content2  "
+          containerClassName="!rounded-none shadow-none max-h-auto  !bg-content2 max-h-[400px] min-h-0 overflow-y-auto scrollbar-hide m"
           onChange={(value) => {
             setContent(value);
           }}
@@ -68,22 +89,11 @@ const CommentCreation: React.FC<Props> = ({ id, type ,onSuccess}) => {
         size="sm"
         color="primary"
         radius="full"
-        isLoading={isCreating}
+        isLoading={isCreating || isUploading}
         className="h-8 font-semibold px-5"
-        onPress={() => {
-          createComment({
-            content,
-            [`${type}`]: id, 
-          });
-
-          if (editor && isCreating == false) {
-            onSuccess?.()
-            editor.commands.clearContent();
-            setContent("");
-          }
-        }}
+        onPress={handleSubmit}
       >
-        Add comment
+        Thêm bình luận
       </Button>
       <EditorModal
         editor={editor}

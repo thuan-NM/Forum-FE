@@ -18,6 +18,7 @@ interface AlertActionProps {
   isDanger?: boolean;
   loading?: boolean;
   className?: string;
+  iconClassName?: string;
 }
 
 const AlertAction: React.FC<AlertActionProps> = ({
@@ -33,6 +34,7 @@ const AlertAction: React.FC<AlertActionProps> = ({
   isDanger = false,
   loading = false,
   className,
+  iconClassName,
 }) => {
   return (
     <Modal isOpen={open} onClose={onClose}>
@@ -46,7 +48,10 @@ const AlertAction: React.FC<AlertActionProps> = ({
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0 mt-1">
               {icon || (
-                <Icon icon={iconName} className="text-yellow-500 w-6 h-6" />
+                <Icon
+                  icon={iconName}
+                  className={cn("text-yellow-500 w-6 h-6", iconClassName)}
+                />
               )}
             </div>
             <div>

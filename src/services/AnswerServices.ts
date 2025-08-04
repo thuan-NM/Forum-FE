@@ -1,4 +1,8 @@
-import type { AnswerResponse } from "../store/interfaces/answerInterfaces.ts";
+import type {
+  AnswerCreateDto,
+  AnswerResponse,
+  AnswerUpdateDto,
+} from "../store/interfaces/answerInterfaces.ts";
 import axios from "../utils/configAxios.ts";
 
 const GetAnswer = async (id: string): Promise<AnswerResponse> => {
@@ -34,7 +38,10 @@ const ListAnswers = async (
 };
 const GetAllAnswers = async (filters: any) => {
   const response = await axios.get("/answers/", { params: filters });
-  return response.data;
+  return {
+    answers: response.data.answers || [],
+    total: response.data.total || 0,
+  };
 };
 
 const UpdateAnswerStatus = async (id: string, status: string) => {
@@ -52,6 +59,12 @@ const CreateAnswer = async (data: any) => {
   });
   return response.data;
 };
+const UpdateAnswer = async (id: string, answer: AnswerUpdateDto) => {
+  const response = await axios.put(`/answers/${id}`, answer, {
+    withCredentials: true,
+  });
+  return response.data;
+};
 export {
   GetAnswer,
   DeleteAnswer,
@@ -60,4 +73,5 @@ export {
   UpdateAnswerStatus,
   AcceptAnswer,
   CreateAnswer,
+  UpdateAnswer,
 };

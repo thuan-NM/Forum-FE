@@ -13,10 +13,11 @@ import UserList from "../components/Profile/UserList";
 import { GetUserById } from "../services";
 import { UserResponse } from "../store/interfaces/userInterfaces";
 import MoreInfo from "../components/Profile/MoreInfo";
+import { useGetUserInfo } from "../utils/getUserInfo";
 
 const UserProfilePage = () => {
   const { id } = useParams();
-
+  const user = useGetUserInfo();
   const { data: userData = {} as UserResponse } = useQuery({
     queryKey: ["user", id],
     queryFn: () => GetUserById(id as string),
@@ -42,6 +43,9 @@ const UserProfilePage = () => {
   React.useEffect(() => {
     if (!id) {
       navigate("/");
+    }
+    if (id && String(user?.id) === id) {
+      navigate("/my-profile");
     }
   }, [id, navigate]);
 

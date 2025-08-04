@@ -11,7 +11,10 @@ const ListQuestion = async (filter: any) => {
 };
 const GetAllQuestions = async (filter: any) => {
   const response = await axios.get("/questions/all", { params: filter });
-  return response.data;
+  return {
+    questions: response.data.questions || [],
+    total: response.data.total || 0,
+  };
 };
 const DeleteQuestion = async (id: string) => {
   return (await axios.delete(`/questions/${id}`)).data;
@@ -28,7 +31,15 @@ const UpdateQuestionStatus = async (id: string, status: string) => {
   const response = await axios.put(`/questions/${id}/status`, { status });
   return response.data;
 };
-
+const UpdateInteractionStatus = async (
+  id: string,
+  interaction_status: string
+) => {
+  const response = await axios.put(`/questions/${id}/interaction-status`, {
+    interaction_status,
+  });
+  return response.data;
+};
 const CloseQuestion = async (id: string) => {
   const response = await axios.put(`/questions/${id}/interaction-status`, {
     interaction_status: "closed",
@@ -45,4 +56,5 @@ export {
   UpdateQuestionStatus,
   CloseQuestion,
   GetAllQuestions,
+  UpdateInteractionStatus,
 };

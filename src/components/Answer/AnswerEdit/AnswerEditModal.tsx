@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react"; // Thêm useEffect để đổ dữ liệu initial
+"use client";
+
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Chip,
@@ -6,79 +8,83 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader,
   Tooltip,
   User,
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useAppSelector } from "../../../../store/hooks";
 import { useQuery } from "@tanstack/react-query";
-import { RootState } from "../../../../store/store";
-import { GetAllTags } from "../../../../services";
-import {
-  PostCreateDto,
-  PostResponse,
-} from "../../../../store/interfaces/postInterfaces"; // Thêm PostResponse
-import TiptapEditor from "../../../TextEditor/Tiptap";
-import { AnimatePresence } from "framer-motion";
-import MenuBar from "../../../TextEditor/MenuBar";
-import EditorModal from "../../../TextEditor/EditorModal";
-import TagSelectionModal from "../PostCreation/TagSelectionModal";
-import { motion } from "framer-motion";
-import { TagResponse } from "../../../../store/interfaces/tagInterfaces";
-import { useUpdatePost } from "../../../../hooks/posts/useUpdatePost";
-import { useGetUserInfo } from "../../../../utils/getUserInfo";
-import { useUploadImages } from "../../../../hooks/attachments/useUploadAttachment";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface PostModalProps {
-  post?: PostResponse; // Thêm prop post optional cho edit
+import { useGetUserInfo } from "../../../utils/getUserInfo";
+import { GetAllTags } from "../../../services";
+import { useUpdateAnswer } from "../../../hooks/answers/useUpdateAnswer";
+import { useUploadImages } from "../../../hooks/attachments/useUploadAttachment";
+
+import type {
+  AnswerResponse,
+  AnswerUpdateDto,
+} from "../../../store/interfaces/answerInterfaces";
+import type { TagResponse } from "../../../store/interfaces/tagInterfaces";
+
+import TiptapEditor from "../../TextEditor/Tiptap";
+import MenuBar from "../../TextEditor/MenuBar";
+import EditorModal from "../../TextEditor/EditorModal";
+import TagSelectionModal from "../../PostManage/Post/PostCreation/TagSelectionModal";
+
+interface AnswerModalProps {
+  answer?: AnswerResponse;
 }
 
-const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
-  const [isVisible, setIsVisible] = useState<boolean>(true);
+const AnswerEditModal: React.FC<AnswerModalProps> = ({ answer }) => {
+  const [content, setContent] = useState<string>(answer?.content || "");
   const [editor, setEditor] = useState<any>(null);
-  const [openImage, setOpenImage] = useState<boolean>(false);
-  const [openYoutube, setOpenYoutube] = useState<boolean>(false);
-  const [content, setContent] = useState<string>(post?.content || "");
-  const [title, setTitle] = useState<string>(post?.title || "");
-  const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+  const [openImage, setOpenImage] = useState(false);
+  const [openYoutube, setOpenYoutube] = useState(false);
+  const [title, setTitle] = useState<string>(answer?.title || "");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedTags, setSelectedTags] = useState<TagResponse[]>([]);
+  const [isVisible, setIsVisible] = useState(true);
+
   const userData = useGetUserInfo();
-  const { isOpen, onOpen, onClose: onTagClose } = useDisclosure(); // Đổi tên để tránh conflict
+  const { isOpen, onOpen, onClose: onTagClose } = useDisclosure();
 
   const { data: tags } = useQuery({
     queryKey: ["tags"],
     queryFn: () => GetAllTags({}),
   });
 
-  const { updatePost, isUpdating } = useUpdatePost(); // Thêm hook update
-
-  // Đổ dữ liệu initial nếu là edit (có post)
-  useEffect(() => {
-    if (post) {
-      setTitle(post.title || "");
-      setContent(post.content || "");
-      setSelectedTags(post.tags || []);
-    }
-  }, [post]);
+  const { updateAnswer, isUpdating } = useUpdateAnswer(() => {
+    console.log("Answer updated successfully");
+  });
 
   const { processContentWithUploads, isUploading } = useUploadImages();
 
+  useEffect(() => {
+    if (answer) {
+      setTitle(answer.title || "");
+      setContent(answer.content || "");
+      setSelectedTags(answer.tags || []);
+    }
+  }, [answer]);
+
   const onSubmit = async (onCloseModal: () => void) => {
     try {
-      const processedContent = await processContentWithUploads(content); // 👈 xử lý ảnh
-      const data: PostCreateDto = {
+      const processedContent = await processContentWithUploads(content);
+      const data: AnswerUpdateDto = {
+        // questionId: answer?.question?.id || "",
+        title: answer?.title || "",
         content: processedContent,
-        title,
         tags: selectedTags.map((tag) => tag.id),
       };
-      if (post?.id) {
-        updatePost({ id: post.id, data });
+
+      if (answer?.id) {
+        updateAnswer({ id: answer.id, data });
       }
+
       onCloseModal();
     } catch (error) {
-      console.error("Lỗi khi cập nhật bài viết:", error);
+      console.error("Lỗi khi cập nhật câu trả lời:", error);
     }
   };
 
@@ -92,7 +98,7 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
         {(onCloseModal) => (
           <>
             <div className="flex-0 sticky top-0 z-10">
-              <div className="flex justify-center relative pt-3">
+              <div className="flex justify-between items-start pt-3">
                 <Button
                   isIconOnly
                   className="border-none cursor-pointer w-fit bg-transparent ml-3 mt-3 hover:bg-neutral-700 rounded-full absolute left-0 top-0"
@@ -102,6 +108,7 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
                 </Button>
               </div>
             </div>
+
             <ModalBody className="flex-1 overflow-y-auto mt-8">
               <div className="flex justify-start mb-1">
                 <User
@@ -131,16 +138,13 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
                 onChange={(e) => setTitle(e.target.value)}
               />
               <TiptapEditor
-                initialContent={content} // Đổ initialContent từ post.content
-                onChange={(value) => {
-                  setContent(value);
-                }}
-                className="min-h-[58vh] max-h-[58vh] overflow-y-auto scrollbar-hide"
+                initialContent={content}
+                onChange={setContent}
                 isDisabled={false}
+                className="min-h-[58vh] max-h-[58vh] overflow-y-auto scrollbar-hide"
                 setEditor={setEditor}
                 containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
               />
-              {/* Tag display section with +n */}
               <div className="flex flex-row gap-2 flex-wrap">
                 {selectedTags.slice(0, 5).map((tag) => (
                   <Chip
@@ -254,10 +258,11 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
                   onPress={() => onSubmit(onCloseModal)}
                   className="!px-6 !py-4"
                 >
-                  {post ? "Cập nhật" : "Đăng bài"}
+                  {answer ? "Cập nhật" : "Trả lời"}
                 </Button>
               </div>
             </ModalFooter>
+
             <EditorModal
               editor={editor}
               setOpenImage={setOpenImage}
@@ -271,6 +276,7 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
           </>
         )}
       </ModalContent>
+
       <TagSelectionModal
         isOpen={isOpen}
         onClose={onTagClose}
@@ -282,4 +288,4 @@ const PostEditModal: React.FC<PostModalProps> = ({ post }) => {
   );
 };
 
-export default PostEditModal;
+export default AnswerEditModal;

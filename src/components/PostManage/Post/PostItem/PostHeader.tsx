@@ -5,8 +5,6 @@ import { MdClear } from "react-icons/md";
 import { format } from "timeago.js";
 
 import { useState } from "react";
-import { useAppSelector } from "../../../../store/hooks";
-import { RootState } from "../../../../store/store";
 
 import { User } from "../../../../store/interfaces/userInterfaces";
 import { PostResponse } from "../../../../store/interfaces/postInterfaces";
@@ -20,6 +18,7 @@ import { Link } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
 import { Modal } from "@heroui/react"; // Thêm import Modal
 import PostEditModal from "../PostEdit/PostEditModal"; // Giả định path đến PostEditModal
+import { useGetUserInfo } from "../../../../utils/getUserInfo";
 
 interface PostHeaderProps {
   post: PostResponse;
@@ -29,16 +28,7 @@ interface PostHeaderProps {
 const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
-  const userData = useAppSelector((state: RootState) => state.user.user);
-  const {
-    data: user,
-    isLoading,
-    isError,
-    error,
-  } = useQuery<User>({
-    queryKey: ["users", post.author.id],
-    queryFn: () => GetUserById(post.author.id),
-  });
+  const userData = useGetUserInfo();
 
   const { isFollowing, handleToggleFollow, isCheckingFollow, isPending } =
     useFollowItem<{ id: string }>(post.author.id.toString(), "users");
@@ -53,13 +43,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
     onDeleted?.(); // optional callback
   };
 
-  if (isLoading || isCheckingFollow) return <PostHeaderSkeleton />;
-  if (isError)
-    return (
-      <div className="my-3 text-center">
-        <p className="text-red-500">{error.message}</p>
-      </div>
-    );
+  if (isCheckingFollow) return <PostHeaderSkeleton />;
 
   const date = new Date(post?.createdAt).getTime();
 
@@ -80,10 +64,10 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
           <div className="flex flex-col !text-xs md:text-sm gap-y-1">
             <div className="font-bold flex flex-wrap items-center gap-x-1">
               <Link
-                to={`/users/${user?.id}`}
+                to={`/users/${post?.author?.id}`}
                 className="hover:underline cursor-pointer transition-all"
               >
-                {user?.fullName}
+                {post?.author?.fullName}
               </Link>
 
               {post.author.id !== userData?.id && (
@@ -102,7 +86,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
               )}
             </div>
             <div className="opacity-90 text-xs flex flex-wrap !items-center gap-x-1">
-              <div className="hidden sm:block">{user?.email}</div>
+              <div className="hidden sm:block">{post?.author?.email}</div>
               <GoDotFill className="w-2 h-2" />
               <div>{format(date)}</div>
             </div>
@@ -153,7 +137,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
         isOpen={isOpen}
         size={"3xl"}
         onOpenChange={onOpenChange}
-        className="rounded-md z-20"
+        className="rounded-md z-20 max-h-[100vg] !my-0"
         isDismissable={false}
         backdrop="blur"
         hideCloseButton

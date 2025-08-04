@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLoginMutation } from "../../hooks/users/useLoginMutation";
-import { Link,  } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button, Form, Input } from "@heroui/react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -45,7 +45,7 @@ const Login = () => {
                     isRequired
                     labelPlacement="outside"
                     name="email"
-                    placeholder="Your email address"
+                    placeholder="Địa chỉ email"
                     type="email"
                     variant="bordered"
                     value={credentials.email}
@@ -54,12 +54,12 @@ const Login = () => {
                     className="bg-content1"
                 />
                 <Input
-                    label={<span className="text-xs font-bold mb-0">Password</span>}
+                    label={<span className="text-xs font-bold mb-0">Mật khẩu</span>}
                     isRequired
                     autoComplete=""
                     labelPlacement="outside"
                     name="password"
-                    placeholder="Your password"
+                    placeholder="Mật khẩu của bạn"
                     type="password"
                     variant="bordered"
                     value={credentials.password}
@@ -82,7 +82,7 @@ const Login = () => {
                         radius="full"
                         isLoading={isPending}
                     >
-                        Login
+                        Đăng nhập
                     </Button>
                 </div>
             </Form>

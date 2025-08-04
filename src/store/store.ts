@@ -10,19 +10,22 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage"; // Sử dụng localStorage
-import userSlice from "./slices/userSlice"; 
-import authSlice from "./slices/authSlice"; 
+import userSlice from "./slices/userSlice";
+import authSlice from "./slices/authSlice";
+import filterSlice from "./slices/filterSlice";
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  whitelist: ["user", "theme","auth"], // Chỉ lưu trữ các slice này
+  whitelist: ["user", "theme", "auth"], // Chỉ lưu trữ các slice này
 };
 
 const rootReducer = combineReducers({
   user: userSlice,
   auth: authSlice,
+  filter: filterSlice,
+
   // Thêm các reducer khác nếu cần
 });
 

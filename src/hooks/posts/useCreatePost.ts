@@ -11,6 +11,9 @@ export const useCreatePost = () => {
     onSuccess: (data: any) => {
       toast.success(data.message || "Tạo bài viết thành công");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({
+        queryKey: ["posts", "list"], // Thêm "list" để tránh conflict với TagPostList
+      });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.error || "Đăng bài thất bại");

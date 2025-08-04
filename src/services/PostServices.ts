@@ -37,7 +37,10 @@ const ListPosts = async (
 };
 const GetAllPosts = async (filters: any) => {
   const response = await axios.get("/posts/all", { params: filters });
-  return response.data;
+  return {
+    posts: response.data.posts || [],
+    total: response.data.total || 0,
+  };
 };
 
 const UpdatePostStatus = async (id: string, status: string) => {
@@ -69,5 +72,5 @@ export {
   UpdatePostStatus,
   AcceptPost,
   CreatePost,
-  UpdatePost
+  UpdatePost,
 };

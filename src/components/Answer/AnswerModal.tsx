@@ -1,4 +1,4 @@
-
+"use client";
 import {
   Modal,
   ModalContent,
@@ -18,8 +18,7 @@ import TiptapEditor from "../TextEditor/Tiptap";
 import MenuBar from "../TextEditor/MenuBar";
 import EditorModal from "../TextEditor/EditorModal";
 import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { useQuery } from "@tanstack/react-query";
 import { AnswerCreateDto } from "../../store/interfaces/answerInterfaces";
 import { useAppSelector } from "../../store/hooks";
 import { RootState } from "../../store/store";
@@ -27,6 +26,7 @@ import { GetAllTags } from "../../services";
 import { TagResponse } from "../../store/interfaces/tagInterfaces";
 import TagSelectionModal from "../PostManage/Post/PostCreation/TagSelectionModal";
 import { useCreateAnswer } from "../../hooks/answers/useCreateAnswer";
+import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
 
 interface AnswerModalProps {
   isOpen: boolean;
@@ -54,19 +54,25 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const userData = useAppSelector((state: RootState) => state.user.user);
   const { createAnswer, isCreating } = useCreateAnswer();
+  const { processContentWithUploads, isUploading } = useUploadImages(); // ✅ Hook xử lý ảnh
 
-  const onSubmit = (onClose: () => void) => {
-    const data: AnswerCreateDto = {
-      content: content,
-      questionId: question.id,
-      tags: selectedTags.map((tag) => tag.id),
-      title: title,
-    };
-    createAnswer(data, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
+  const onSubmit = async (onClose: () => void) => {
+    try {
+      const processedContent = await processContentWithUploads(content); // ✅ upload ảnh
+      const data: AnswerCreateDto = {
+        content: processedContent,
+        questionId: question.id,
+        tags: selectedTags.map((tag) => tag.id),
+        title: title,
+      };
+      createAnswer(data, {
+        onSuccess: () => {
+          onClose();
+        },
+      });
+    } catch (error) {
+      console.error("Lỗi khi đăng câu trả lời:", error);
+    }
   };
 
   const { data: tags } = useQuery({
@@ -77,6 +83,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
   const handleTagSelection = (tags: TagResponse[]) => {
     setSelectedTags(tags);
   };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -84,6 +91,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
       isDismissable={false}
       backdrop="blur"
       hideCloseButton
+      className="rounded-md z-20 max-h-[100vg] !my-0"
       isKeyboardDismissDisabled={false}
       size="3xl"
     >
@@ -104,7 +112,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
             </div>
 
             {/* Body */}
-            <ModalBody className="flex-1 overflow-y-auto mt-8  scrollbar-hide">
+            <ModalBody className="flex-1 overflow-y-auto mt-8">
               <div className="flex justify-start mb-1">
                 <User
                   avatarProps={{
@@ -114,12 +122,12 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                   }}
                   name={
                     <p className="text-xs font-semibold mb-1">
-                      {userData?.fullName || "Anonymous"}
+                      {userData?.fullName || "Ẩn danh"}
                     </p>
                   }
                   description={
                     <Button variant="bordered" size="sm" radius="full">
-                      @{userData?.username || "user"}
+                      @{userData?.username || "người dùng"}
                     </Button>
                   }
                 />
@@ -127,39 +135,33 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
               <Input
                 variant="underlined"
                 className="!text-2xl mb-2"
-                placeholder="Enter your post title"
+                placeholder="Nhập tiêu đề câu trả lời"
                 required
                 defaultValue={question.title}
                 onChange={(e) => setTitle(e.target.value)}
               />
               <TiptapEditor
                 initialContent=""
-                onChange={(value) => setContent(value)}
+                onChange={setContent}
                 isDisabled={false}
                 setEditor={setEditor}
+                className="min-h-[58vh] max-h-[58vh] overflow-y-auto scrollbar-hide"
+                containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
               />
+              <div className="flex flex-row gap-x-2">
+                {selectedTags.map((tag) => (
+                  <Chip
+                    key={tag.id}
+                    onClose={() =>
+                      setSelectedTags(selectedTags.filter((t) => t !== tag))
+                    }
+                  >
+                    {tag.name}
+                  </Chip>
+                ))}
+              </div>
             </ModalBody>
-            <div className="flex flex-wrap gap-2 px-6 py-2">
-              {selectedTags.map((tag) => (
-                <Chip
-                  key={tag.id}
-                  onClose={() =>
-                    setSelectedTags(selectedTags.filter((t) => t !== tag))
-                  }
-                >
-                  {tag.name}
-                </Chip>
-              ))}
-              <Button
-                size="sm"
-                variant="bordered"
-                color="default"
-                onPress={onOpenTag}
-                startContent={<Icon icon="lucide:plus" />}
-              >
-                Add Tags
-              </Button>
-            </div>
+
             {/* Footer */}
             <ModalFooter className="flex justify-between items-center">
               <div className="flex items-center">
@@ -191,7 +193,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                   )}
                 </motion.div>
                 <AnimatePresence initial={false}>
-                  {isVisible && editor ? (
+                  {isVisible && editor && (
                     <motion.div
                       initial={{ opacity: 0, scaleY: 0 }}
                       animate={{ opacity: 1, scaleY: 1 }}
@@ -208,10 +210,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                           "underline",
                           "code",
                           "h1",
-                          "h2",
-                          "h3",
                           "emoji",
-                          "youtube",
                           "bulletList",
                           "orderedList",
                           "blockquote",
@@ -221,20 +220,35 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                         setShowEmojiPicker={() =>
                           setShowEmojiPicker(!showEmojiPicker)
                         }
+                        className="flex-nowrap"
                       />
                     </motion.div>
-                  ) : null}
+                  )}
                 </AnimatePresence>
               </div>
-              <Button
-                color="primary"
-                size="sm"
-                onPress={() => onSubmit(onClose)}
-                isLoading={isCreating}
-                className="!px-6 !py-4"
-              >
-                Trả lời
-              </Button>
+              <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <Button
+                    size="sm"
+                    variant="bordered"
+                    color="default"
+                    onPress={onOpenTag}
+                    startContent={<Icon icon="lucide:plus" />}
+                  >
+                    Add Tags
+                  </Button>
+                </div>
+
+                <Button
+                  isLoading={isCreating || isUploading}
+                  color="primary"
+                  size="sm"
+                  onPress={() => onSubmit(onClose)}
+                  className="!px-6 !py-4"
+                >
+                  Trả lời{" "}
+                </Button>
+              </div>
             </ModalFooter>
 
             {/* Modals */}

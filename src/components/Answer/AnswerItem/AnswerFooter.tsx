@@ -51,19 +51,19 @@ const AnswerFooter: React.FC<AnswerFooterProps> = ({
       <MoreActionsPopover
         actions={[
           {
-            label: "Copy link",
+            label: "Sao chép liên kết",
             icon: <FaLink />,
             onClick: () => console.log("Copy link"),
           },
           {
-            label: "Not interested",
+            label: "Không quan tâm",
             icon: <LuKeyboardOff />,
             onClick: () => {},
           },
-          { label: "Bookmark", icon: <FaRegBookmark />, onClick: () => {} },
-          { label: "Log", icon: <GrUnorderedList />, onClick: () => {} },
+          { label: "Đánh dấu", icon: <FaRegBookmark />, onClick: () => {} },
+          { label: "Nhật ký", icon: <GrUnorderedList />, onClick: () => {} },
           {
-            label: "Report",
+            label: "Báo cáo",
             icon: <PiWarningBold />,
             onClick: () => setIsReportOpen(true),
           },
@@ -74,7 +74,7 @@ const AnswerFooter: React.FC<AnswerFooterProps> = ({
         onClose={() => setIsReportOpen(false)}
         contentId={String(answer.id)}
         contentType="answer"
-        contentPreview={answer.title || "No title"}
+        contentPreview={answer.title || "Không có tiêu đề"}
       />
     </div>
   );

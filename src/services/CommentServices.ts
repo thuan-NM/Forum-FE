@@ -1,4 +1,7 @@
-import type { CommentCreateDto, CommentResponse } from "../store/interfaces/commentInterfaces.ts";
+import type {
+  CommentCreateDto,
+  CommentResponse,
+} from "../store/interfaces/commentInterfaces.ts";
 import axios from "../utils/configAxios.ts";
 
 interface ReplyQuery {
@@ -55,6 +58,17 @@ const CreateComment = async (data: CommentCreateDto) => {
   });
   return response.data;
 };
+
+const UpdateComment = async (id: string, data: string) => {
+  const response = await axios.put(
+    `/comments/${id}`,
+    { content: data },
+    {
+      withCredentials: true,
+    }
+  );
+  return response.data;
+};
 export {
   CreateComment,
   ListComments,
@@ -62,4 +76,5 @@ export {
   getAllComments,
   UpdateCommentStatus,
   DeleteComment,
+  UpdateComment,
 };

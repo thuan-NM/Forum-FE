@@ -1,19 +1,16 @@
-"use client";
-
 import {
   Avatar,
   Button,
+  Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaCaretRight } from "react-icons/fa";
 import { FaAngleDown } from "react-icons/fa6";
 import { MdClear } from "react-icons/md";
-import { useCreateQuestion } from "../../../hooks/questions/useCreateQuestion";
-import TopicSelectionModal from "./TopicSelectionModal";
 import { TopicResponse } from "../../../store/interfaces/topicInterfaces";
 import { useQuery } from "@tanstack/react-query";
 import { GetFollowedTopics } from "../../../services";
@@ -26,14 +23,26 @@ import { useUploadImages } from "../../../hooks/attachments/useUploadAttachment"
 import TiptapEditor from "../../TextEditor/Tiptap";
 import MenuBar from "../../TextEditor/MenuBar";
 import EditorModal from "../../TextEditor/EditorModal";
+import { useUpdateQuestion } from "../../../hooks/questions/useUpdateQuestion";
+import {
+  QuestionResponse,
+  QuestionUpdateDto,
+} from "../../../store/interfaces/questionInterfaces";
+import TopicSelectionModal from "../QuestionCreation/TopicSelectionModal";
 
-interface PostModalProps {
-  setModalActive: (arg0: string) => void;
+interface QuestionEditModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  question: QuestionResponse;
 }
 
-const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
-  const [title, setTitle] = useState<string>("");
-  const [content, setContent] = useState<string>("");
+const QuestionEditModal: React.FC<QuestionEditModalProps> = ({
+  isOpen,
+  onOpenChange,
+  question,
+}) => {
+  const [title, setTitle] = useState<string>(question.title);
+  const [content, setContent] = useState<string>(question.description);
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<TopicResponse | null>(
     null
@@ -44,39 +53,58 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const user = useGetUserInfo();
-  const { createQuestion, isCreating } = useCreateQuestion();
+  const { updateQuestion, isUpdating } = useUpdateQuestion();
   const { processContentWithUploads, isUploading } = useUploadImages();
 
   const { data: topics } = useQuery({
     queryKey: ["topics"],
     queryFn: () => GetFollowedTopics(),
-    enabled: true,
   });
+
+  useEffect(() => {
+    if (question) {
+      setTitle(question.title);
+      setContent(question.description || "");
+      setSelectedTopic(question && question.topic);
+    }
+  }, [question]);
 
   const onSubmit = async (onClose: () => void) => {
     if (!selectedTopic?.id) return;
     try {
       const processedContent = await processContentWithUploads(content);
-      createQuestion(
+      const data: QuestionUpdateDto = {
+        title,
+        description: processedContent,
+        topicId: Number(selectedTopic.id),
+      };
+      updateQuestion(
         {
-          title,
-          description: processedContent,
-          topicId: Number(selectedTopic.id),
+          id: question.id,
+          data,
         },
         {
           onSuccess: () => {
             onClose();
-            setModalActive("");
           },
         }
       );
     } catch (error) {
-      console.error("Lỗi khi đăng câu hỏi:", error);
+      console.error("Lỗi khi cập nhật câu hỏi:", error);
     }
   };
 
   return (
-    <div>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      isDismissable={false}
+      className="rounded-md z-20 max-h-[100vg] !my-0"
+      backdrop="blur"
+      hideCloseButton
+      isKeyboardDismissDisabled={false}
+      size="3xl"
+    >
       <ModalContent>
         {(onClose) => (
           <>
@@ -90,20 +118,14 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
             <ModalHeader className="flex flex-col gap-1 pt-1">
               <div className="flex justify-between border-b-2 border-content3">
                 <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out border-b-2 border-blue-400"
-                  onPress={() => setModalActive("Ask")}
+                  className="bg-transparent w-full rounded-none text-base font-semibold transition duration-300 ease-in-out border-b-2 border-blue-400"
+                  disabled
                 >
-                  Thêm câu hỏi
-                </Button>
-                <Button
-                  className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out"
-                  onPress={() => setModalActive("Post")}
-                >
-                  Tạo bài viết
+                  Sửa câu hỏi
                 </Button>
               </div>
             </ModalHeader>
-            <ModalBody className="flex-1 overflow-y-auto scrollbar-hide">
+            <ModalBody className="flex-1">
               <div className="bg-content2 rounded-sm backdrop-opacity-60 p-4">
                 <p className="font-bold">Mẹo để nhận được câu trả lời tốt</p>
                 <ul className="list-disc list-inside font-light">
@@ -136,7 +158,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   </Button>
                 </div>
               </div>
-              <div className="flex flex-col w-full gap-y-4 mt-2 ">
+              <div className="flex flex-col w-full gap-y-4 mt-2">
                 <Input
                   variant="underlined"
                   className="!text-2xl"
@@ -145,7 +167,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   onChange={(e) => setTitle(e.target.value)}
                 />
                 <TiptapEditor
-                  initialContent=""
+                  initialContent={content}
                   onChange={setContent}
                   isDisabled={false}
                   setEditor={setEditor}
@@ -183,7 +205,6 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                     </Button>
                   )}
                 </motion.div>
-
                 <AnimatePresence initial={false}>
                   {isVisible && editor && (
                     <motion.div
@@ -218,7 +239,6 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   )}
                 </AnimatePresence>
               </div>
-
               <div className="flex flex-row items-center gap-2">
                 <Button
                   className="border-none bg-transparent hover:bg-content2 px-0"
@@ -233,33 +253,13 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   radius="full"
                   className="px-5"
                   size="sm"
-                  isLoading={isCreating || isUploading}
+                  isLoading={isUpdating || isUploading}
                   onPress={() => onSubmit(onClose)}
                 >
-                  Thêm câu hỏi
+                  Cập nhật câu hỏi
                 </Button>
               </div>
             </ModalFooter>
-            {/* <ModalFooter className="border-none border-content3 p-0 py-3 px-6">
-              <Button
-                className="border-none bg-transparent hover:bg-content2 px-0"
-                radius="full"
-                size="sm"
-                onPress={onClose}
-              >
-                Hủy
-              </Button>
-              <Button
-                color="primary"
-                radius="full"
-                className="px-5"
-                size="sm"
-                isLoading={isCreating || isUploading}
-                onPress={() => onSubmit(onClose)}
-              >
-                Thêm câu hỏi
-              </Button>
-            </ModalFooter> */}
             <EditorModal
               editor={editor}
               setOpenImage={setOpenImage}
@@ -279,8 +279,8 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
         selectedTopic={selectedTopic}
         onTopicSelect={(topic) => setSelectedTopic(topic)}
       />
-    </div>
+    </Modal>
   );
 };
 
-export default QuestionModal;
+export default QuestionEditModal;
