@@ -80,13 +80,13 @@ export default function CompactFilter({
   const dispatch = useDispatch();
 
   const { data: tagData, isLoading: loadingTags } = useQuery({
-    queryKey: ["tags"],
+    queryKey: ["tagfilters"],
     queryFn: () => GetAllTags({ limit: PAGE_SIZE, page: 1 }),
     enabled: tag,
   });
 
   const { data: topicData, isLoading: loadingTopics } = useQuery({
-    queryKey: ["topics"],
+    queryKey: ["topicfilters"],
     queryFn: () => GetAllTopics({ limit: PAGE_SIZE, page: 1 }),
     enabled: topic,
   });
