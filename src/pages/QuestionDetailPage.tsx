@@ -45,6 +45,7 @@ const QuestionDetailPage = () => {
     isOpen: isAnswerOpen,
     onOpenChange: onAnswerOpenChange,
     onOpen: onOpenAnswer,
+    onClose: onCloseAnswer,
   } = useDisclosure();
   const {
     isOpen: isStatusOpen,
@@ -340,6 +341,7 @@ const QuestionDetailPage = () => {
       </div>
       {questionDetail && (
         <AnswerModal
+          onClose={onCloseAnswer}
           question={questionDetail}
           isOpen={isAnswerOpen}
           onOpenChange={onAnswerOpenChange}

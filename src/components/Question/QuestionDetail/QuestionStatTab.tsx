@@ -44,8 +44,13 @@ const QuestionStatTab: React.FC<QuestionStatTabProps> = ({
     questions: QuestionResponse[];
     total: number;
   }>({
-    queryKey: ["questions","stats"],
-    queryFn: () => GetAllQuestions({ limit: 10, topic_id: question.topic.id }),
+    queryKey: ["questions", "stats"],
+    queryFn: () =>
+      GetAllQuestions({
+        limit: 10,
+        topic_id: question.topic.id,
+        status: "approved",
+      }),
   });
 
   return (

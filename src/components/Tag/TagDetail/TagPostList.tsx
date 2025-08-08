@@ -18,7 +18,7 @@ const TagPostList: React.FC<TagPostListProps> = ({ tag }) => {
     total: number;
   }>({
     queryKey: ["posts", "tag", tag.id], // Thêm tag.id để khác biệt với PostList
-    queryFn: () => GetAllPosts({ tagfilter: tag.id }),
+    queryFn: () => GetAllPosts({ tagfilter: tag.id ,status: "approved",}),
   });
 
   // Debug: Log data để kiểm tra

@@ -29,12 +29,18 @@ import EditorModal from "../../TextEditor/EditorModal";
 import { usePredictTopic } from "../../../hooks/questions/usePredictQuestionTopic";
 import { stripHTML } from "../../../utils/stripHTML";
 import AlertAction from "../../Common/AlertAction";
+import { useAutomaticModeration } from "../../../hooks/automatic_moderations/useAutomaticModeration";
+import { QuestionCreateDto } from "../../../store/interfaces/questionInterfaces";
 
 interface PostModalProps {
   setModalActive: (arg0: string) => void;
+  onClose: () => void;
 }
 
-const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
+const QuestionModal: React.FC<PostModalProps> = ({
+  setModalActive,
+  onClose,
+}) => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
   const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
@@ -47,6 +53,8 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [showModerationConfirm, setShowModerationConfirm] =
+    useState<boolean>(false); // State cho confirm moderation
   const [predictedTopicState, setPredictedTopicState] =
     useState<TopicResponse | null>(null);
 
@@ -54,6 +62,7 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const { createQuestion, isCreating } = useCreateQuestion();
   const { processContentWithUploads, isUploading } = useUploadImages();
   const { predictTopic, isPredicting } = usePredictTopic();
+  const { automaticModeration, isModerating } = useAutomaticModeration();
 
   const { data: topics } = useQuery({
     queryKey: ["topics"],
@@ -64,21 +73,49 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const onSubmitActual = async (topicId: number) => {
     try {
       const processedContent = await processContentWithUploads(content);
-      createQuestion(
-        {
-          title,
-          description: processedContent,
-          topicId,
-        },
-        {
+
+      // Kiểm duyệt tự động trước
+      const moderationResult = await automaticModeration(
+        stripHTML(title + " " + content)
+      );
+
+      let data: QuestionCreateDto = {
+        title,
+        description: processedContent,
+        topicId,
+      };
+
+      if (moderationResult.label === "hop_le") {
+        // Giả sử "clean" nghĩa là không vi phạm
+        data.status = "approved"; // Set approved nếu ok
+        createQuestion(data, {
           onSuccess: () => {
             setModalActive("");
           },
-        }
-      );
+        });
+      } else {
+        // Vi phạm: Show confirm moderation
+        setShowModerationConfirm(true);
+      }
     } catch (error) {
       console.error("Lỗi khi đăng câu hỏi:", error);
     }
+  };
+
+  const handleConfirmModeration = () => {
+    // User confirm vi phạm: Gửi mà không set status (backend default pending)
+    const data: QuestionCreateDto = {
+      title,
+      description: content, // Đã processed
+      topicId: Number(selectedTopic?.id),
+      // Không set status
+    };
+    createQuestion(data, {
+      onSuccess: () => {
+        setModalActive("");
+      },
+    });
+    setShowModerationConfirm(false);
   };
 
   const onSubmit = async () => {
@@ -265,7 +302,9 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   radius="full"
                   className="px-5"
                   size="sm"
-                  isLoading={isCreating || isUploading || isPredicting}
+                  isLoading={
+                    isCreating || isUploading || isPredicting || isModerating
+                  }
                   onPress={() => onSubmit()}
                 >
                   Thêm câu hỏi
@@ -303,6 +342,20 @@ const QuestionModal: React.FC<PostModalProps> = ({ setModalActive }) => {
         iconName="mdi:help-circle"
         confirmText="Sử dụng"
         cancelText="Hủy"
+      />
+
+      {/* Add AlertAction cho confirm moderation */}
+      <AlertAction
+        open={showModerationConfirm}
+        onClose={() => setShowModerationConfirm(false)}
+        onConfirm={handleConfirmModeration}
+        title="Nội dung có thể vi phạm quy định"
+        description="Câu hỏi của bạn có thể chứa nội dung không phù hợp. Bạn vẫn muốn đăng (sẽ chờ duyệt)?"
+        iconName="mdi:alert"
+        confirmText="Vẫn đăng"
+        cancelText="Hủy"
+        isDanger={true}
+        loading={isCreating}
       />
     </div>
   );

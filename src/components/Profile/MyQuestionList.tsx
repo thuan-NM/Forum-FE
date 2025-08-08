@@ -39,6 +39,7 @@ const MyQuestionList: React.FC<MyQuestionListProps> = ({ user }) => {
       GetAllQuestions({
         limit: PAGE_SIZE,
         page: currentPage,
+        status: "approved",
         user_id: user?.id,
       }),
   });

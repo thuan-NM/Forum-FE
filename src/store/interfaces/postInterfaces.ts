@@ -5,6 +5,7 @@ export interface PostCreateDto {
   title: string;
   content: string;
   tags: string[];
+  status?: "approved" | "pending" | "rejected"; // Add optional status
 }
 
 export interface PostUpdateDto {

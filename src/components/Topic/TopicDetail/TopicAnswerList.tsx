@@ -14,7 +14,7 @@ const TopicAnswerList = () => {
     total: number;
   }>({
     queryKey: ["answers"],
-    queryFn: () => GetAllAnswers({}),
+    queryFn: () => GetAllAnswers({status: "approved" }),
   });
 
   if (isLoading) return <LoadingState message="Đang tải câu trả lời..." />;

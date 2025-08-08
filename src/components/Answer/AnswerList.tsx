@@ -32,7 +32,11 @@ const AnswerList: React.FC<AnswerListProps> = ({ questionId }) => {
   } = useInfiniteQuery({
     queryKey: ["answers", questionId],
     queryFn: ({ pageParam = 1 }) =>
-      ListAnswers(questionId, LIMIT, Number(pageParam)),
+      ListAnswers(questionId, {
+        page: pageParam,
+        limit: LIMIT,
+        status: "approved",
+      }),
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.reduce(
         (acc, page) => acc + page.answers.length,

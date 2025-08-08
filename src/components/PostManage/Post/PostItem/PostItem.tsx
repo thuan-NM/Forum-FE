@@ -29,7 +29,12 @@ const PostItem: React.FC<PostItemProps> = ({ post, onDelete }) => {
   } = useInfiniteQuery<{ comments: CommentResponse[]; total: number }, Error>({
     queryKey: ["comments", post.id],
     queryFn: ({ pageParam = 1 }) =>
-      ListComments({ page: pageParam, limit: 5, post_id: post.id }),
+      ListComments({
+        page: pageParam,
+        limit: 5,
+        post_id: post.id,
+        status: "approved",
+      }),
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage || !Array.isArray(lastPage.comments)) return undefined;
       const loaded = allPages.reduce(

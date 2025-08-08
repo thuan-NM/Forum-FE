@@ -127,7 +127,7 @@ const TopicsPage = () => {
                     dataLength={allTopics.length}
                     next={fetchNextPage}
                     hasMore={!!hasNextPage}
-                    loader={<TagSkeleton count={6} />}
+                    loader={<LoadingState message="Đang tải thêm chủ đề..." />}
                   >
                     <CardList
                       items={allTopics}
