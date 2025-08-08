@@ -34,6 +34,7 @@ const MyPostList: React.FC<MyPostListProps> = ({ user }) => {
         limit: PAGE_SIZE,
         page: currentPage,
         user_id: user?.id,
+        status: "approved",
       }),
   });
 

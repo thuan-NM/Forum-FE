@@ -60,7 +60,11 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, level = 0 }) => {
     total: number;
   }>({
     queryKey: ["replies", comment.id],
-    queryFn: () => ListReplies({ comment_id: comment.id, limit: 5 }),
+    queryFn: () =>
+      ListReplies({
+        comment_id: comment.id,
+        filter: { limit: 5, status: "approved" },
+      }),
     enabled: showReplies,
   });
 

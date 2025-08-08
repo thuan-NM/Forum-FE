@@ -27,15 +27,20 @@ import { TagResponse } from "../../store/interfaces/tagInterfaces";
 import TagSelectionModal from "../PostManage/Post/PostCreation/TagSelectionModal";
 import { useCreateAnswer } from "../../hooks/answers/useCreateAnswer";
 import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
+import { useAutomaticModeration } from "../../hooks/automatic_moderations/useAutomaticModeration";
+import AlertAction from "../Common/AlertAction";
+import { stripHTML } from "../../utils/stripHTML";
 
 interface AnswerModalProps {
   isOpen: boolean;
+  onClose: () => void;
   onOpenChange: (open: boolean) => void;
   question: QuestionResponse;
 }
 
 const AnswerModal: React.FC<AnswerModalProps> = ({
   isOpen,
+  onClose,
   onOpenChange,
   question,
 }) => {
@@ -52,27 +57,60 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
   } = useDisclosure();
   const [title, setTitle] = useState<string>(question.title);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false); // State cho confirm modal
   const userData = useAppSelector((state: RootState) => state.user.user);
   const { createAnswer, isCreating } = useCreateAnswer();
-  const { processContentWithUploads, isUploading } = useUploadImages(); // ✅ Hook xử lý ảnh
+  const { processContentWithUploads, isUploading } = useUploadImages();
+  const { automaticModeration, isModerating } = useAutomaticModeration();
 
   const onSubmit = async (onClose: () => void) => {
     try {
-      const processedContent = await processContentWithUploads(content); // ✅ upload ảnh
-      const data: AnswerCreateDto = {
+      const processedContent = await processContentWithUploads(content);
+
+      // Kiểm duyệt tự động trước
+      const moderationResult = await automaticModeration(
+        stripHTML(title + " " + content)
+      );
+
+      let data: AnswerCreateDto = {
         content: processedContent,
         questionId: question.id,
         tags: selectedTags.map((tag) => tag.id),
         title: title,
       };
-      createAnswer(data, {
-        onSuccess: () => {
-          onClose();
-        },
-      });
+
+      if (moderationResult.label === "hop_le") {
+        // Giả sử "clean" nghĩa là không vi phạm
+        data.status = "approved"; // Set approved nếu ok
+        createAnswer(data, {
+          onSuccess: () => {
+            onClose();
+          },
+        });
+      } else {
+        // Vi phạm: Show confirm
+        setShowConfirm(true);
+      }
     } catch (error) {
       console.error("Lỗi khi đăng câu trả lời:", error);
     }
+  };
+
+  const handleConfirm = (onClose: () => void) => {
+    // User confirm vi phạm: Gửi mà không set status (backend default pending)
+    const data: AnswerCreateDto = {
+      content: content, // Đã processed
+      questionId: question.id,
+      tags: selectedTags.map((tag) => tag.id),
+      title: title,
+      // Không set status
+    };
+    createAnswer(data, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
+    setShowConfirm(false);
   };
 
   const { data: tags } = useQuery({
@@ -240,13 +278,13 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                 </div>
 
                 <Button
-                  isLoading={isCreating || isUploading}
+                  isLoading={isCreating || isUploading || isModerating}
                   color="primary"
                   size="sm"
                   onPress={() => onSubmit(onClose)}
                   className="!px-6 !py-4"
                 >
-                  Trả lời{" "}
+                  Trả lời
                 </Button>
               </div>
             </ModalFooter>
@@ -270,6 +308,20 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
         tags={tags?.tags || []}
         selectedTags={selectedTags}
         onTagSelection={handleTagSelection}
+      />
+
+      {/* Add AlertAction cho confirm */}
+      <AlertAction
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={() => handleConfirm(onClose)}
+        title="Nội dung có thể vi phạm quy định"
+        description="Câu trả lời của bạn có thể chứa nội dung không phù hợp. Bạn vẫn muốn đăng (sẽ chờ duyệt)?"
+        iconName="mdi:alert"
+        confirmText="Vẫn đăng"
+        cancelText="Hủy"
+        isDanger={true}
+        loading={isCreating}
       />
     </Modal>
   );

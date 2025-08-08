@@ -25,6 +25,7 @@ export interface AnswerCreateDto {
   tags: string[];
   questionId: string;
   title: string;
+  status?: "approved" | "pending" | "rejected"; // Add optional status
 }
 
 export interface AnswerUpdateDto {

@@ -17,14 +17,13 @@ const DeleteAnswer = async (id: string) => {
 };
 const ListAnswers = async (
   questionId: string,
-  limit: number = 10,
-  page: number = 1
+  filter: any
 ): Promise<{ answers: AnswerResponse[]; total: number }> => {
   try {
     const response = await axios.get(
       `/answers/questions?question_id=${questionId}`,
       {
-        params: { limit, page },
+        params: { filter },
         withCredentials: true,
       }
     );

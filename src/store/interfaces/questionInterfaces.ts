@@ -23,6 +23,7 @@ export interface QuestionCreateDto {
   title: string;
   description: string;
   topicId: number;
+  status?: "approved" | "pending" | "rejected"; // Add optional status
 }
 
 export interface QuestionUpdateDto {

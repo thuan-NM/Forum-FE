@@ -27,12 +27,16 @@ import TagSelectionModal from "./TagSelectionModal";
 import { TagResponse } from "../../../../store/interfaces/tagInterfaces";
 import { useCreatePost } from "../../../../hooks/posts/useCreatePost";
 import { useUploadImages } from "../../../../hooks/attachments/useUploadAttachment";
+import AlertAction from "../../../Common/AlertAction";
+import { useAutomaticModeration } from "../../../../hooks/automatic_moderations/useAutomaticModeration";
+import { stripHTML } from "../../../../utils/stripHTML";
 
 interface PostModalProps {
   setModalActive: (arg0: string) => void;
+  onClose: () => void;
 }
 
-const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
+const PostModal: React.FC<PostModalProps> = ({ setModalActive, onClose }) => {
   const [isVisible, setIsVisible] = useState<boolean>(true);
   const [editor, setEditor] = useState<any>(null);
   const [openImage, setOpenImage] = useState<boolean>(false);
@@ -42,8 +46,13 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedTags, setSelectedTags] = useState<TagResponse[]>([]);
   const userData = useAppSelector((state: RootState) => state.user.user);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
+  const {
+    isOpen: isOpenTag,
+    onOpen: onOpenTag,
+    onClose: onCloseTag,
+  } = useDisclosure();
+  const [showConfirm, setShowConfirm] = useState<boolean>(false); // State cho confirm modal
+  const { automaticModeration, isModerating } = useAutomaticModeration();
   const { data: tags } = useQuery({
     queryKey: ["tags"],
     queryFn: () => GetAllTags({}),
@@ -55,16 +64,45 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
   const onSubmit = async (onClose: () => void) => {
     try {
       const processedContent = await processContentWithUploads(content);
-      const data: PostCreateDto = {
+
+      // Kiểm duyệt tự động trước
+      const moderationResult = await automaticModeration(
+        stripHTML(title + " " + processedContent)
+      );
+
+      let data: PostCreateDto = {
         content: processedContent,
         title,
         tags: selectedTags.map((tag) => tag.id),
       };
-      createPost(data);
-      onClose();
+
+      if (moderationResult.label === "hop_le") {
+        // Giả sử "clean" nghĩa là không vi phạm
+        data.status = "approved"; // Set approved nếu ok
+        createPost(data);
+        onClose();
+      } else {
+        // Vi phạm: Show confirm
+        setShowConfirm(true);
+      }
     } catch (error) {
       console.error("Lỗi khi submit:", error);
     }
+  };
+
+  const handleConfirm = async (onClose: () => void) => {
+    // User confirm vi phạm: Gửi mà không set status (backend default pending)
+    const processedContent = await processContentWithUploads(content);
+
+    const data: PostCreateDto = {
+      content: processedContent, // Đã processed
+      title,
+      tags: selectedTags.map((tag) => tag.id),
+      // Không set status
+    };
+    createPost(data);
+    setShowConfirm(false);
+    onClose();
   };
 
   const handleTagSelection = (tags: TagResponse[]) => {
@@ -104,13 +142,13 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                   className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out"
                   onPress={() => setModalActive("Ask")}
                 >
-                  Add Question
+                  Đặt câu hỏi
                 </Button>
                 <Button
                   className="bg-transparent w-1/2 rounded-none text-base font-semibold transition duration-300 ease-in-out border-b-2 border-blue-400"
                   onPress={() => setModalActive("Post")}
                 >
-                  Create Post
+                  Đăng bài
                 </Button>
               </div>
             </ModalHeader>
@@ -259,7 +297,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                     size="sm"
                     variant="bordered"
                     color="default"
-                    onPress={onOpen}
+                    onPress={onOpenTag}
                     startContent={<Icon icon="lucide:plus" />}
                   >
                     Add Tags
@@ -267,7 +305,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
                 </div>
 
                 <Button
-                  isLoading={isCreating || isUploading}
+                  isLoading={isCreating || isUploading || isModerating}
                   color="primary"
                   size="sm"
                   onPress={() => onSubmit(onClose)}
@@ -280,7 +318,18 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
           </>
         )}
       </ModalContent>
-
+      <AlertAction
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={() => handleConfirm(onClose)}
+        title="Nội dung có thể vi phạm quy định"
+        description="Bài viết của bạn có thể chứa nội dung không phù hợp. Bạn vẫn muốn đăng (sẽ chờ duyệt)?"
+        iconName="mdi:alert"
+        confirmText="Vẫn đăng"
+        cancelText="Hủy"
+        isDanger={true}
+        loading={isCreating}
+      />
       <EditorModal
         editor={editor}
         setOpenImage={setOpenImage}
@@ -293,8 +342,8 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive }) => {
       />
 
       <TagSelectionModal
-        isOpen={isOpen}
-        onClose={onClose}
+        isOpen={isOpenTag}
+        onClose={onCloseTag}
         tags={tags?.tags || []}
         selectedTags={selectedTags}
         onTagSelection={handleTagSelection}

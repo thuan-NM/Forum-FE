@@ -7,6 +7,9 @@ import { motion } from "framer-motion";
 import EditorModal from "../TextEditor/EditorModal";
 import { useCreateComment } from "../../hooks/comments/useCreateComment";
 import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
+import AlertAction from "../Common/AlertAction"; // Import AlertAction (giả sử path đúng)
+import { useAutomaticModeration } from "../../hooks/automatic_moderations/useAutomaticModeration";
+import { stripHTML } from "../../utils/stripHTML";
 
 interface Props {
   id: string;
@@ -20,24 +23,55 @@ const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [openImage, setOpenImage] = useState<boolean>(false);
   const [openYoutube, setOpenYoutube] = useState<boolean>(false);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false); // State cho confirm modal
   const { createComment, isCreating } = useCreateComment();
-  const { processContentWithUploads, isUploading } = useUploadImages(); // ✅ Hook xử lý ảnh
+  const { processContentWithUploads, isUploading } = useUploadImages();
+  const { automaticModeration, isModerating } = useAutomaticModeration();
 
   const handleSubmit = async () => {
     try {
-      const processedContent = await processContentWithUploads(content); // ✅ upload ảnh
-      createComment({
+      const processedContent = await processContentWithUploads(content);
+
+      // Kiểm duyệt tự động trước
+      const moderationResult = await automaticModeration(stripHTML(content));
+
+      let data = {
         content: processedContent,
         [`${type}`]: id,
-      });
-      onSuccess?.();
-      if (editor) {
-        editor.commands.clearContent();
+      };
+
+      if (moderationResult.label === "hop_le") {
+        // Giả sử "clean" nghĩa là không vi phạm
+        data.status = "approved"; // Set approved nếu ok
+        createComment(data);
+        onSuccess?.();
+        if (editor) {
+          editor.commands.clearContent();
+        }
+        setContent("");
+      } else {
+        // Vi phạm: Show confirm
+        setShowConfirm(true);
       }
-      setContent("");
     } catch (error) {
       console.error("Lỗi khi đăng bình luận:", error);
     }
+  };
+
+  const handleConfirm = () => {
+    // User confirm vi phạm: Gửi mà không set status (backend default pending)
+    const data = {
+      content: content, // Đã processed
+      [`${type}`]: id,
+      // Không set status
+    };
+    createComment(data);
+    onSuccess?.();
+    if (editor) {
+      editor.commands.clearContent();
+    }
+    setContent("");
+    setShowConfirm(false);
   };
 
   return (
@@ -89,7 +123,7 @@ const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
         size="sm"
         color="primary"
         radius="full"
-        isLoading={isCreating || isUploading}
+        isLoading={isCreating || isUploading || isModerating}
         className="h-8 font-semibold px-5"
         onPress={handleSubmit}
       >
@@ -104,6 +138,20 @@ const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
         showEmojiPicker={showEmojiPicker}
         setShowEmojiPicker={setShowEmojiPicker}
         emojiClassName="!absolute !top-10 !right-20 z-[20]"
+      />
+
+      {/* Add AlertAction cho confirm */}
+      <AlertAction
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={handleConfirm}
+        title="Nội dung có thể vi phạm quy định"
+        description="Bình luận của bạn có thể chứa nội dung không phù hợp. Bạn vẫn muốn đăng (sẽ chờ duyệt)?"
+        iconName="mdi:alert"
+        confirmText="Vẫn đăng"
+        cancelText="Hủy"
+        isDanger={true}
+        loading={isCreating}
       />
     </div>
   );

@@ -27,7 +27,12 @@ const AnswerItem: React.FC<AnswerItemProps> = ({ answer }) => {
   } = useInfiniteQuery<{ comments: CommentResponse[]; total: number }, Error>({
     queryKey: ["comments", answer.id],
     queryFn: ({ pageParam = 1 }) =>
-      ListComments({ page: pageParam, limit: 5, answer_id: answer.id }),
+      ListComments({
+        page: pageParam,
+        limit: 5,
+        answer_id: answer.id,
+        status: "approved",
+      }),
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage || !Array.isArray(lastPage.comments)) return undefined;
       const loaded = allPages.reduce(

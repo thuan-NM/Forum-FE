@@ -38,7 +38,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
   onDelete,
   isDeleting,
 }) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [openAlert, setOpenAlert] = useState(false);
   const userData = useGetUserInfo();
@@ -186,6 +186,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
           />
         </div>
         <AnswerModal
+          onClose={onClose}
           isOpen={isOpen}
           onOpenChange={onOpenChange}
           question={question}

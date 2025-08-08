@@ -6,8 +6,7 @@ import axios from "../utils/configAxios.ts";
 
 interface ReplyQuery {
   comment_id: string;
-  limit?: number;
-  page?: number;
+  filter: any;
 }
 
 const ListComments = async (filters: any) => {
@@ -19,6 +18,7 @@ const ListReplies = async (
 ): Promise<{ replies: CommentResponse[]; total: number }> => {
   try {
     const response = await axios.get(`/comments/${query.comment_id}/replies`, {
+      params: query.filter,
       withCredentials: true,
     });
     return {

@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
 
 import { Skeleton } from "@heroui/react";
-import { GetAllAnswers, ListAnswers } from "../../../services";
+import { GetAllAnswers } from "../../../services";
 import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
 import LoadingState from "../../Common/LoadingState";
 import AnswerItem from "../AnswerItem/AnswerItem";
