@@ -40,8 +40,15 @@ const AIChat: React.FC = () => {
 
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        animate={{
+          scale: [1, 1.1, 1],
+          rotate: [0, 360, 720],
+        }}
+        transition={{
+          duration: 4,
+          ease: "easeInOut",
+          repeat: Infinity,
+        }}
         className="fixed bottom-6 right-6 z-50"
       >
         <Tooltip content="Chat with AI Assistant" placement="left">
@@ -51,7 +58,7 @@ const AIChat: React.FC = () => {
             className="font-semibold text-lg p-4 size-14 rounded-full shadow-lg bg-gradient-to-r from-blue-500 to-purple-500"
             isIconOnly
           >
-            <Icon icon="lucide:bot" width={24} className="text-white" />
+            <Icon icon="ph:open-ai-logo-light" width={24} className="text-white" />
           </Button>
         </Tooltip>
       </motion.div>
