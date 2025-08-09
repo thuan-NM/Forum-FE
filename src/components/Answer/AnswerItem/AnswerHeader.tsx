@@ -6,8 +6,6 @@ import { format } from "timeago.js";
 
 import { useState } from "react";
 import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
-import { useAppSelector } from "../../../store/hooks";
-import { RootState } from "../../../store/store";
 import { useFollowItem } from "../../../hooks/follows/useFollowItem";
 import { GetUserById } from "../../../services";
 import { UserResponse } from "../../../store/interfaces/userInterfaces";

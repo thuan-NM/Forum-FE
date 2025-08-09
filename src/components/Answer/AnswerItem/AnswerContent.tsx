@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Image } from "@heroui/react";
 import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
-import { AnswerContentSkeleton } from "../../Skeleton/AnswerSkeleton";
 import { Link } from "react-router-dom";
 
 const MAX_LINES = 6;
@@ -15,7 +14,6 @@ const AnswerContent: React.FC<{ answer: AnswerResponse }> = ({ answer }) => {
   const [images, setImages] = useState<string[]>([]);
   const [textContent, setTextContent] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const parser = new DOMParser();
@@ -48,66 +46,62 @@ const AnswerContent: React.FC<{ answer: AnswerResponse }> = ({ answer }) => {
 
   return (
     <div>
-      {loading ? (
-        <AnswerContentSkeleton />
-      ) : (
-        <>
-          <h2 className="font-bold mt-5 text-lg">{answer?.title}</h2>
-          <motion.div
-            ref={contentRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className={`relative bg-content1 py-1 text-sm  prose dark:prose-invert ${expanded ? "" : "line-clamp-5"} !w-full max-w-full px-0 ${!expanded && isOverflowing ? "overflow-hidden" : ""}`}
-            dangerouslySetInnerHTML={{
-              __html: expanded ? cleanContent : textContent,
-            }}
-          />
-          <div className="flex flex-row line-clamp-1 gap-x-2">
-            {answer?.tags?.map((tag) => (
-              <div key={tag.id} className="flex">
-                <Link
-                  to={`/tags/${tag.id}`}
-                  className="text-blue-500 hover:underline"
-                >
-                  #{tag.name}
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          {/* Hiển thị hình ảnh đầu tiên khi chưa mở rộng */}
-          {!expanded && images.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mt-2"
-            >
-              <Image
-                alt="Hình ảnh nội dung câu trả lời"
-                src={images[0]}
-                width="100%"
-                radius="none"
-              />
-            </motion.div>
-          )}
-
-          {isOverflowing && (
-            <div className="flex justify-end">
-              <motion.button
-                onClick={() => setExpanded(!expanded)}
-                className="text-blue-500 font-semibold hover:underline mt-2 mr-3 text-xs"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3 }}
+      <>
+        <h2 className="font-bold mt-5 text-lg">{answer?.title}</h2>
+        <motion.div
+          ref={contentRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          className={`relative bg-content1 py-1 text-sm  prose dark:prose-invert ${expanded ? "" : "line-clamp-5"} !w-full max-w-full px-0 ${!expanded && isOverflowing ? "overflow-hidden" : ""}`}
+          dangerouslySetInnerHTML={{
+            __html: expanded ? cleanContent : textContent,
+          }}
+        />
+        <div className="flex flex-row line-clamp-1 gap-x-2">
+          {answer?.tags?.map((tag) => (
+            <div key={tag.id} className="flex">
+              <Link
+                to={`/tags/${tag.id}`}
+                className="text-blue-500 hover:underline"
               >
-                {expanded ? "Thu gọn" : "Tải thêm"}
-              </motion.button>
+                #{tag.name}
+              </Link>
             </div>
-          )}
-        </>
-      )}
+          ))}
+        </div>
+
+        {/* Hiển thị hình ảnh đầu tiên khi chưa mở rộng */}
+        {!expanded && images.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mt-2"
+          >
+            <Image
+              alt="Hình ảnh nội dung câu trả lời"
+              src={images[0]}
+              width="100%"
+              radius="none"
+            />
+          </motion.div>
+        )}
+
+        {isOverflowing && (
+          <div className="flex justify-end">
+            <motion.button
+              onClick={() => setExpanded(!expanded)}
+              className="text-blue-500 font-semibold hover:underline mt-2 mr-3 text-xs"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {expanded ? "Thu gọn" : "Tải thêm"}
+            </motion.button>
+          </div>
+        )}
+      </>
     </div>
   );
 };

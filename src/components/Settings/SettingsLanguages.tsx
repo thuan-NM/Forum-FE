@@ -2,19 +2,13 @@ import React from "react";
 import { useAppSelector } from "../../store/hooks";
 import { RootState } from "../../store/store";
 import { useNavigate } from "react-router-dom";
-import { Icon } from "@iconify/react";
 import {
-  Avatar,
-  Button,
   Card,
   CardBody,
   CardHeader,
   Divider,
-  RadioGroup,
-  Radio,
 } from "@heroui/react";
 import ItemLanguage from "../Common/CardSettings/ItemLanguage";
-import Color from "@tiptap/extension-color";
 
 const SettingsLanguages = () => {
   const user = useAppSelector((state: RootState) => state.user.user);

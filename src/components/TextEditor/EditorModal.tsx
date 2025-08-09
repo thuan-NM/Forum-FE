@@ -55,7 +55,7 @@ const EditorModal: React.FC<EditorModalProp> = ({
 
   const handleInsertImages = () => {
     if (!editor) return;
-    previews.forEach((preview, index) => {
+    previews.forEach((_, index) => {
       const file = fileInputRef.current?.files?.[index];
       if (file) {
         const reader = new FileReader();

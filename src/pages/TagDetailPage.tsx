@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router-dom";
-import { GetTagById, GetTopicById } from "../services";
+import { GetTagById } from "../services";
 import LoadingState from "../components/Common/LoadingState";
 import ErrorState from "../components/Common/ErrorState";
 import TopicTab from "../components/Topic/TopicTab";

@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
 import { useFollowItem } from "../../../hooks/follows/useFollowItem";
 import { QuestionResponse } from "../../../store/interfaces/questionInterfaces";
@@ -16,7 +16,6 @@ import { useQuery } from "@tanstack/react-query";
 import { GetAllQuestions } from "../../../services";
 import LoadingState from "../../Common/LoadingState";
 import NotFind from "../../Common/NotFind";
-import { BsFileEarmarkPostFill } from "react-icons/bs";
 interface QuestionStatTabProps {
   question: QuestionResponse;
   onOpen: () => void;

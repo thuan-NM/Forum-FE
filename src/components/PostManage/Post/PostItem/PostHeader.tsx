@@ -1,14 +1,11 @@
 import { Avatar, Button, useDisclosure } from "@heroui/react";
-import { useQuery } from "@tanstack/react-query";
 import { GoDotFill } from "react-icons/go";
 import { MdClear } from "react-icons/md";
 import { format } from "timeago.js";
 
 import { useState } from "react";
 
-import { User } from "../../../../store/interfaces/userInterfaces";
 import { PostResponse } from "../../../../store/interfaces/postInterfaces";
-import { GetUserById } from "../../../../services/UserServices";
 import { useFollowItem } from "../../../../hooks/follows/useFollowItem";
 import { PostHeaderSkeleton } from "../../../Skeleton/PostSkeleton";
 import { useDeletePost } from "../../../../hooks/posts/useDeletePost";

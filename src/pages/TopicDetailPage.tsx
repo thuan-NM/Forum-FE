@@ -22,7 +22,6 @@ const TopicDetailPage = () => {
     isLoading,
     isError,
     error,
-    refetch, // Thêm refetch
   } = useQuery<{
     topic: TopicResponse;
   }>({

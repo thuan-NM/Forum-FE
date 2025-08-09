@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaRegLightbulb, FaChevronRight } from "react-icons/fa6";
 import {

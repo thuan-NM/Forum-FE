@@ -16,7 +16,7 @@ export const useUpdateInteractionStatus = () => {
       const res = await UpdateInteractionStatus(id, interaction_status);
       return res;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Cập nhật trạng thái câu hỏi thành công");
       queryClient.invalidateQueries({ queryKey: ["questions"] });
     },

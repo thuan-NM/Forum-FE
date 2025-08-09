@@ -55,14 +55,14 @@ export default function ImageResize({
     };
   }, [src, size.width, height, updateAttributes]);
 
-  const handleResize = (e: any, data: any) => {
+  const handleResize = (data: any) => {
     const newWidth = data.size.width;
     const newHeight = newWidth * aspectRatio;
     console.log("Resizing", { newWidth, newHeight });
     setSize({ width: newWidth, height: newHeight });
   };
 
-  const handleResizeStop = (e: any, data: any) => {
+  const handleResizeStop = (data: any) => {
     const newWidth = data.size.width;
     const newHeight = newWidth * aspectRatio;
     console.log("Resize stopped", { newWidth, newHeight });

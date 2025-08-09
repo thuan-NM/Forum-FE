@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -17,7 +16,6 @@ import LoadingState from "../components/Common/LoadingState";
 import ErrorState from "../components/Common/ErrorState";
 import TopicModal from "../components/Topic/TopicModal";
 import NoTopic from "../components/Topic/NoTopic";
-import TagSkeleton from "../components/Skeleton/TagSkeleton";
 import FollowedTopicsItem from "../components/Topic/FollowedTopicItem";
 import CompactFilter from "../components/Common/Filter/CompactFilter";
 import { useAppSelector } from "../store/hooks";
@@ -37,7 +35,6 @@ const TopicsPage = () => {
     refetch,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ["topics", filter],
     queryFn: ({ pageParam = 1 }) =>

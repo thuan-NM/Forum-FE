@@ -1,11 +1,9 @@
 import { Button, Image } from "@heroui/react";
 import { TopicResponse } from "../../store/interfaces/topicInterfaces";
 import { useNavigate } from "react-router-dom";
-import { useFollowItem } from "../../hooks/follows/useFollowItem";
 import { Icon } from "@iconify/react/dist/iconify.js";
 import { cn } from "../../lib/utils";
 import { useFollowTopic } from "../../hooks/follows/useFollowTopic";
-import TopicSkeleton from "../Skeleton/TopicSkeleton";
 
 interface FollowedTopicsItemProps {
   topic: TopicResponse;

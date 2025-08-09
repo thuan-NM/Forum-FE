@@ -12,7 +12,6 @@ import LoadingState from "../components/Common/LoadingState";
 import SettingsLanguages from "../components/Settings/SettingsLanguages";
 import SettingsNotifications from "../components/Settings/SettingsNotifications";
 import SettingsPrivacy from "../components/Settings/SettingsPrivacy";
-import SettingsAccount from "../components/Settings/SettingsAccount";
 
 const HomePage = lazy(() => import("../pages/HomePage"));
 const ProfilePage = lazy(() => import("../pages/ProfilePage"));

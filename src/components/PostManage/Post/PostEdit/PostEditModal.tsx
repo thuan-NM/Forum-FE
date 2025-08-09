@@ -6,15 +6,12 @@ import {
   ModalBody,
   ModalContent,
   ModalFooter,
-  ModalHeader,
   Tooltip,
   User,
   useDisclosure,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useAppSelector } from "../../../../store/hooks";
 import { useQuery } from "@tanstack/react-query";
-import { RootState } from "../../../../store/store";
 import { GetAllTags } from "../../../../services";
 import {
   PostCreateDto,

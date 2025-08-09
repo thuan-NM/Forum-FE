@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card } from '@heroui/react';
+import { Button } from '@heroui/react';
 import { Icon } from '@iconify/react';
 
 interface EmptyStateProps {

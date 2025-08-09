@@ -72,7 +72,7 @@ const QuestionDetailPage = () => {
     queryKey: ["questions", id],
     queryFn: () => GetQuestionById(id || ""),
   });
-  const { isFollowing, handleToggleFollow, isCheckingFollow, isPending } =
+  const { isFollowing, handleToggleFollow, isPending } =
     useFollowItem<{ id: string }>(
       questionDetail?.author?.id.toString() || "",
       "users"
