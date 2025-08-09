@@ -45,7 +45,6 @@ const MyBio: React.FC<MyBioProps> = ({ user, isMe = true }) => {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
-  const [images, setImages] = useState<string[]>([]);
   const [textContent, setTextContent] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -76,8 +75,6 @@ const MyBio: React.FC<MyBioProps> = ({ user, isMe = true }) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(user?.bio || "", "text/html");
     const imgElements = doc.querySelectorAll("img");
-    const imgSrcs = Array.from(imgElements).map((img) => img.src);
-    setImages(imgSrcs);
     imgElements.forEach((img) => img.remove());
     const cleanText = DOMPurify.sanitize(doc.body.innerHTML, {
       ADD_TAGS: ["ol", "ul", "li"],

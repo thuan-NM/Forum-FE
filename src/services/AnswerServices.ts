@@ -1,5 +1,4 @@
 import type {
-  AnswerCreateDto,
   AnswerResponse,
   AnswerUpdateDto,
 } from "../store/interfaces/answerInterfaces.ts";

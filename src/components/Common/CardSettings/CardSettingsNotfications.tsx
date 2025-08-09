@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "../../../lib/utils";
-import { Button, Divider, Switch } from "@heroui/react";
+import { Button, Switch } from "@heroui/react";
 
 interface CardSettingsNotificationsProps {
   icon?: string;

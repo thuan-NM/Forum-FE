@@ -1,10 +1,6 @@
 import React from "react";
 import {
   Button,
-  Modal,
-  ModalContent,
-  ModalBody,
-  useDisclosure,
   Tooltip,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";

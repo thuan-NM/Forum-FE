@@ -1,5 +1,4 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import {  useQuery } from "@tanstack/react-query";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
 import { AnimatePresence } from "framer-motion";
 import LoadingState from "../../Common/LoadingState";

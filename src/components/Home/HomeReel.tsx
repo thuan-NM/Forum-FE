@@ -1,6 +1,5 @@
 import PostList from '../PostManage/Post/PostList'
 import PostManage from '../PostManage/PostManage'
-import QuestionList from '../Question/QuestionList'
 
 const HomeReel = () => {
   return (

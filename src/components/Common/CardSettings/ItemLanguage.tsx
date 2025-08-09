@@ -1,7 +1,5 @@
 import React from "react";
 import { cn } from "../../../lib/utils";
-import { Switch, User } from "@heroui/react";
-import Color from "@tiptap/extension-color";
 
 interface ItemLanguageProps {
   acronym: string;

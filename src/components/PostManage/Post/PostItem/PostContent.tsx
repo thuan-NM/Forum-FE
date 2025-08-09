@@ -2,7 +2,6 @@ import { PostResponse } from "../../../../store/interfaces/postInterfaces";
 import DOMPurify from "dompurify";
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
-import { PostContentSkeleton } from "../../../Skeleton/PostSkeleton";
 import { Image } from "@heroui/react";
 import { Link } from "react-router-dom";
 
@@ -14,19 +13,12 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [textContent, setTextContent] = useState("");
-  const [hasList, setHasList] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
-  const [loading, setLoading] = useState(false);
 
   // Parse nội dung và xử lý
   useEffect(() => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(post.content, "text/html");
-
-    // Kiểm tra nếu có thẻ danh sách
-    const hasListTag = doc.querySelector("ul, ol, li") !== null;
-    setHasList(hasListTag);
-
     // Tách hình ảnh
     const imgElements = doc.querySelectorAll("img");
     const imgSrcs = Array.from(imgElements).map((img) => img.src);
@@ -59,9 +51,7 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
 
   return (
     <div>
-      {loading ? (
-        <PostContentSkeleton />
-      ) : (
+     
         <>
           <h2 className="font-bold mt-5 text-lg">{post.title}</h2>
 
@@ -127,7 +117,6 @@ const PostContent: React.FC<{ post: PostResponse }> = ({ post }) => {
             </div>
           )}
         </>
-      )}
     </div>
   );
 };

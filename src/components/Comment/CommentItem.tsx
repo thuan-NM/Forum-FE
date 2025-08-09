@@ -1,4 +1,4 @@
-import { Avatar, Button, Tooltip, Image } from "@heroui/react";
+import { Avatar, Button, Tooltip } from "@heroui/react";
 import { AiFillLike, AiOutlineLike } from "react-icons/ai";
 import { GoDotFill } from "react-icons/go";
 import { format } from "timeago.js";

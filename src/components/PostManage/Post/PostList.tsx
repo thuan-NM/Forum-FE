@@ -4,8 +4,6 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { AnimatePresence, motion } from "framer-motion";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
-import { useEffect } from "react";
-import type { InfiniteData } from "@tanstack/react-query";
 
 import { GetAllPosts } from "../../../services/PostServices";
 import { useDeletePost } from "../../../hooks/posts/useDeletePost";

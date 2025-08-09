@@ -6,7 +6,6 @@ import { Outlet, useLocation } from "react-router-dom";
 
 const AnswerPage = () => {
   const { pathname } = useLocation();
-  const location = useLocation();
  
 
   const isRequestsPage = pathname.startsWith("/answer/requests");

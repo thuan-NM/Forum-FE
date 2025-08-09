@@ -39,7 +39,7 @@ interface PostModalProps {
 
 const QuestionModal: React.FC<PostModalProps> = ({
   setModalActive,
-  onClose,
+  // onClose,
 }) => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");

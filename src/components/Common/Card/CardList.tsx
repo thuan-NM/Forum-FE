@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
 import NotFind from "../NotFind";
 import { FaRegLightbulb } from "react-icons/fa";
 
