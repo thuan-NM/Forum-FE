@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
 
 import { GetAllPosts } from "../../services";
@@ -34,6 +34,7 @@ const MyPostList: React.FC<MyPostListProps> = ({ user }) => {
         limit: PAGE_SIZE,
         page: currentPage,
         user_id: user?.id,
+        status: "approved",
       }),
   });
 

@@ -7425,6 +7425,11 @@ tippy.js@^6.3.7:
   dependencies:
     "@popperjs/core" "^2.9.0"
 
+tiptap-extension-resize-image@^1.2.3:
+  version "1.2.3"
+  resolved "https://registry.npmjs.org/tiptap-extension-resize-image/-/tiptap-extension-resize-image-1.2.3.tgz"
+  integrity sha512-NC1BRn2ap7kxpdFI8UUFldlecSokqJj8Uug5b3/BY/vQeje4O+uCEOQofray90QKz/8gSu8l8wXwK1zH7W5vwQ==
+
 to-regex-range@^5.0.1:
   version "5.0.1"
   resolved "https://registry.npmjs.org/to-regex-range/-/to-regex-range-5.0.1.tgz"

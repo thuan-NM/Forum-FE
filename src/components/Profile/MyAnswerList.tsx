@@ -31,6 +31,7 @@ const MyAnswerList: React.FC<MyAnswerListProps> = ({ user }) => {
       GetAllAnswers({
         limit: PAGE_SIZE,
         page: currentPage,
+        status: "approved" ,
         user_id: user?.id,
       }),
   });

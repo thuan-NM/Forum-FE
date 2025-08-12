@@ -1,3 +1,4 @@
+"use client";
 import {
   Modal,
   ModalContent,
@@ -17,8 +18,7 @@ import TiptapEditor from "../TextEditor/Tiptap";
 import MenuBar from "../TextEditor/MenuBar";
 import EditorModal from "../TextEditor/EditorModal";
 import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-
+import { useQuery } from "@tanstack/react-query";
 import { AnswerCreateDto } from "../../store/interfaces/answerInterfaces";
 import { useAppSelector } from "../../store/hooks";
 import { RootState } from "../../store/store";
@@ -26,15 +26,21 @@ import { GetAllTags } from "../../services";
 import { TagResponse } from "../../store/interfaces/tagInterfaces";
 import TagSelectionModal from "../PostManage/Post/PostCreation/TagSelectionModal";
 import { useCreateAnswer } from "../../hooks/answers/useCreateAnswer";
+import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
+import { useAutomaticModeration } from "../../hooks/automatic_moderations/useAutomaticModeration";
+import AlertAction from "../Common/AlertAction";
+import { stripHTML } from "../../utils/stripHTML";
 
 interface AnswerModalProps {
   isOpen: boolean;
+  onClose: () => void;
   onOpenChange: (open: boolean) => void;
   question: QuestionResponse;
 }
 
 const AnswerModal: React.FC<AnswerModalProps> = ({
   isOpen,
+  onClose,
   onOpenChange,
   question,
 }) => {
@@ -51,21 +57,60 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
   } = useDisclosure();
   const [title, setTitle] = useState<string>(question.title);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
+  const [showConfirm, setShowConfirm] = useState<boolean>(false); // State cho confirm modal
   const userData = useAppSelector((state: RootState) => state.user.user);
   const { createAnswer, isCreating } = useCreateAnswer();
+  const { processContentWithUploads, isUploading } = useUploadImages();
+  const { automaticModeration, isModerating } = useAutomaticModeration();
 
-  const onSubmit = (onClose: () => void) => {
+  const onSubmit = async (onClose: () => void) => {
+    try {
+      const processedContent = await processContentWithUploads(content);
+
+      // Kiểm duyệt tự động trước
+      const moderationResult = await automaticModeration(
+        stripHTML(title + " " + content)
+      );
+
+      let data: AnswerCreateDto = {
+        content: processedContent,
+        questionId: question.id,
+        tags: selectedTags.map((tag) => tag.id),
+        title: title,
+      };
+
+      if (moderationResult.label === "hop_le") {
+        // Giả sử "clean" nghĩa là không vi phạm
+        data.status = "approved"; // Set approved nếu ok
+        createAnswer(data, {
+          onSuccess: () => {
+            onClose();
+          },
+        });
+      } else {
+        // Vi phạm: Show confirm
+        setShowConfirm(true);
+      }
+    } catch (error) {
+      console.error("Lỗi khi đăng câu trả lời:", error);
+    }
+  };
+
+  const handleConfirm = (onClose: () => void) => {
+    // User confirm vi phạm: Gửi mà không set status (backend default pending)
     const data: AnswerCreateDto = {
-      content: content,
+      content: content, // Đã processed
       questionId: question.id,
       tags: selectedTags.map((tag) => tag.id),
       title: title,
+      // Không set status
     };
     createAnswer(data, {
       onSuccess: () => {
         onClose();
       },
     });
+    setShowConfirm(false);
   };
 
   const { data: tags } = useQuery({
@@ -76,6 +121,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
   const handleTagSelection = (tags: TagResponse[]) => {
     setSelectedTags(tags);
   };
+
   return (
     <Modal
       isOpen={isOpen}
@@ -83,6 +129,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
       isDismissable={false}
       backdrop="blur"
       hideCloseButton
+      className="rounded-md z-20 max-h-[100vg] !my-0"
       isKeyboardDismissDisabled={false}
       size="3xl"
     >
@@ -103,7 +150,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
             </div>
 
             {/* Body */}
-            <ModalBody className="flex-1 overflow-y-auto mt-8  scrollbar-hide">
+            <ModalBody className="flex-1 overflow-y-auto mt-8">
               <div className="flex justify-start mb-1">
                 <User
                   avatarProps={{
@@ -133,32 +180,26 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
               />
               <TiptapEditor
                 initialContent=""
-                onChange={(value) => setContent(value)}
+                onChange={setContent}
                 isDisabled={false}
                 setEditor={setEditor}
+                className="min-h-[58vh] max-h-[58vh] overflow-y-auto scrollbar-hide"
+                containerClassName="h-fit p-0 px-1 border-3 border-content3 !shadow-md rounded-lg !bg-content1"
               />
+              <div className="flex flex-row gap-x-2">
+                {selectedTags.map((tag) => (
+                  <Chip
+                    key={tag.id}
+                    onClose={() =>
+                      setSelectedTags(selectedTags.filter((t) => t !== tag))
+                    }
+                  >
+                    {tag.name}
+                  </Chip>
+                ))}
+              </div>
             </ModalBody>
-            <div className="flex flex-wrap gap-2 px-6 py-2">
-              {selectedTags.map((tag) => (
-                <Chip
-                  key={tag.id}
-                  onClose={() =>
-                    setSelectedTags(selectedTags.filter((t) => t !== tag))
-                  }
-                >
-                  {tag.name}
-                </Chip>
-              ))}
-              <Button
-                size="sm"
-                variant="bordered"
-                color="default"
-                onPress={onOpenTag}
-                startContent={<Icon icon="lucide:plus" />}
-              >
-                Thêm thẻ
-              </Button>
-            </div>
+
             {/* Footer */}
             <ModalFooter className="flex justify-between items-center">
               <div className="flex items-center">
@@ -190,7 +231,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                   )}
                 </motion.div>
                 <AnimatePresence initial={false}>
-                  {isVisible && editor ? (
+                  {isVisible && editor && (
                     <motion.div
                       initial={{ opacity: 0, scaleY: 0 }}
                       animate={{ opacity: 1, scaleY: 1 }}
@@ -207,10 +248,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                           "underline",
                           "code",
                           "h1",
-                          "h2",
-                          "h3",
                           "emoji",
-                          "youtube",
                           "bulletList",
                           "orderedList",
                           "blockquote",
@@ -220,20 +258,35 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                         setShowEmojiPicker={() =>
                           setShowEmojiPicker(!showEmojiPicker)
                         }
+                        className="flex-nowrap"
                       />
                     </motion.div>
-                  ) : null}
+                  )}
                 </AnimatePresence>
               </div>
-              <Button
-                color="primary"
-                size="sm"
-                onPress={() => onSubmit(onClose)}
-                isLoading={isCreating}
-                className="!px-6 !py-4"
-              >
-                Trả lời
-              </Button>
+              <div className="flex flex-row items-center gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <Button
+                    size="sm"
+                    variant="bordered"
+                    color="default"
+                    onPress={onOpenTag}
+                    startContent={<Icon icon="lucide:plus" />}
+                  >
+                    Add Tags
+                  </Button>
+                </div>
+
+                <Button
+                  isLoading={isCreating || isUploading || isModerating}
+                  color="primary"
+                  size="sm"
+                  onPress={() => onSubmit(onClose)}
+                  className="!px-6 !py-4"
+                >
+                  Trả lời
+                </Button>
+              </div>
             </ModalFooter>
 
             {/* Modals */}
@@ -255,6 +308,20 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
         tags={tags?.tags || []}
         selectedTags={selectedTags}
         onTagSelection={handleTagSelection}
+      />
+
+      {/* Add AlertAction cho confirm */}
+      <AlertAction
+        open={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={() => handleConfirm(onClose)}
+        title="Nội dung có thể vi phạm quy định"
+        description="Câu trả lời của bạn có thể chứa nội dung không phù hợp. Bạn vẫn muốn đăng (sẽ chờ duyệt)?"
+        iconName="mdi:alert"
+        confirmText="Vẫn đăng"
+        cancelText="Hủy"
+        isDanger={true}
+        loading={isCreating}
       />
     </Modal>
   );

@@ -5,19 +5,17 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { motion, AnimatePresence } from "framer-motion";
 
-import { GetAllTags, GetAllUsers } from "../services";
+import {  GetAllUsers } from "../services";
 
 import CardList from "../components/Common/Card/CardList";
 import CardItem from "../components/Common/Card/CardItem";
 import LoadingState from "../components/Common/LoadingState";
 import ErrorState from "../components/Common/ErrorState";
 import TagSkeleton from "../components/Skeleton/TagSkeleton";
-import { TagResponse } from "../store/interfaces/tagInterfaces";
 import TopicTab from "../components/Topic/TopicTab";
 import { UserResponse } from "../store/interfaces/userInterfaces";
 import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react/dist/iconify.js";
-import { useFollowItem } from "../hooks/follows/useFollowItem";
 import { useFollowUser } from "../hooks/follows/useFollowUser";
 
 const PAGE_SIZE = 12;
@@ -67,7 +65,7 @@ const UsersPage = () => {
   return (
     <div className="flex flex-col h-auto">
       <div className="p-4 w-full mx-auto flex md:flex-row flex-col gap-4 px-24">
-        <div className="basis-4/6 pr-4">
+        <div className="basis-4/6 md:pr-4 px-0">
           {/* Chủ đề của bạn */}
 
           {/* Khám phá chủ đề */}
@@ -150,8 +148,8 @@ const UsersPage = () => {
         </div>
 
         {/* Cột bên phải */}
-        <div className="md:basis-2/6 md:pl-4">
-          <TopicTab />
+        <div className="md:basis-2/6 md:pl-4 m-0 md:h-fit md:sticky md:top-20">
+          <TopicTab className="md:ml-6 m-0" />
         </div>
       </div>
     </div>

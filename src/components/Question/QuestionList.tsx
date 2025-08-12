@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FaRegLightbulb, FaChevronRight } from "react-icons/fa6";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -10,53 +13,57 @@ import {
   GetAllQuestions,
   DeleteQuestion,
 } from "../../services/QuestionServices";
-import { QuestionResponse } from "../../store/interfaces/questionInterfaces";
 import QuestionItem from "./QuestionItem/QuestionItem";
 import { QuestionSkeleton } from "../Skeleton/QuestionSkeleton";
 import NotFind from "../Common/NotFind";
 import { Button } from "@heroui/react";
+import { useAppSelector } from "../../store/hooks";
+import { RootState } from "../../store/store";
 
 const PAGE_SIZE = 12;
 
 const QuestionList = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [allQuestions, setAllQuestions] = useState<QuestionResponse[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const filter = useAppSelector((state: RootState) => state.filter);
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ["questions", currentPage],
-    queryFn: () => GetAllQuestions({ page: currentPage, limit: PAGE_SIZE }),
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+  } = useInfiniteQuery({
+    queryKey: ["questions", filter],
+    queryFn: ({ pageParam = 1 }) =>
+      GetAllQuestions({
+        page: pageParam,
+        limit: PAGE_SIZE,
+        status: "approved",
+        search: filter.search || undefined,
+        sort: filter.sort || undefined,
+        topic_id:
+          Array.isArray(filter.topic) && filter.topic.length > 0
+            ? filter.topic.map((id) => Number(id)).join(",")
+            : undefined,
+      }),
+    initialPageParam: 1, // 👈 Thêm dòng này
+    getNextPageParam: (lastPage, allPages) => {
+      const loaded = allPages.flatMap((p) => p.questions).length;
+      return loaded < lastPage.total ? allPages.length + 1 : undefined;
+    },
     staleTime: 5 * 60 * 1000,
   });
 
-  useEffect(() => {
-    if (data?.questions) {
-      setAllQuestions((prev) => [...prev, ...data.questions]);
-
-      const totalLoaded = allQuestions.length + data.questions.length;
-      if (totalLoaded >= data.total) {
-        setHasMore(false);
-      }
-    }
-  }, [data]);
-
-  const fetchMoreData = () => {
-    if (hasMore) {
-      setCurrentPage((prev) => prev + 1);
-    }
-  };
+  const allQuestions = data?.pages.flatMap((page) => page.questions) || [];
 
   const deleteMutation = useMutation({
     mutationFn: DeleteQuestion,
     onSuccess: (data) => {
       toast.success(data?.message || "Xóa câu hỏi thành công");
       queryClient.invalidateQueries({ queryKey: ["questions"] });
-      setAllQuestions([]);
-      setCurrentPage(1);
-      setHasMore(true);
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || "Xóa thất bại");
@@ -67,7 +74,7 @@ const QuestionList = () => {
     deleteMutation.mutate(postId);
   };
 
-  if (isLoading && currentPage === 1) {
+  if (isLoading) {
     return (
       <div className="my-3 text-center">
         <QuestionSkeleton />
@@ -112,20 +119,26 @@ const QuestionList = () => {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.25 }}
         >
-          {allQuestions.length > 0 ? (
+          {Array.isArray(allQuestions) && allQuestions.length > 0 ? (
             <InfiniteScroll
               dataLength={allQuestions.length}
-              next={fetchMoreData}
-              hasMore={hasMore}
+              next={fetchNextPage}
+              hasMore={!!hasNextPage}
               loader={<QuestionSkeleton />}
             >
-              {allQuestions.map((question) => (
-                <QuestionItem
-                  key={question.id}
-                  question={question}
-                  onDelete={handleDelete}
-                />
-              ))}
+              {allQuestions
+                .filter(
+                  (q): q is NonNullable<typeof q> =>
+                    q !== null && q !== undefined
+                ) // ✅ bỏ null
+                .map((question) => (
+                  <QuestionItem
+                    key={question.id}
+                    question={question}
+                    onDelete={handleDelete}
+                    isDeleting={deleteMutation.isPending}
+                  />
+                ))}
             </InfiniteScroll>
           ) : (
             <NotFind

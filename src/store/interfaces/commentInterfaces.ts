@@ -23,6 +23,7 @@ export interface CommentCreateDto {
   post_id?: number;
   answer_id?: number;
   parent_id?: number;
+  status?: "approved" | "pending" | "rejected"; // Add optional status
 }
 
 export interface CommentUpdateDto {

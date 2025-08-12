@@ -9,7 +9,10 @@ const GetAllTopics = async (filter: any) => {
     params: filter,
     withCredentials: true,
   });
-  return response.data;
+  return {
+    topics: response.data.topics || [],
+    total: response.data.total || 0,
+  };
 };
 
 const DeleteTopic = async (id: string) => {

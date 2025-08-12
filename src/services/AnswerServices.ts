@@ -1,4 +1,7 @@
-import type { AnswerResponse } from "../store/interfaces/answerInterfaces.ts";
+import type {
+  AnswerResponse,
+  AnswerUpdateDto,
+} from "../store/interfaces/answerInterfaces.ts";
 import axios from "../utils/configAxios.ts";
 
 const GetAnswer = async (id: string): Promise<AnswerResponse> => {
@@ -13,14 +16,13 @@ const DeleteAnswer = async (id: string) => {
 };
 const ListAnswers = async (
   questionId: string,
-  limit: number = 10,
-  page: number = 1
+  filter: any
 ): Promise<{ answers: AnswerResponse[]; total: number }> => {
   try {
     const response = await axios.get(
       `/answers/questions?question_id=${questionId}`,
       {
-        params: { limit, page },
+        params: { filter },
         withCredentials: true,
       }
     );
@@ -34,7 +36,10 @@ const ListAnswers = async (
 };
 const GetAllAnswers = async (filters: any) => {
   const response = await axios.get("/answers/", { params: filters });
-  return response.data;
+  return {
+    answers: response.data.answers || [],
+    total: response.data.total || 0,
+  };
 };
 
 const UpdateAnswerStatus = async (id: string, status: string) => {
@@ -52,6 +57,12 @@ const CreateAnswer = async (data: any) => {
   });
   return response.data;
 };
+const UpdateAnswer = async (id: string, answer: AnswerUpdateDto) => {
+  const response = await axios.put(`/answers/${id}`, answer, {
+    withCredentials: true,
+  });
+  return response.data;
+};
 export {
   GetAnswer,
   DeleteAnswer,
@@ -60,4 +71,5 @@ export {
   UpdateAnswerStatus,
   AcceptAnswer,
   CreateAnswer,
+  UpdateAnswer,
 };

@@ -105,14 +105,16 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
           key="setting"
           textValue="Setting"
         >
-          <Button
-            className="bg-tranparent text-md font-light"
-            size="sm"
-            radius="none"
-          >
-            <IoIosSettings className="w-5 h-5" />
-            Cài đặt
-          </Button>
+          <Link to={"/settings"}>
+            <Button
+              className="bg-tranparent text-md font-light"
+              size="sm"
+              radius="none"
+            >
+              <IoIosSettings className="w-5 h-5" />
+              Cài đặt
+            </Button>
+          </Link>
         </DropdownItem>
         <DropdownItem
           className="rounded-none"

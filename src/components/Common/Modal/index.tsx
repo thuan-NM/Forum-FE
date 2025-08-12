@@ -1,10 +1,6 @@
 import React from "react";
 import {
   Button,
-  Modal,
-  ModalContent,
-  ModalBody,
-  useDisclosure,
   Tooltip,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
@@ -28,9 +24,8 @@ const useMediaQuery = (query: string) => {
 };
 
 const AIChat: React.FC = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const isMobile = useMediaQuery("(max-width: 640px)");
-
+  const [open, setOpen] = React.useState(false);
   return (
     <div className="relative">
       {/* Background decoration */}
@@ -41,22 +36,29 @@ const AIChat: React.FC = () => {
 
       <motion.div
         initial={{ scale: 0, rotate: -180 }}
-        animate={{ scale: 1, rotate: 0 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        animate={{
+          scale: [1, 1.1, 1],
+          rotate: [0, 360, 720],
+        }}
+        transition={{
+          duration: 4,
+          ease: "easeInOut",
+          repeat: Infinity,
+        }}
         className="fixed bottom-6 right-6 z-50"
       >
         <Tooltip content="Chat with AI Assistant" placement="left">
           <Button
             color="primary"
-            onPress={onOpen}
+            onPress={() => setOpen(!open)}
             className="font-semibold text-lg p-4 size-14 rounded-full shadow-lg bg-gradient-to-r from-blue-500 to-purple-500"
             isIconOnly
           >
-            <Icon icon="lucide:bot" width={24} className="text-white" />
+            <Icon icon="ph:open-ai-logo-light" width={24} className="text-white" />
           </Button>
         </Tooltip>
       </motion.div>
-      <Modal
+      {/* <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         size={isMobile ? "full" : "lg"}
@@ -67,12 +69,14 @@ const AIChat: React.FC = () => {
       >
         <ModalContent>
           {(onClose) => (
-            <ModalBody className="p-0 overflow-hidden">
-              <AIChatModal onClose={onClose} isMobile={isMobile} />
-            </ModalBody>
+            <ModalBody className="p-0 overflow-hidden"> */}
+      {open && (
+        <AIChatModal onClose={() => setOpen(false)} isMobile={isMobile} />
+      )}
+      {/* </ModalBody>
           )}
         </ModalContent>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };

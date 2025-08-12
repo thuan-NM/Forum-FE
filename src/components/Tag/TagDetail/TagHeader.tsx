@@ -1,4 +1,4 @@
-import { Button, Card, Image } from "@heroui/react";
+import {  Card, Image } from "@heroui/react";
 import React from "react";
 import { TagResponse } from "../../../store/interfaces/tagInterfaces";
 

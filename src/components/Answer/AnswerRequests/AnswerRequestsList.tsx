@@ -6,15 +6,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
 
 import { Skeleton } from "@heroui/react";
-import { GetAllAnswers, ListAnswers } from "../../../services";
+import { GetAllAnswers } from "../../../services";
 import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
 import LoadingState from "../../Common/LoadingState";
 import AnswerItem from "../AnswerItem/AnswerItem";
 import NotFind from "../../Common/NotFind";
+import { useAppSelector } from "../../../store/hooks";
+import { RootState } from "../../../store/store";
 
 const LIMIT = 12;
 
 const AnswerRequestsList = () => {
+  const filter = useAppSelector((state: RootState) => state.filter);
+
   const {
     data,
     fetchNextPage,
@@ -27,9 +31,19 @@ const AnswerRequestsList = () => {
     answers: AnswerResponse[];
     total: number;
   }>({
-    queryKey: ["answers"],
+    queryKey: ["answers", filter],
     queryFn: ({ pageParam = 1 }) =>
-      GetAllAnswers({ limit: LIMIT, page: pageParam }),
+      GetAllAnswers({
+        limit: LIMIT,
+        page: pageParam,
+        status: "approved",
+        search: filter.search || undefined,
+        sort: filter.sort || undefined,
+        tagfilter:
+          Array.isArray(filter.tag) && filter.tag.length > 0
+            ? filter.tag.map((id) => Number(id)).join(",")
+            : undefined,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       const totalFetched = allPages.flatMap((p) => p.answers).length;
@@ -95,7 +109,7 @@ const AnswerRequestsList = () => {
         ) : (
           <NotFind
             className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
-            title="answer"
+            title="Không có câu trả lời nào"
             icon={
               <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
             }

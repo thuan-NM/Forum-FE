@@ -15,6 +15,7 @@ import { cn } from "../../lib/utils";
 import { useClickOutside } from "../../hooks/custom/outsideclick";
 import { AnimatePresence, motion } from "framer-motion";
 import { BiImageAdd, BiX } from "react-icons/bi";
+import { useTheme } from "next-themes";
 
 interface EditorModalProp {
   setOpenImage: (value: boolean) => void;
@@ -40,7 +41,7 @@ const EditorModal: React.FC<EditorModalProp> = ({
   const [youtubeURL, setYoutubeURL] = useState<string>("");
   const [previews, setPreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const { theme } = useTheme();
   const insertEmoji = (emoji: any) => {
     editor?.chain().focus().insertContent(emoji.native).run();
     setShowEmojiPicker(false);
@@ -54,19 +55,21 @@ const EditorModal: React.FC<EditorModalProp> = ({
 
   const handleInsertImages = () => {
     if (!editor) return;
-    previews.forEach((preview, index) => {
+    previews.forEach((_, index) => {
       const file = fileInputRef.current?.files?.[index];
       if (file) {
         const reader = new FileReader();
         reader.onload = (event) => {
           const result = event.target?.result as string;
-          // Fix: Insert dùng customImage thay vì setImage
           editor
             .chain()
             .focus()
-            .insertContent({
-              type: "customImage",
-              attrs: { src: result, width: "300", height: "auto" },
+            .setImage({
+              // Dùng setImage của Tiptap image
+              src: result,
+              alt: "Ảnh mô tả", // Optional
+              title: "Tiêu đề ảnh", // Optional
+              // Nếu cần align ban đầu: textAlign: 'center' (nhưng dùng toolbar để align sau)
             })
             .run();
         };
@@ -205,14 +208,17 @@ const EditorModal: React.FC<EditorModalProp> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className={cn("absolute top-10 right-20 z-[100]", emojiClassName)}
+              className={cn(
+                "fixed -bottom-10 right-20 z-[100] shadow-lg w-fit",
+                emojiClassName
+              )}
             >
               {/* ❗ Đừng animate Picker – để nó load thẳng */}
-              <div className="will-change-auto">
+              <div className="">
                 <Picker
                   data={data}
                   onEmojiSelect={insertEmoji}
-                  theme="dark"
+                  theme={theme}
                   autoFocus={true} // Cho UX mượt hơn
                 />
               </div>

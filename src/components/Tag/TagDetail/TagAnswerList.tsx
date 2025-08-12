@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import {  useQuery } from "@tanstack/react-query";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
 import { AnimatePresence } from "framer-motion";
 import LoadingState from "../../Common/LoadingState";
@@ -16,7 +16,7 @@ const TagAnswerList: React.FC<TagAnswerListProps> = ({ tag }) => {
     total: number;
   }>({
     queryKey: ["answers"],
-    queryFn: () => GetAllAnswers({ tagfilter: tag.id }),
+    queryFn: () => GetAllAnswers({ tagfilter: tag.id ,status: "approved" }),
   });
 
   if (isLoading) return <LoadingState message="Đang tải câu trả lời..." />;

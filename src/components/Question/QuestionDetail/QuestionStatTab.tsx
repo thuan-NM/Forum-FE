@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardFooter, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import { BiEdit } from "react-icons/bi";
 import { useFollowItem } from "../../../hooks/follows/useFollowItem";
 import { QuestionResponse } from "../../../store/interfaces/questionInterfaces";
@@ -11,10 +11,11 @@ import { IoPersonAddSharp } from "react-icons/io5";
 import { MdOutlineEditOff } from "react-icons/md";
 import { PiClockCountdownFill, PiWarningBold } from "react-icons/pi";
 import { usePassQuestion } from "../../../hooks/questions/usePassQuestion";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { GetAllQuestions } from "../../../services";
 import LoadingState from "../../Common/LoadingState";
+import NotFind from "../../Common/NotFind";
 interface QuestionStatTabProps {
   question: QuestionResponse;
   onOpen: () => void;
@@ -42,8 +43,13 @@ const QuestionStatTab: React.FC<QuestionStatTabProps> = ({
     questions: QuestionResponse[];
     total: number;
   }>({
-    queryKey: ["questions"],
-    queryFn: () => GetAllQuestions({ limit: 10 }),
+    queryKey: ["questions", "stats"],
+    queryFn: () =>
+      GetAllQuestions({
+        limit: 10,
+        topic_id: question.topic.id,
+        status: "approved",
+      }),
   });
 
   return (
@@ -105,14 +111,25 @@ const QuestionStatTab: React.FC<QuestionStatTabProps> = ({
           <LoadingState message="Đang tải các câu hỏi liên quan" />
         ) : (
           <CardBody className="flex flex-col py-2 px-0 pb-4">
-            {questionsData?.questions?.map((question) => (
-              <div
-                key={question.id}
-                className="px-4 line-clamp-1 flex flex-row items-center justify-between py-1 cursor-pointer hover:bg-content4/10 rounded-none text-sm"
-              >
-                {question.title}
-              </div>
-            ))}
+            {questionsData && questionsData?.questions?.length > 1 ? (
+              questionsData?.questions?.map(
+                (questionItem) =>
+                  question.id !== questionItem.id && (
+                    <Link
+                      to={`/question/${questionItem.id}`}
+                      key={questionItem.id}
+                      className="px-4 line-clamp-1 flex flex-row items-center justify-between py-1 cursor-pointer hover:bg-content4/10 rounded-none text-sm"
+                    >
+                      {questionItem.title}
+                    </Link>
+                  )
+              )
+            ) : (
+              <NotFind
+                className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
+                title="Không có câu hỏi liên quan nào"
+              />
+            )}
           </CardBody>
         )}
       </Card>

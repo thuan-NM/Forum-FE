@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { BsFileEarmarkPostFill } from "react-icons/bs";
 import { AnimatePresence } from "framer-motion";
 import LoadingState from "../../Common/LoadingState";
@@ -7,19 +7,24 @@ import { GetAllPosts } from "../../../services";
 import { TagResponse } from "../../../store/interfaces/tagInterfaces";
 import PostItem from "../../PostManage/Post/PostItem/PostItem";
 import { PostResponse } from "../../../store/interfaces/postInterfaces";
-interface TagAnswerListProps {
+
+interface TagPostListProps {
   tag: TagResponse;
 }
-const TagPostList: React.FC<TagAnswerListProps> = ({ tag }) => {
+
+const TagPostList: React.FC<TagPostListProps> = ({ tag }) => {
   const { data, isLoading, isError, error } = useQuery<{
     posts: PostResponse[];
     total: number;
   }>({
-    queryKey: ["posts"],
-    queryFn: () => GetAllPosts({ tagfilter: tag.id }),
+    queryKey: ["posts", "tag", tag.id], // Thêm tag.id để khác biệt với PostList
+    queryFn: () => GetAllPosts({ tagfilter: tag.id ,status: "approved",}),
   });
 
-  if (isLoading) return <LoadingState message="Đang tải câu trả lời..." />;
+  // Debug: Log data để kiểm tra
+  console.log("TagPostList data:", data);
+
+  if (isLoading) return <LoadingState message="Đang tải bài viết..." />;
 
   if (isError)
     return (

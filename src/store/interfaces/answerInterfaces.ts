@@ -1,5 +1,5 @@
 import type { Comment } from "./commentInterfaces";
-import type { Question } from "./questionInterfaces";
+import type { QuestionResponse } from "./questionInterfaces";
 import type { TagResponse } from "./tagInterfaces";
 import type { UserResponse } from "./userInterfaces";
 
@@ -15,7 +15,7 @@ export interface AnswerResponse {
   createdAt: Date;
   updatedAt: Date;
   author: UserResponse;
-  question: Question;
+  question: QuestionResponse;
   tags: TagResponse[];
   reactionsCount: number;
 }
@@ -25,12 +25,15 @@ export interface AnswerCreateDto {
   tags: string[];
   questionId: string;
   title: string;
+  status?: "approved" | "pending" | "rejected"; // Add optional status
 }
 
 export interface AnswerUpdateDto {
   content?: string;
   answerContent?: string;
   isAccepted?: boolean;
+  tags: string[];
+  title?: string;
   status?: "approved" | "pending" | "rejected";
 }
 

@@ -15,7 +15,7 @@ import QuestionModal from "../Question/QuestionCreation/QuestionModal";
 import { useGetUserInfo } from "../../utils/getUserInfo";
 
 const PostManage = () => {
-  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+  const { isOpen, onOpenChange, onOpen, onClose } = useDisclosure();
   const [modalActive, setModalActive] = useState("Ask");
   const user = useGetUserInfo();
   const handleModalOpen = (modal: string) => {
@@ -73,16 +73,16 @@ const PostManage = () => {
           isOpen={isOpen}
           size={"3xl"}
           onOpenChange={onOpenChange}
-          className="rounded-md z-20"
+          className="rounded-md z-20 max-h-[100vg] !my-0"
           isDismissable={false}
           backdrop="blur"
           hideCloseButton
-          isKeyboardDismissDisabled={false}
+          isKeyboardDismissDisabled={true}
         >
           {modalActive == "Ask" ? (
-            <QuestionModal setModalActive={setModalActive} />
+            <QuestionModal setModalActive={setModalActive} onClose={onClose} />
           ) : (
-            <PostModal setModalActive={setModalActive} />
+            <PostModal setModalActive={setModalActive} onClose={onClose} />
           )}
         </Modal>
       </div>

@@ -1,4 +1,3 @@
-import React from "react";
 import { Skeleton } from "@heroui/react";
 
 const TagSkeleton = ({ count = 6 }: { count?: number }) => {

@@ -59,10 +59,6 @@ const TopicList: React.FC<FollowedTopicProps> = ({
     );
   }
 
-  const handleFollow = (id: string) => {
-    // TODO: Gọi API follow và cập nhật cache nếu cần
-  };
-
   return (
     <div className="my-3">
       {unfollowedTopics.map((topic: TopicResponse) => (
@@ -74,7 +70,7 @@ const TopicList: React.FC<FollowedTopicProps> = ({
           <Button
             size="sm"
             variant="faded"
-            onClick={() => handleFollow(topic.id)}
+            onClick={() => {}}
           >
             Thêm
           </Button>

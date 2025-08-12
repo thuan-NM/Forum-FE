@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Icon } from "@iconify/react";
 import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Divider,
   useDisclosure,
 } from "@heroui/react";

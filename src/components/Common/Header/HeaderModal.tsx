@@ -1,10 +1,6 @@
 import {
   Button,
   Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
   Tooltip,
   useDisclosure,
 } from "@heroui/react";
@@ -13,7 +9,7 @@ import PostModal from "../../PostManage/Post/PostCreation/PostModal";
 import { useState } from "react";
 
 const HeaderModal = () => {
-  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+  const { isOpen, onOpenChange, onOpen, onClose } = useDisclosure();
   const [modalActive, setModalActive] = useState("Ask");
 
   const handleModalOpen = (modal: string) => {
@@ -42,9 +38,9 @@ const HeaderModal = () => {
         isKeyboardDismissDisabled={false}
       >
         {modalActive == "Ask" ? (
-          <QuestionModal setModalActive={setModalActive} />
+          <QuestionModal setModalActive={setModalActive} onClose={onClose} />
         ) : (
-          <PostModal setModalActive={setModalActive} />
+          <PostModal setModalActive={setModalActive} onClose={onClose} />
         )}
       </Modal>
     </>

@@ -1,4 +1,4 @@
-import { Avatar, Button } from "@heroui/react";
+import { Avatar, Button, Modal, useDisclosure } from "@heroui/react";
 import { useQuery } from "@tanstack/react-query";
 import { GoDotFill } from "react-icons/go";
 import { MdClear } from "react-icons/md";
@@ -6,8 +6,6 @@ import { format } from "timeago.js";
 
 import { useState } from "react";
 import { AnswerResponse } from "../../../store/interfaces/answerInterfaces";
-import { useAppSelector } from "../../../store/hooks";
-import { RootState } from "../../../store/store";
 import { useFollowItem } from "../../../hooks/follows/useFollowItem";
 import { GetUserById } from "../../../services";
 import { UserResponse } from "../../../store/interfaces/userInterfaces";
@@ -16,13 +14,20 @@ import AlertAction from "../../Common/AlertAction";
 import { useDeleteAnswer } from "../../../hooks/answers/useDeleteAnswer";
 import { Link } from "react-router-dom";
 import { cn } from "../../../lib/utils";
+import { useGetUserInfo } from "../../../utils/getUserInfo";
+import { CiEdit } from "react-icons/ci";
+import AnswerEditModal from "../AnswerEdit/AnswerEditModal";
+import { BsCheck2Circle } from "react-icons/bs";
+import { useAcceptAnswer } from "../../../hooks/answers/useAcceptAnswer";
+import StatusChip from "../../Common/StatusChip";
 
 interface AnswerHeaderProps {
   answer: AnswerResponse;
 }
 
 const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
-  const userData = useAppSelector((state: RootState) => state.user.user);
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+  const userData = useGetUserInfo();
   const {
     data: user,
     isLoading,
@@ -35,6 +40,8 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
 
   const { isFollowing, handleToggleFollow, isCheckingFollow, isPending } =
     useFollowItem<{ id: string }>(answer.author.id.toString(), "users");
+  const { acceptAnswer, isAccepting } = useAcceptAnswer();
+  const [openAcceptAlert, setOpenAcceptAlert] = useState(false);
 
   const { deleteAnswer, isDeleting } = useDeleteAnswer();
 
@@ -44,7 +51,10 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
     deleteAnswer(answer);
     setOpenAlert(false);
   };
-
+  const handleAccept = () => {
+    acceptAnswer(answer.id);
+    setOpenAcceptAlert(false);
+  };
   if (isLoading || isCheckingFollow) return <AnswerHeaderSkeleton />;
   if (isError)
     return (
@@ -77,7 +87,16 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
               >
                 {answer?.author?.fullName}
               </Link>
-              <GoDotFill className="w-2 h-2 hidden sm:block" />
+              {answer.isAccepted && (
+                <>
+                  <GoDotFill className="w-2 h-2 hidden sm:block" />
+                  <StatusChip
+                    status="Câu trả lời hữu ích"
+                    color="success"
+                    className="bg-green-400/20 text-green-800 dark:text-green-400 border-none"
+                  />
+                </>
+              )}
               {answer.author.id !== userData?.id && (
                 <>
                   <GoDotFill className="w-2 h-2 hidden sm:block" />
@@ -103,17 +122,43 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
         </div>
 
         {answer.author.id === userData?.id && (
-          <Button
-            isIconOnly
-            className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
-            size="sm"
-            onPress={() => setOpenAlert(true)}
-          >
-            <MdClear className="w-3 h-3" />
-          </Button>
+          <div className="flex items-center gap-x-2">
+            {answer?.question?.author?.id === userData?.id &&
+              !answer?.isAccepted && (
+                <Button
+                  color="default"
+                  radius="full"
+                  className="w-fit mx-auto font-semibold "
+                  size="sm"
+                  isIconOnly
+                  variant="light"
+                  onPress={() => setOpenAcceptAlert(true)} // Mở modal edit
+                >
+                  <BsCheck2Circle className="size-4" />
+                </Button>
+              )}
+            <Button
+              color="default"
+              radius="full"
+              className="w-fit mx-auto font-semibold "
+              size="sm"
+              isIconOnly
+              variant="light"
+              onPress={() => onOpen()} // Mở modal edit
+            >
+              <CiEdit className="size-4" />
+            </Button>
+            <Button
+              isIconOnly
+              className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
+              size="sm"
+              onPress={() => setOpenAlert(true)}
+            >
+              <MdClear className="w-3 h-3" />
+            </Button>
+          </div>
         )}
       </div>
-
       {/* Alert Modal dùng Iconify */}
       <AlertAction
         open={openAlert}
@@ -127,6 +172,32 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
         isDanger
         loading={isDeleting}
       />
+      <AlertAction
+        open={openAcceptAlert}
+        onClose={() => setOpenAcceptAlert(false)}
+        onConfirm={handleAccept}
+        title="Chấp nhận câu trả lời này?"
+        description="Bạn sẽ đánh dấu đây là câu trả lời đúng nhất cho câu hỏi này. Hành động này có thể bị thay đổi sau."
+        iconName="ph:check-circle"
+        confirmText="Chấp nhận"
+        cancelText="Huỷ"
+        iconClassName="!text-green-400"
+        isDanger={false}
+        loading={isAccepting}
+      />
+
+      <Modal
+        isOpen={isOpen}
+        size={"3xl"}
+        onOpenChange={onOpenChange}
+        className="rounded-md z-20 max-h-[100vg] !my-0"
+        isDismissable={false}
+        backdrop="blur"
+        hideCloseButton
+        isKeyboardDismissDisabled={false}
+      >
+        <AnswerEditModal answer={answer} />
+      </Modal>
     </>
   );
 };

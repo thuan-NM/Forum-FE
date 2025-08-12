@@ -23,7 +23,7 @@ interface TopicSelectionModalProps {
 const TopicSelectionModal: React.FC<TopicSelectionModalProps> = ({
   isOpen,
   onClose,
-  topics,
+  topics = [] as TopicResponse[],
   selectedTopic,
   onTopicSelect,
 }) => {
@@ -35,8 +35,9 @@ const TopicSelectionModal: React.FC<TopicSelectionModalProps> = ({
   useEffect(() => {
     setLocalSelected(selectedTopic);
   }, [selectedTopic]);
+  const safeTopics = Array.isArray(topics) ? topics : [];
 
-  const filteredTopics = topics.filter((topic) =>
+  const filteredTopics = safeTopics.filter((topic) =>
     topic.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

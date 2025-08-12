@@ -23,12 +23,13 @@ export interface QuestionCreateDto {
   title: string;
   description: string;
   topicId: number;
+  status?: "approved" | "pending" | "rejected"; // Add optional status
 }
 
 export interface QuestionUpdateDto {
   title?: string;
-  content?: string;
-  topicId?: string;
+  description?: string;
+  topicId?: number;
   status?: "open" | "closed" | "solved" | "duplicate";
   acceptedAnswerId?: string;
   duplicateOfId?: string;
@@ -44,6 +45,7 @@ export interface QuestionResponse {
   status: "approved" | "pending" | "rejected";
   answersCount: number;
   followsCount: number;
+  description: string;
   createdAt: Date;
   updatedAt: Date;
   reactionsCount: number;
