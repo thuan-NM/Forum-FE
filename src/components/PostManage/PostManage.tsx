@@ -37,7 +37,7 @@ const PostManage = () => {
           className="mr-2"
         />
         <Input
-          placeholder="What do you want to ask or share?"
+          placeholder="Bạn muốn hỏi hay chia sẻ điều gì?"
           readOnly
           variant="bordered"
           disabled
@@ -50,7 +50,7 @@ const PostManage = () => {
           onPress={() => handleModalOpen("Ask")}
         >
           <TbMessageQuestion />
-          Ask
+          Hỏi
         </Button>
         <Divider orientation="vertical" />
         <Button
@@ -58,7 +58,7 @@ const PostManage = () => {
           size="sm"
         >
           <BiMessageAltEdit />
-          Answer
+          Trả lời
         </Button>
         <Divider orientation="vertical" />
         <Button
@@ -67,7 +67,7 @@ const PostManage = () => {
           onPress={() => handleModalOpen("Post")}
         >
           <GrEdit />
-          Post
+          Đăng bài
         </Button>
         <Modal
           isOpen={isOpen}

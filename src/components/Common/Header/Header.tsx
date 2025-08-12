@@ -93,7 +93,11 @@ const Header: React.FC = () => {
               <NavLink
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center ${isActive ? "border-b-3 mb-0 py-3 border-red-500 text-red-500" : "text-foreground"}`
+                  `flex items-center ${
+                    isActive
+                      ? "border-b-3 mb-0 py-3 border-red-500 text-red-500"
+                      : "text-foreground"
+                  }`
                 }
               >
                 {item.icon}
@@ -106,7 +110,7 @@ const Header: React.FC = () => {
           <Input
             isClearable
             labelPlacement="outside"
-            placeholder="Search something..."
+            placeholder="Tìm kiếm..."
             startContent={<IoIosSearch />}
             variant="bordered"
             type="text"
@@ -123,7 +127,7 @@ const Header: React.FC = () => {
           {/* <NotificationDropdown /> */}
           <NotificationInbox />
         </NavbarItem>
-        <Tooltip content="Theme" placement="bottom" offset={15}>
+        <Tooltip content="Giao diện tối" placement="bottom" offset={15}>
           <NavbarItem className="mx-2">
             <ChangeTheme />
           </NavbarItem>
@@ -135,7 +139,11 @@ const Header: React.FC = () => {
             <NavLink
               to={item.path}
               className={({ isActive }) =>
-                `items-center ${isActive ? "border-b-3 mb-0 py-3 border-red-500 text-red-500" : "text-foreground"}`
+                `items-center ${
+                  isActive
+                    ? "border-b-3 mb-0 py-3 border-red-500 text-red-500"
+                    : "text-foreground"
+                }`
               }
             >
               {item.name}

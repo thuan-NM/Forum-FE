@@ -96,7 +96,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
                     )}
                     onClick={handleToggleFollow}
                   >
-                    {isFollowing ? "Unfollow" : "Follow"}
+                    {isFollowing ? "Huỷ theo dõi" : "Theo dõi"}
                   </div>
                 </>
               )}

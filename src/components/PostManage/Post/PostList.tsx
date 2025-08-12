@@ -75,7 +75,7 @@ const PostList: React.FC = () => {
   if (isError) {
     return (
       <div className="my-3 text-center">
-        <p className="text-red-500">{error?.message || "An error occurred"}</p>
+        <p className="text-red-500">{error?.message || "Đã có lỗi xảy ra"}</p>
       </div>
     );
   }

@@ -33,7 +33,7 @@ const UpVote: React.FC<PostFooterProps> = ({
           offset={5}
           closeDelay={100}
         >
-          <div className="rounded-full p-1 px-3 flex items-center !text-sm gap-x-2 group">
+          <div className="rounded-full p-1 px-3 flex items-center !text-sm group">
             <Button
               size="sm"
               isLoading={isCheckingReaction || isPending}
@@ -50,13 +50,15 @@ const UpVote: React.FC<PostFooterProps> = ({
               ) : (
                 <AiOutlineLike className="size-5 text-foreground" />
               )}
-              <span className="text-xs">{hasReacted ? "Unlike" : "Like"}</span>
+              <span className="text-xs">
+                {hasReacted ? "Bỏ thích" : "Thích"}
+              </span>
             </Button>
             <span className="text-xs">{reactionsCount}</span>
           </div>
         </Tooltip>
         <Tooltip content="Comment" placement="top" offset={5} closeDelay={100}>
-          <div className="rounded-full p-1 px-3 flex items-center !text-sm gap-x-2 group cursor-pointer">
+          <div className="rounded-full p-1 px-3 flex items-center !text-sm group cursor-pointer">
             <Button
               size="sm"
               isLoading={isCheckingReaction} // Thêm loading khi kiểm tra reaction
@@ -65,7 +67,7 @@ const UpVote: React.FC<PostFooterProps> = ({
               disabled={!setIsShowComment || isCheckingReaction}
             >
               <FaRegComment className="size-5" />
-              <span className="text-xs">Comments</span>
+              <span className="text-xs">Bình luận</span>
             </Button>
             <span className="text-xs">{totalComment ?? 0}</span>
           </div>
