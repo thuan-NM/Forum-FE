@@ -109,7 +109,7 @@ const TopicQuestionList: React.FC<TopicQuestionListProps> = ({ topic }) => {
           <div className="bg-red-500 w-6 h-6 flex items-center justify-center rounded-md text-white !p-0">
             <FaRegLightbulb className="text-base !p-0" />
           </div>
-          <span className="text-xs">Questions for you</span>
+          <span className="text-xs">Câu hỏi dành cho bạn</span>
         </div>
         <FaChevronRight />
       </Button>
@@ -137,7 +137,7 @@ const TopicQuestionList: React.FC<TopicQuestionListProps> = ({ topic }) => {
             {isFetchingNextPage ? (
               <QuestionSkeleton />
             ) : (
-              <p className="text-foreground/50">Scroll to load more</p>
+              <p className="text-foreground/50">Cuộn để tải thêm</p>
             )}
           </div>
         )}

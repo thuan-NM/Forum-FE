@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  Button,
-  Tooltip,
-} from "@heroui/react";
+import { Button, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
 import AIChatModal from "./ChatBotModal";
@@ -47,14 +44,18 @@ const AIChat: React.FC = () => {
         }}
         className="fixed bottom-6 right-6 z-50"
       >
-        <Tooltip content="Chat with AI Assistant" placement="left">
+        <Tooltip content="Trò chuyện với trợ lý AI" placement="left">
           <Button
             color="primary"
             onPress={() => setOpen(!open)}
             className="font-semibold text-lg p-4 size-14 rounded-full shadow-lg bg-gradient-to-r from-blue-500 to-purple-500"
             isIconOnly
           >
-            <Icon icon="ph:open-ai-logo-light" width={24} className="text-white" />
+            <Icon
+              icon="ph:open-ai-logo-light"
+              width={24}
+              className="text-white"
+            />
           </Button>
         </Tooltip>
       </motion.div>

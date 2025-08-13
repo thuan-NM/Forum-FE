@@ -24,6 +24,8 @@ import { useSetUserInfo } from "../../utils/setUserInfo";
 import { UpdateUser } from "../../services";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { cn } from "../../lib/utils";
+import { useUpdateUser } from "../../hooks/users/useEditUser";
+import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
 
 interface MyBioProps {
   user: UserResponse;
@@ -47,28 +49,23 @@ const MyBio: React.FC<MyBioProps> = ({ user, isMe = true }) => {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const [textContent, setTextContent] = useState("");
   const contentRef = useRef<HTMLDivElement>(null);
+  const { processContentWithUploads, isUploading } = useUploadImages();
 
-  const { mutate: updateAvatar, isPending } = useMutation({
-    mutationFn: async (bio: string) => {
-      return await UpdateUser(user?.id, { bio: bio });
-    },
-    onSuccess: (data) => {
-      toast.success("Cập nhật mô tả thành công");
-      setUserInfo(data.data);
-      queryClient.invalidateQueries({ queryKey: ["user", user?.id] });
-      onClose();
-    },
-    onError: () => {
-      toast.error("Cập nhật người dùng thất bại");
-    },
+  const { UpdateUser, isUpdating } = useUpdateUser(() => {
+    queryClient.invalidateQueries({ queryKey: ["user", user?.id] });
+    onClose();
   });
-
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!bio || !bio.trim()) {
       toast.error("Mô tả không được để trống");
       return;
     }
-    updateAvatar(bio);
+    try {
+      const processedBio = await processContentWithUploads(bio);
+      await UpdateUser(user.id, { bio: processedBio });
+    } catch (error) {
+      console.error("Lỗi xử lý ảnh trong bio:", error);
+    }
   };
 
   useEffect(() => {
@@ -282,7 +279,7 @@ const MyBio: React.FC<MyBioProps> = ({ user, isMe = true }) => {
                 color="primary"
                 size="sm"
                 onPress={onSubmit}
-                isLoading={isPending}
+                isLoading={isUpdating || isUploading}
                 className="!px-6 !py-4"
               >
                 Thêm

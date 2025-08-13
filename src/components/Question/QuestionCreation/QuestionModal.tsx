@@ -8,6 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   Input,
+  Modal,
 } from "@heroui/react";
 import { useState } from "react";
 import { FaCaretRight } from "react-icons/fa";
@@ -39,7 +40,7 @@ interface PostModalProps {
 
 const QuestionModal: React.FC<PostModalProps> = ({
   setModalActive,
-  // onClose,
+  onClose,
 }) => {
   const [title, setTitle] = useState<string>("");
   const [content, setContent] = useState<string>("");
@@ -54,8 +55,12 @@ const QuestionModal: React.FC<PostModalProps> = ({
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   const [showModerationConfirm, setShowModerationConfirm] =
-    useState<boolean>(false); // State cho confirm moderation
-  const [predictedTopicState, setPredictedTopicState] =
+    useState<boolean>(false);
+
+  // Mảng các topic được dự đoán
+  const [predictedTopics, setPredictedTopics] = useState<TopicResponse[]>([]);
+  // Topic user chọn trong danh sách dự đoán
+  const [selectedPredictedTopic, setSelectedPredictedTopic] =
     useState<TopicResponse | null>(null);
 
   const user = useGetUserInfo();
@@ -86,8 +91,7 @@ const QuestionModal: React.FC<PostModalProps> = ({
       };
 
       if (moderationResult.label === "hop_le") {
-        // Giả sử "clean" nghĩa là không vi phạm
-        data.status = "approved"; // Set approved nếu ok
+        data.status = "approved";
         createQuestion(data, {
           onSuccess: () => {
             setModalActive("");
@@ -124,8 +128,10 @@ const QuestionModal: React.FC<PostModalProps> = ({
     if (!topicId) {
       try {
         const prediction = await predictTopic(stripHTML(title + " " + content));
-        setPredictedTopicState(prediction);
-        setShowConfirmModal(true); // hiện modal xác nhận
+        // prediction.labels là mảng các topic được gợi ý
+        setPredictedTopics(prediction.labels || []);
+        setSelectedPredictedTopic(null); // reset lựa chọn
+        setShowConfirmModal(true); // hiện modal chọn topic dự đoán
         return;
       } catch (error) {
         console.error("Lỗi khi dự đoán chủ đề:", error);
@@ -134,24 +140,29 @@ const QuestionModal: React.FC<PostModalProps> = ({
     }
 
     onSubmitActual(Number(topicId));
+    onClose();
   };
 
   const handleConfirmPrediction = () => {
-    if (!predictedTopicState) return;
-    setSelectedTopic(predictedTopicState);
+    if (!selectedPredictedTopic) {
+      alert("Vui lòng chọn chủ đề đề xuất");
+      return;
+    }
+
+    setSelectedTopic(selectedPredictedTopic);
     setShowConfirmModal(false);
-    onSubmitActual(Number(predictedTopicState.id));
+    onSubmitActual(Number(selectedPredictedTopic.id));
   };
 
   return (
     <div>
       <ModalContent>
-        {(onClose) => (
+        {(onCloseModal) => (
           <>
             <Button
               isIconOnly
               className="border-none cursor-pointer w-fit bg-transparent ml-3 mt-3 hover:bg-neutral-700 rounded-full"
-              onPress={onClose}
+              onPress={onCloseModal}
             >
               <MdClear className="w-7 h-7" />
             </Button>
@@ -332,19 +343,58 @@ const QuestionModal: React.FC<PostModalProps> = ({
         onTopicSelect={(topic) => setSelectedTopic(topic)}
       />
 
-      {/* ✅ Alert confirm khi chưa chọn topic */}
-      <AlertAction
-        open={showConfirmModal}
+      <Modal
+        isOpen={showConfirmModal}
         onClose={() => setShowConfirmModal(false)}
-        onConfirm={handleConfirmPrediction}
-        title="Đề xuất chủ đề"
-        description={`Bạn chưa chọn chủ đề. Hệ thống đề xuất: "${predictedTopicState?.name}". Bạn có muốn sử dụng chủ đề này không?`}
-        iconName="mdi:help-circle"
-        confirmText="Sử dụng"
-        cancelText="Hủy"
-      />
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader>Đề xuất chủ đề</ModalHeader>
+              <ModalBody>
+                <p>
+                  Bạn chưa chọn chủ đề. Hệ thống đề xuất các chủ đề dưới đây,
+                  vui lòng chọn một chủ đề:
+                </p>
+                <div className="flex flex-col gap-2 mt-3">
+                  {predictedTopics.length === 0 && (
+                    <p>Không có đề xuất chủ đề nào.</p>
+                  )}
+                  {predictedTopics.map((topic) => (
+                    <Button
+                      key={topic.id}
+                      variant={
+                        selectedPredictedTopic?.id === topic.id
+                          ? "solid"
+                          : "bordered"
+                      }
+                      onPress={() => setSelectedPredictedTopic(topic)}
+                    >
+                      {topic.name}
+                    </Button>
+                  ))}
+                </div>
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  variant="ghost"
+                  onPress={() => setShowConfirmModal(false)}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={handleConfirmPrediction}
+                  isDisabled={!selectedPredictedTopic}
+                >
+                  Sử dụng chủ đề này
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
 
-      {/* Add AlertAction cho confirm moderation */}
       <AlertAction
         open={showModerationConfirm}
         onClose={() => setShowModerationConfirm(false)}
