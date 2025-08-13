@@ -266,7 +266,7 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ onClose, isMobile }) => {
                     "h-full font-normal border-none shadow-none !bg-transparent",
                 }}
                 isDisabled={isSending}
-                placeholder="Type your message..."
+                placeholder="Hãy nhập tin nhắn..."
                 size="sm"
                 startContent={
                   <Icon

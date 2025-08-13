@@ -18,13 +18,13 @@ const HeaderModal = () => {
   };
   return (
     <>
-      <Tooltip content="Add Question" placement={"bottom"} offset={15}>
+      <Tooltip content="Thêm câu hỏi" placement={"bottom"} offset={15}>
         <Button
           className="bg-red-500 font-semibold text-xs text-white"
           size="sm"
           onPress={() => handleModalOpen("Ask")}
         >
-          Add Question
+          Thêm câu hỏi
         </Button>
       </Tooltip>
       <Modal

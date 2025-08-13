@@ -87,7 +87,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
             radius="none"
           >
             <LuMessageSquareMore className="w-5 h-5" />
-            Message
+            Tin nhắn
           </Button>
         </DropdownItem>
         <DropdownItem className="rounded-none" key="notice" textValue="Notice">
@@ -97,7 +97,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
             radius="none"
           >
             <HiOutlineSpeakerphone className="w-5 h-5" />
-            Notice
+            Thông báo
           </Button>
         </DropdownItem>
         <DropdownItem
@@ -112,7 +112,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
               radius="none"
             >
               <IoIosSettings className="w-5 h-5" />
-              Setting
+              Cài đặt
             </Button>
           </Link>
         </DropdownItem>
@@ -127,7 +127,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
             radius="none"
           >
             <FaLanguage className="w-5 h-5" />
-            Language
+            Ngôn ngữ
           </Button>
         </DropdownItem>
         <DropdownItem
@@ -143,7 +143,7 @@ const HeaderDropdown: React.FC<HeaderDropdownProp> = ({ handleLogouts }) => {
             onPress={handleLogouts}
           >
             <GoSignOut className="w-5 h-5" />
-            Logout
+            Đăng xuất
           </Button>
         </DropdownItem>
         <DropdownItem

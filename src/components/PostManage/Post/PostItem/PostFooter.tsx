@@ -50,19 +50,23 @@ const PostFooter: React.FC<PostFooterProps> = ({
       <MoreActionsPopover
         actions={[
           {
-            label: "Copy link",
+            label: "Sao chép liên kết",
             icon: <FaLink />,
             onClick: () => console.log("Copy link"),
           },
           {
-            label: "Not interested",
+            label: "Không quan tâm",
             icon: <LuKeyboardOff />,
             onClick: () => {},
           },
-          { label: "Bookmark", icon: <FaRegBookmark />, onClick: () => {} },
-          { label: "Log", icon: <GrUnorderedList />, onClick: () => {} },
           {
-            label: "Report",
+            label: "Lưu",
+            icon: <FaRegBookmark />,
+            onClick: () => {},
+          },
+          { label: "Nhật ký", icon: <GrUnorderedList />, onClick: () => {} },
+          {
+            label: "Báo cáo",
             icon: <PiWarningBold />,
             onClick: () => setIsReportOpen(true),
           },
