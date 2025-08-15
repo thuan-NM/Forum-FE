@@ -347,7 +347,7 @@ const QuestionModal: React.FC<PostModalProps> = ({
         onClose={() => setShowConfirmModal(false)}
       >
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader>Đề xuất chủ đề</ModalHeader>
               <ModalBody>

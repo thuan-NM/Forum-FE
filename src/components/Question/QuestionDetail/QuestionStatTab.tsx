@@ -5,11 +5,8 @@ import { QuestionResponse } from "../../../store/interfaces/questionInterfaces";
 import { FaLink, FaRss } from "react-icons/fa6";
 import { GoDotFill } from "react-icons/go";
 import MoreActionsPopover from "../../Common/MoreActionsPopover";
-import { GrUnorderedList } from "react-icons/gr";
-import { HiOutlineBell } from "react-icons/hi";
-import { IoPersonAddSharp } from "react-icons/io5";
 import { MdOutlineEditOff } from "react-icons/md";
-import { PiClockCountdownFill, PiWarningBold } from "react-icons/pi";
+import { PiWarningBold } from "react-icons/pi";
 import { usePassQuestion } from "../../../hooks/questions/usePassQuestion";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -96,7 +93,7 @@ const QuestionStatTab: React.FC<QuestionStatTabProps> = ({
             {
               label: "Bỏ qua câu hỏi này",
               icon: <MdOutlineEditOff />,
-              onClick: () => passQuestion(question.id),
+              onClick: () => handlePassQuestion(),
               isLoading: isPassing,
             },
             {

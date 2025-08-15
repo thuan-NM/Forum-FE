@@ -22,7 +22,7 @@ interface PostHeaderProps {
   onDeleted?: () => void;
 }
 
-const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
+const PostHeader: React.FC<PostHeaderProps> = ({ post }) => {
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
   const userData = useGetUserInfo();

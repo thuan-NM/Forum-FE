@@ -10,7 +10,6 @@ import CardList from "../components/Common/Card/CardList";
 import CardItem from "../components/Common/Card/CardItem";
 import LoadingState from "../components/Common/LoadingState";
 import ErrorState from "../components/Common/ErrorState";
-import TagSkeleton from "../components/Skeleton/TagSkeleton";
 import { TagResponse } from "../store/interfaces/tagInterfaces";
 import TopicTab from "../components/Topic/TopicTab";
 
