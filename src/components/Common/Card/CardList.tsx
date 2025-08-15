@@ -32,7 +32,7 @@ const CardList = <T extends { id: string }>({
         </div>
       ) : (
         <NotFind
-          title="Không có chủ đề nào"
+          title="Không có dữ liệu"
           className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 rounded-md"
           icon={<FaRegLightbulb className="size-10 !text-foreground/20" />}
         />

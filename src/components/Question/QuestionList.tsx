@@ -142,7 +142,7 @@ const QuestionList = () => {
             </InfiniteScroll>
           ) : (
             <NotFind
-              title="questions"
+              title="Không có câu hỏi nào"
               className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6"
               icon={<FaRegLightbulb className="size-10 !text-foreground/20" />}
             />

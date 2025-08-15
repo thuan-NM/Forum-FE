@@ -300,7 +300,7 @@ const PostModal: React.FC<PostModalProps> = ({ setModalActive, onClose }) => {
                     onPress={onOpenTag}
                     startContent={<Icon icon="lucide:plus" />}
                   >
-                    Add Tags
+                    Thêm nhãn
                   </Button>
                 </div>
 

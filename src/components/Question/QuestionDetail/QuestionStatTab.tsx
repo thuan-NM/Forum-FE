@@ -16,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { GetAllQuestions } from "../../../services";
 import LoadingState from "../../Common/LoadingState";
 import NotFind from "../../Common/NotFind";
+import toast from "react-hot-toast";
 interface QuestionStatTabProps {
   question: QuestionResponse;
   onOpen: () => void;
@@ -81,25 +82,29 @@ const QuestionStatTab: React.FC<QuestionStatTabProps> = ({
         </Button>
         <MoreActionsPopover
           actions={[
-            { label: "Copy link", icon: <FaLink /> },
-            { label: "Request answers", icon: <IoPersonAddSharp /> },
             {
-              label: "Pass question",
+              label: "Sao chép liên kết",
+              icon: <FaLink />,
+              onClick: () => {
+                const link = `${import.meta.env.VITE_FE}/question/${question.id}`;
+                navigator.clipboard.writeText(link).then(() => {
+                  // Nếu muốn có thông báo khi copy thành công
+                  toast.success("Đã lưu liên kết");
+                });
+              },
+            },
+            {
+              label: "Bỏ qua câu hỏi này",
               icon: <MdOutlineEditOff />,
-              onClick: () => handlePassQuestion(),
+              onClick: () => passQuestion(question.id),
               isLoading: isPassing,
             },
-            { label: "Answer later", icon: <PiClockCountdownFill /> },
-            { label: "Notify me about edits", icon: <HiOutlineBell /> },
-            { label: "View question log", icon: <GrUnorderedList /> },
             {
               label: "Report",
               icon: <PiWarningBold />,
               onClick: () => setIsReportOpen(true),
             },
           ]}
-          triggerIconClassName="size-6"
-          size="md"
         />
       </div>
       <Card className="flex flex-col mt-3 rounded-md">

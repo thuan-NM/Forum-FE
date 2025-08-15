@@ -13,6 +13,7 @@ import { useState } from "react";
 import PostModal from "./Post/PostCreation/PostModal";
 import QuestionModal from "../Question/QuestionCreation/QuestionModal";
 import { useGetUserInfo } from "../../utils/getUserInfo";
+import { useNavigate } from "react-router-dom";
 
 const PostManage = () => {
   const { isOpen, onOpenChange, onOpen, onClose } = useDisclosure();
@@ -22,7 +23,7 @@ const PostManage = () => {
     setModalActive(modal);
     onOpen();
   };
-
+  const navigate = useNavigate();
   return (
     <div className="w-full h-fit bg-content1 flex border border-transparent flex-col rounded-lg p-4 hover:border hover:border-content3">
       <div className="flex w-full">
@@ -56,6 +57,7 @@ const PostManage = () => {
         <Button
           className="bg-content1 py-3 hover:bg-content2/30 w-full"
           size="sm"
+          onPress={() => navigate('/answer')}
         >
           <BiMessageAltEdit />
           Trả lời

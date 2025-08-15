@@ -54,15 +54,17 @@ const TagSelectionModal: React.FC<TagSelectionModalProps> = ({
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              Select Tags
+              Chọn nhãn cho bài viết
             </ModalHeader>
             <ModalBody>
               <Input
-                placeholder="Search tags..."
+                placeholder="Tìm kiếm nhãn..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 startContent={<Icon icon="lucide:search" />}
                 className="mb-4"
+                isClearable
+                onClear={() => setSearchQuery("")}
               />
               <div className="max-h-[80vh] overflow-y-auto scrollbar-hide">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -102,10 +104,10 @@ const TagSelectionModal: React.FC<TagSelectionModalProps> = ({
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="light" onPress={onClose}>
-                Cancel
+                Hủy
               </Button>
               <Button color="primary" onPress={handleSave}>
-                Save
+                Lưu
               </Button>
             </ModalFooter>
           </>

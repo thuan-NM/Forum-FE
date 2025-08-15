@@ -59,8 +59,6 @@ const PostList: React.FC = () => {
     placeholderData: (previous) => previous,
   });
 
-  console.log(filter);
-
   const allPosts =
     data?.pages?.flatMap(
       (page: { posts: PostResponse[] }) => page.posts ?? []
@@ -88,7 +86,7 @@ const PostList: React.FC = () => {
       {allPosts.length === 0 ? (
         <NotFind
           className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
-          title="post"
+          title="Không có bài viết nào"
           icon={
             <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
           }

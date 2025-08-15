@@ -113,14 +113,37 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ onClose, isMobile }) => {
   };
 
   const handlePredefinedQuestion = (question: string) => {
-    const predefinedAnswers: Record<string, string> = {
+    const predefinedAnswers: Record<string, React.ReactNode> = {
       "Về chúng tôi":
-        "Tôi là Nguyễn Minh Thuận, mã số sinh viên B2106816 là sinh viên của trường Đại học Cần Thơ đang theo học chuyên ngành khoa học máy tính.",
-      "Liên hệ":
-        "Bạn có thể liên hệ với chúng tôi qua email: thuanb2106816@student.ctu.edu.vn hoặc qua số điện thoại 0945362373 hoặc cũng có thể liên hệ tôi qua https://www.linkedin.com/in/thuannguyen-ws/",
+        "Tôi là Nguyễn Minh Thuận, mã số sinh viên B2106816 là sinh viên của trường Đại học Cần Thơ đang theo học chuyên ngành Khoa học máy tính.",
+
+      "Liên hệ": (
+        <>
+          Bạn có thể liên hệ với chúng tôi qua email:{" "}
+          <a
+            href="mailto:thuanb2106816@student.ctu.edu.vn"
+            className="text-blue-500 underline"
+          >
+            thuanb2106816@student.ctu.edu.vn
+          </a>{" "}
+          hoặc qua số điện thoại{" "}
+          <span className="font-semibold">0945362373</span> hoặc cũng có thể
+          liên hệ tôi qua{" "}
+          <a
+            href="https://www.linkedin.com/in/thuannguyen-ws/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 underline"
+          >
+            LinkedIn
+          </a>
+        </>
+      ),
+
       "Thông tin về trang web":
         "Đây là một diễn đàn dành cho sinh viên thuộc các nhóm ngành Công nghệ thông tin và truyền thông của trường Đại học Cần Thơ. Với các tính năng cơ bản của một forum cùng với tiện ích về AI đã được tích hợp.",
     };
+
     const userMessage: Message = {
       id: Date.now(),
       content: question,
@@ -168,8 +191,8 @@ const AIChatModal: React.FC<AIChatModalProps> = ({ onClose, isMobile }) => {
                 }}
               >
                 <Icon
-                  icon="ph:open-ai-logo-light"
-                  className="text-content1"
+                  icon="dinkie-icons:cat-face"
+                  className="dark:text-content1 text-black"
                   width={24}
                   height={24}
                 />

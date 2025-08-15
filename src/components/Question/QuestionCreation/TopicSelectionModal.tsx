@@ -67,6 +67,8 @@ const TopicSelectionModal: React.FC<TopicSelectionModalProps> = ({
                 onChange={(e) => setSearchQuery(e.target.value)}
                 startContent={<Icon icon="lucide:search" />}
                 className="mb-4"
+                isClearable
+                onClear={() => setSearchQuery("")}
               />
               <div className="max-h-[70vh] overflow-y-auto scrollbar-hide">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">

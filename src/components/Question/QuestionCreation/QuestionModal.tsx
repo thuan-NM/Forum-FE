@@ -68,6 +68,8 @@ const QuestionModal: React.FC<PostModalProps> = ({
   const { processContentWithUploads, isUploading } = useUploadImages();
   const { predictTopic, isPredicting } = usePredictTopic();
   const { automaticModeration, isModerating } = useAutomaticModeration();
+  const [pendingQuestionData, setPendingQuestionData] =
+    useState<QuestionCreateDto | null>(null);
 
   const { data: topics } = useQuery({
     queryKey: ["topics"],
@@ -94,12 +96,14 @@ const QuestionModal: React.FC<PostModalProps> = ({
         data.status = "approved";
         createQuestion(data, {
           onSuccess: () => {
-            setModalActive("");
+            onClose();
           },
         });
       } else {
-        // Vi phạm: Show confirm moderation
+        // Vi phạm: Show confirm moderation và lưu data tạm
+        setPendingQuestionData(data); // state tạm để lưu
         setShowModerationConfirm(true);
+        return; // dừng ở đây, không đăng luôn
       }
     } catch (error) {
       console.error("Lỗi khi đăng câu hỏi:", error);
@@ -107,19 +111,14 @@ const QuestionModal: React.FC<PostModalProps> = ({
   };
 
   const handleConfirmModeration = () => {
-    // User confirm vi phạm: Gửi mà không set status (backend default pending)
-    const data: QuestionCreateDto = {
-      title,
-      description: content, // Đã processed
-      topicId: Number(selectedTopic?.id),
-      // Không set status
-    };
-    createQuestion(data, {
+    if (!pendingQuestionData) return;
+    createQuestion(pendingQuestionData, {
       onSuccess: () => {
-        setModalActive("");
+        onClose();
       },
     });
     setShowModerationConfirm(false);
+    setPendingQuestionData(null);
   };
 
   const onSubmit = async () => {
