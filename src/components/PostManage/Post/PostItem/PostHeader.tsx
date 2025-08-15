@@ -22,7 +22,7 @@ interface PostHeaderProps {
   onDeleted?: () => void;
 }
 
-const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
+const PostHeader: React.FC<PostHeaderProps> = ({ post }) => {
   const { isOpen, onOpenChange, onOpen } = useDisclosure();
 
   const userData = useGetUserInfo();
@@ -37,7 +37,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
   const handleDelete = () => {
     DeletePost(post.id);
     setOpenAlert(false);
-    onDeleted?.(); // optional callback
+    // onDeleted?.(); // optional callback
   };
 
   if (isCheckingFollow) return <PostHeaderSkeleton />;

@@ -10,7 +10,7 @@ export const useUpdateComment = () => {
     mutationFn: ({ id, data }: { id: string; data: CommentResponse }) =>
       UpdateComment(id, data.content),
     onSuccess: (_data, variables) => {
-      toast.success("Comment updated successfully");
+      toast.success("Cập nhật bình luận thành công");
       queryClient.invalidateQueries({ queryKey: ["comments"] });
       variables.data.answerId &&
         queryClient.refetchQueries({
@@ -26,7 +26,7 @@ export const useUpdateComment = () => {
         });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to update comment");
+      toast.error(error?.response?.data?.error || "Cập nhật bình luận thất bại");
     },
   });
 

@@ -10,6 +10,7 @@ import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
 import AlertAction from "../Common/AlertAction"; // Import AlertAction (giả sử path đúng)
 import { useAutomaticModeration } from "../../hooks/automatic_moderations/useAutomaticModeration";
 import { stripHTML } from "../../utils/stripHTML";
+import { useGetUserInfo } from "../../utils/getUserInfo";
 
 interface Props {
   id: string;
@@ -27,7 +28,7 @@ const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
   const { createComment, isCreating } = useCreateComment();
   const { processContentWithUploads, isUploading } = useUploadImages();
   const { automaticModeration, isModerating } = useAutomaticModeration();
-
+  const user = useGetUserInfo();
   const handleSubmit = async () => {
     try {
       const processedContent = await processContentWithUploads(content);
@@ -81,7 +82,9 @@ const CommentCreation: React.FC<Props> = ({ id, type, onSuccess }) => {
           size="sm"
           radius="full"
           className="w-6 h-6 sm:w-8 sm:h-8"
-          src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+          src={
+            user?.avatar || "https://i.pravatar.cc/150?u=a042581f4e29026704d"
+          }
         />
       </div>
 

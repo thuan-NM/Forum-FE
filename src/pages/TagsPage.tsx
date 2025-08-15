@@ -10,7 +10,6 @@ import CardList from "../components/Common/Card/CardList";
 import CardItem from "../components/Common/Card/CardItem";
 import LoadingState from "../components/Common/LoadingState";
 import ErrorState from "../components/Common/ErrorState";
-import TagSkeleton from "../components/Skeleton/TagSkeleton";
 import { TagResponse } from "../store/interfaces/tagInterfaces";
 import TopicTab from "../components/Topic/TopicTab";
 
@@ -85,7 +84,11 @@ const TagsPage = () => {
                   dataLength={allTags.length}
                   next={fetchMoreData}
                   hasMore={hasMore}
-                  loader={<TagSkeleton count={6} />}
+                  loader={
+                    allTags.length > 0 && (
+                      <LoadingState message="Đang tải thêm nhãn ..." />
+                    )
+                  }
                 >
                   <CardList
                     items={allTags}

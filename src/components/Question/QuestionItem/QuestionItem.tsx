@@ -5,11 +5,7 @@ import { MdClear, MdOutlineEditOff } from "react-icons/md";
 import { GoDotFill } from "react-icons/go";
 import { BiEdit } from "react-icons/bi";
 import { FaLink, FaRss } from "react-icons/fa6";
-import { GrUnorderedList } from "react-icons/gr";
 import { PiWarningBold } from "react-icons/pi";
-import { IoPersonAddSharp } from "react-icons/io5";
-import { PiClockCountdownFill } from "react-icons/pi";
-import { HiOutlineBell } from "react-icons/hi";
 import { useDisclosure } from "@heroui/react";
 import AnswerModal from "../../Answer/AnswerModal";
 import { motion } from "framer-motion";
@@ -26,6 +22,7 @@ import { useGetUserInfo } from "../../../utils/getUserInfo";
 import QuestionStatusModal from "../QuestionEdit/QuestionStatusModal";
 import { CiEdit } from "react-icons/ci";
 import AlertAction from "../../Common/AlertAction";
+import toast from "react-hot-toast";
 
 interface QuestionItemProps {
   question: QuestionResponse;
@@ -120,11 +117,11 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
             to={`/question/${question.id}`}
             className="font-bold hover:underline"
           >
-            {question.answersCount} answers
+            {question.answersCount} câu trả lời
           </Link>
           <GoDotFill className="w-1 h-1 hidden sm:block" />
           <span>
-            {date ? `Last followed ${format(date)}` : `No one followed`}
+            {date ? `Last followed ${format(date)}` : `Chưa được theo dõi`}
           </span>
           <GoDotFill className="w-1 h-1 hidden sm:block" />
           <span>{question.author.fullName}</span>
@@ -138,7 +135,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
               className="gap-x-[4px] !font-semibold"
               onPress={onOpen}
             >
-              <BiEdit className="w-5 h-5" /> Answer
+              <BiEdit className="w-5 h-5" /> Trả lời
             </Button>
             <Button
               size="sm"
@@ -149,7 +146,7 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
               isLoading={isFollowPending || isCheckingFollow}
             >
               <FaRss className="w-4 h-4" />
-              {isFollowing ? "Following" : "Follow"}
+              {isFollowing ? "Đang theo dõi" : "Theo dõi"}
               <GoDotFill className="w-1 h-1 hidden sm:block" />
               {question.followsCount || 0}
             </Button>
@@ -161,22 +158,28 @@ const QuestionItem: React.FC<QuestionItemProps> = ({
               isLoading={isPassing}
               onPress={() => passQuestion(question.id)}
             >
-              <MdOutlineEditOff className="w-4 h-4" /> Pass
+              <MdOutlineEditOff className="w-4 h-4" /> Bỏ qua
             </Button>
           </div>
           <MoreActionsPopover
             actions={[
-              { label: "Copy link", icon: <FaLink /> },
-              { label: "Request answers", icon: <IoPersonAddSharp /> },
               {
-                label: "Pass question",
+                label: "Sao chép liên kết",
+                icon: <FaLink />,
+                onClick: () => {
+                  const link = `${import.meta.env.VITE_FE}/question/${question.id}`;
+                  navigator.clipboard.writeText(link).then(() => {
+                    // Nếu muốn có thông báo khi copy thành công
+                    toast.success("Đã lưu liên kết");
+                  });
+                },
+              },
+              {
+                label: "Bỏ qua câu hỏi này",
                 icon: <MdOutlineEditOff />,
                 onClick: () => passQuestion(question.id),
                 isLoading: isPassing,
               },
-              { label: "Answer later", icon: <PiClockCountdownFill /> },
-              { label: "Notify me about edits", icon: <HiOutlineBell /> },
-              { label: "View question log", icon: <GrUnorderedList /> },
               {
                 label: "Report",
                 icon: <PiWarningBold />,

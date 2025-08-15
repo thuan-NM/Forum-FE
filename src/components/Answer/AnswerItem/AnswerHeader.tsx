@@ -121,43 +121,45 @@ const AnswerHeader: React.FC<AnswerHeaderProps> = ({ answer }) => {
           </div>
         </div>
 
-        {answer.author.id === userData?.id && (
-          <div className="flex items-center gap-x-2">
-            {answer?.question?.author?.id === userData?.id &&
-              !answer?.isAccepted && (
-                <Button
-                  color="default"
-                  radius="full"
-                  className="w-fit mx-auto font-semibold "
-                  size="sm"
-                  isIconOnly
-                  variant="light"
-                  onPress={() => setOpenAcceptAlert(true)} // Mở modal edit
-                >
-                  <BsCheck2Circle className="size-4" />
-                </Button>
-              )}
-            <Button
-              color="default"
-              radius="full"
-              className="w-fit mx-auto font-semibold "
-              size="sm"
-              isIconOnly
-              variant="light"
-              onPress={() => onOpen()} // Mở modal edit
-            >
-              <CiEdit className="size-4" />
-            </Button>
-            <Button
-              isIconOnly
-              className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
-              size="sm"
-              onPress={() => setOpenAlert(true)}
-            >
-              <MdClear className="w-3 h-3" />
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-x-2">
+          {answer?.question?.author?.id === userData?.id &&
+            !answer?.isAccepted && (
+              <Button
+                color="default"
+                radius="full"
+                className="w-fit mx-auto font-semibold "
+                size="sm"
+                isIconOnly
+                variant="light"
+                onPress={() => setOpenAcceptAlert(true)} // Mở modal edit
+              >
+                <BsCheck2Circle className="size-4" />
+              </Button>
+            )}
+          {answer.author.id === userData?.id && (
+            <>
+              <Button
+                color="default"
+                radius="full"
+                className="w-fit mx-auto font-semibold "
+                size="sm"
+                isIconOnly
+                variant="light"
+                onPress={() => onOpen()} // Mở modal edit
+              >
+                <CiEdit className="size-4" />
+              </Button>
+              <Button
+                isIconOnly
+                className="border-none cursor-pointer w-fit bg-transparent hover:bg-content3 rounded-full"
+                size="sm"
+                onPress={() => setOpenAlert(true)}
+              >
+                <MdClear className="w-3 h-3" />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
       {/* Alert Modal dùng Iconify */}
       <AlertAction

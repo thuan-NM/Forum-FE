@@ -28,7 +28,7 @@ const UpVote: React.FC<PostFooterProps> = ({
     <div className="flex flex-col gap-y-4">
       <div className="flex gap-x-2 items-center">
         <Tooltip
-          content={hasReacted ? "Unlike" : "Like"}
+          content={hasReacted ? "Bỏ thích" : "Thích"}
           placement="top"
           offset={5}
           closeDelay={100}
@@ -42,7 +42,7 @@ const UpVote: React.FC<PostFooterProps> = ({
                   ? "opacity-50 cursor-not-allowed"
                   : ""
               }`}
-              onClick={handleToggleReaction}
+              onPress={handleToggleReaction}
               disabled={isPending || isCheckingReaction}
             >
               {hasReacted ? (
@@ -57,13 +57,18 @@ const UpVote: React.FC<PostFooterProps> = ({
             <span className="text-xs">{reactionsCount}</span>
           </div>
         </Tooltip>
-        <Tooltip content="Comment" placement="top" offset={5} closeDelay={100}>
+        <Tooltip
+          content="Bình luận"
+          placement="top"
+          offset={5}
+          closeDelay={100}
+        >
           <div className="rounded-full p-1 px-3 flex items-center !text-sm group cursor-pointer">
             <Button
               size="sm"
               isLoading={isCheckingReaction} // Thêm loading khi kiểm tra reaction
               className="rounded-full bg-transparent hover:bg-content3 transition-colors duration-200"
-              onClick={() => setIsShowComment?.(!isShowComment)}
+              onPress={() => setIsShowComment?.(!isShowComment)}
               disabled={!setIsShowComment || isCheckingReaction}
             >
               <FaRegComment className="size-5" />

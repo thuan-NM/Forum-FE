@@ -40,7 +40,7 @@ const TagAnswerList: React.FC<TagAnswerListProps> = ({ tag }) => {
         ) : (
           <NotFind
             className="!text-foreground/20 flex flex-row items-center justify-center gap-x-2 py-6 bg-content1 !rounded-lg"
-            title="answer"
+            title="Không có câu trả lời nào"
             icon={
               <BsFileEarmarkPostFill className="size-10 !text-foreground/20" />
             }

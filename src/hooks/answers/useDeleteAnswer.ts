@@ -9,11 +9,11 @@ export const useDeleteAnswer = () => {
     const deleteMutation = useMutation({
         mutationFn: DeleteAnswer,
         onSuccess: () => {
-            toast.success("Answer deleted successfully");
+            toast.success("Xóa câu trả lời thành công");
             queryClient.invalidateQueries({ queryKey: ["answers"] });
         },
         onError: (error: any) => {
-            toast.error(error?.response?.data?.error || "Failed to delete answer");
+            toast.error(error?.response?.data?.error || "Xóa câu trả lời thất bại");
         },
     });
 

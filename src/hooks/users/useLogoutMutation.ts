@@ -22,7 +22,7 @@ export const useLogoutMutation = () => {
             navigate("/auth");
         },
         onError: (error: any) => {
-            toast.error(error?.response?.data?.error || "Failed to logout");
+            toast.error(error?.response?.data?.error || "Đăng xuất thất bại");
         },
     });
 

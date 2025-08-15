@@ -20,9 +20,7 @@ import MenuBar from "../TextEditor/MenuBar";
 import EditorModal from "../TextEditor/EditorModal";
 import { UserResponse } from "../../store/interfaces/userInterfaces";
 import toast from "react-hot-toast";
-import { useSetUserInfo } from "../../utils/setUserInfo";
-import { UpdateUser } from "../../services";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {  useQueryClient } from "@tanstack/react-query";
 import { cn } from "../../lib/utils";
 import { useUpdateUser } from "../../hooks/users/useEditUser";
 import { useUploadImages } from "../../hooks/attachments/useUploadAttachment";
@@ -43,7 +41,6 @@ const MyBio: React.FC<MyBioProps> = ({ user, isMe = true }) => {
   const [bio, setBio] = useState<string>("");
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const setUserInfo = useSetUserInfo();
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);

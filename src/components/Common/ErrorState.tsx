@@ -10,7 +10,7 @@ interface ErrorStateProps {
 
 const ErrorState: React.FC<ErrorStateProps> = ({
   message,
-  retryLabel = "Try Again",
+  retryLabel = "Thử lại",
   onRetry,
 }) => {
   return (

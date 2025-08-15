@@ -10,7 +10,7 @@ export const useSendMessage = () => {
       return res;
     },
     onSuccess: (data) => {
-      toast.success(data.message || "Message sent successfully", {
+      toast.success(data.message || "Gửi tin nhắn thành công", {
         style: {
           fontSize: "12px",
           lineHeight: "1.25rem",
@@ -19,7 +19,7 @@ export const useSendMessage = () => {
       });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to send message");
+      toast.error(error?.response?.data?.error || "Gửi tin nhắn thất bại");
     },
   });
 

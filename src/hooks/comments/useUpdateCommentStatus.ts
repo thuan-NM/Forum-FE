@@ -10,11 +10,11 @@ export const useUpdateCommentStatus = () => {
         mutationFn: ({ id, status }: { id: string; status: string }) =>
             UpdateCommentStatus(id, status),
         onSuccess: (data) => {
-            toast.success(`${capitalize(data.comment.status)} comment successfully`);
+            toast.success(`${capitalize(data.comment.status)} bình luận thành công`);
             queryClient.invalidateQueries({ queryKey: ["comments"] });
         },
         onError: (error: any) => {
-            toast.error(error?.response?.data?.error || "Failed to update comment status");
+            toast.error(error?.response?.data?.error || "Cập nhật trạng thái bình luận thất bại");
         },
     });
 

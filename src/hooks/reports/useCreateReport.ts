@@ -20,11 +20,11 @@ export const useCreateReport = () => {
       details?: string;
     }) => CreateReport(reason, contentType, contentId, contentPreview, details),
     onSuccess: () => {
-      toast.success("Report created successfully");
+      toast.success("Đã báo cáo cho quản trị viên");
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to create report");
+      toast.error(error?.response?.data?.error || "Đã xảy ra lỗi khi báo cáo");
     },
   });
 

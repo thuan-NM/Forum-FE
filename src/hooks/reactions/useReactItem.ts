@@ -71,7 +71,7 @@ export const useReactItem = <T extends { id: string; reactionsCount?: number }>(
     MutationContext<T>
   >({
     mutationFn: ({ id, type }) => {
-      if (!id) throw new Error("ID is required");
+      if (!id) throw new Error("ID là bắt buộc");
       const data: ReactionCreateDto = {};
       if (type === "posts") data.post_id = parseInt(id);
       else if (type === "comments") data.comment_id = parseInt(id);
@@ -79,7 +79,7 @@ export const useReactItem = <T extends { id: string; reactionsCount?: number }>(
       return CreateReaction(data);
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to react to item");
+      toast.error(error.message || "Thao tác tương tác thất bại");
     },
     onSuccess: () => {
       refetch();
@@ -99,7 +99,7 @@ export const useReactItem = <T extends { id: string; reactionsCount?: number }>(
       return DeleteReaction(reactionId);
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to remove reaction");
+      toast.error(error.message || "Lỗi khi xóa tương tác");
     },
     onSuccess: () => {
       refetch();

@@ -52,7 +52,7 @@ const AIChat: React.FC = () => {
             isIconOnly
           >
             <Icon
-              icon="ph:open-ai-logo-light"
+              icon="dinkie-icons:cat-face"
               width={24}
               className="text-white"
             />

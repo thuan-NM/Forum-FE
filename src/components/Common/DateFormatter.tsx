@@ -15,14 +15,14 @@ const DateFormatter: React.FC<DateFormatterProps> = ({
     const dateObj = date instanceof Date ? date : new Date(date);
     
     if (format === 'short') {
-      return dateObj.toLocaleDateString('en-US', {
+      return dateObj.toLocaleDateString('vi-VN', {
         month: 'short',
         day: 'numeric'
       });
     }
     
     if (format === 'medium') {
-      return dateObj.toLocaleDateString('en-US', {
+      return dateObj.toLocaleDateString('vi-VN', {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
@@ -30,7 +30,7 @@ const DateFormatter: React.FC<DateFormatterProps> = ({
     }
     
     if (format === 'long') {
-      return dateObj.toLocaleDateString('en-US', {
+      return dateObj.toLocaleDateString('vi-VN', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -56,7 +56,7 @@ const DateFormatter: React.FC<DateFormatterProps> = ({
       } else if (diffDays < 7) {
         return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
       } else {
-        return dateObj.toLocaleDateString('en-US', {
+        return dateObj.toLocaleDateString('vi-VN', {
           year: 'numeric',
           month: 'short',
           day: 'numeric'

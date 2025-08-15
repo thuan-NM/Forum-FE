@@ -273,7 +273,7 @@ const AnswerModal: React.FC<AnswerModalProps> = ({
                     onPress={onOpenTag}
                     startContent={<Icon icon="lucide:plus" />}
                   >
-                    Add Tags
+                    Thêm nhãn{" "}
                   </Button>
                 </div>
 

@@ -9,11 +9,11 @@ export const useCreateComment = () => {
   const createMutation = useMutation({
     mutationFn: CreateComment,
     onSuccess: () => {
-      toast.success("Comment created successfully");
+      toast.success("Thêm bình luận thành công");
       queryClient.invalidateQueries({ queryKey: ["comments"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to comment answer");
+      toast.error(error?.response?.data?.error || "Thêm bình luận thất bại");
     },
   });
 
