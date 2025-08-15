@@ -2,20 +2,20 @@ import { FormEvent, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Button, Form, Input } from "@heroui/react";
-import { ResendEmail } from "../../services/AuthServices";
+import { ForgotPassword } from "../../services/AuthServices";
 import AuthLayout from "../../layouts/AuthLayout";
 import Footer from "../Common/Footer";
 
-const ResendVerification = () => {
+const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
   const { mutate, isPending, error } = useMutation({
-    mutationFn: ResendEmail,
+    mutationFn: ForgotPassword,
     onSuccess: (data) => {
       setMessage(
         data.message ||
-          "Email xác minh đã được gửi lại thành công. Vui lòng kiểm tra hộp thư."
+          "Email đặt lại mật khẩu đã được gửi thành công. Vui lòng kiểm tra hộp thư."
       );
     },
     onError: (err: any) => {
@@ -35,10 +35,10 @@ const ResendVerification = () => {
 
   return (
     <AuthLayout>
-      <div className="flex flex-row p-0 h-3/5 mb-5">
-        <div className="container mx-auto w-3/4 px-6 !border-content4">
-          <p className="border-b mb-4 border-content4 pb-2 text-sm font-semibold">
-            Gửi lại email xác minh
+      <div className="flex flex-row p-0 !h-3/5 mb-5">
+        <div className="container mx-auto w-3/4 px-6 border-x !border-content4 h-full">
+          <p className="border-b mb-3 border-content4 pb-2 text-sm font-semibold">
+            Quên mật khẩu
           </p>
           <Form onSubmit={handleSubmit} className="space-y-6 text-xs">
             <Input
@@ -79,14 +79,14 @@ const ResendVerification = () => {
                 Quay lại đăng nhập
               </Link>
               <Button
-                size="sm"
                 type="submit"
                 color="primary"
+                size="sm"
                 className="text-sm font-semibold"
                 radius="full"
                 isLoading={isPending}
               >
-                {isPending ? "Đang gửi..." : "Gửi lại email"}
+                {isPending ? "Đang gửi..." : "Gửi yêu cầu đặt lại"}
               </Button>
             </div>
           </Form>
@@ -98,4 +98,4 @@ const ResendVerification = () => {
   );
 };
 
-export default ResendVerification;
+export default ForgotPasswordPage;

@@ -70,7 +70,7 @@ const Login = () => {
 
                 <div className="flex justify-between mt-4 items-center w-full">
                     <Link
-                        to="/forgotpassword"
+                        to="/auth/forgot-password"
                         className="block text-xs text-content5 hover:underline"
                     >
                         Quên mật khẩu?

@@ -24,6 +24,8 @@ const UsersPage = lazy(() => import("../pages/UserListPage"));
 const UsersProfilePage = lazy(() => import("../pages/UserProfile"));
 const TagDetailPage = lazy(() => import("../pages/TagDetailPage"));
 const SettingsPage = lazy(() => import("../pages/SettingsPage"));
+const ResetPasswordPage = lazy(() => import("../components/Auth/ResetPassword"));
+const ForgotPasswordPage = lazy(() => import("../components/Auth/ForgotPassword"));
 
 const withPrivateRoute = (element: JSX.Element) => (
   <PrivateRoute>{element}</PrivateRoute>
@@ -111,7 +113,8 @@ const publicRoutes = [
     path: "auth",
     children: [
       { index: true, element: <AuthPage /> },
-      // { path: "verify-email", element: <VerifyEmail /> },
+      { path: "forgot-password", element: <ForgotPasswordPage /> },
+      { path: "reset-password", element: <ResetPasswordPage /> },
       { path: "resend-verification", element: <ResendVerification /> },
     ],
   },

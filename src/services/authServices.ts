@@ -37,7 +37,15 @@ const ChangePassword = async (data: object) => {
   const response = await axios.post("/change-password", data);
   return response.data;
 };
+const ForgotPassword = async (email: string) => {
+  const response = await axios.post("/forgot-password", { email });
+  return response.data;
+};
 
+const ResetPassword = async (data: { token: string; newPassword: string }) => {
+  const response = await axios.post("/reset-password", data);
+  return response.data;
+};
 export {
   Register,
   Login,
@@ -46,4 +54,6 @@ export {
   ResendEmail,
   GetUserFromToken,
   ChangePassword,
+  ForgotPassword,
+  ResetPassword,
 };
