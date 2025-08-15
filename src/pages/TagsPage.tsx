@@ -85,7 +85,11 @@ const TagsPage = () => {
                   dataLength={allTags.length}
                   next={fetchMoreData}
                   hasMore={hasMore}
-                  loader={<TagSkeleton count={6} />}
+                  loader={
+                    allTags.length > 0 && (
+                      <LoadingState message="Đang tải thêm nhãn ..." />
+                    )
+                  }
                 >
                   <CardList
                     items={allTags}

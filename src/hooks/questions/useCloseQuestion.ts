@@ -8,12 +8,12 @@ export const useCloseQuestion = () => {
   const updateMutation = useMutation({
     mutationFn: ({ id }: { id: string }) => CloseQuestion(id),
     onSuccess: () => {
-      toast.success(`Close question successfully`);
+      toast.success(`Đóng câu hỏi thành công`);
       queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.error || "Failed to update question status"
+        error?.response?.data?.error || "Cập nhật trạng thái câu hỏi thất bại"
       );
     },
   });

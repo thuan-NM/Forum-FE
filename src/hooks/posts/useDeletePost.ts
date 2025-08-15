@@ -8,11 +8,11 @@ export const useDeletePost = () => {
   const deleteMutation = useMutation({
     mutationFn: DeletePost,
     onSuccess: () => {
-      toast.success("Post deleted successfully");
+      toast.success("Xóa bài viết thành công");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to delete post");
+      toast.error(error?.response?.data?.error || "Xóa bài viết thất bại");
     },
   });
 

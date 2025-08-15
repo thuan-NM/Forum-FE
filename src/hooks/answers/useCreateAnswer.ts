@@ -12,10 +12,10 @@ export const useCreateAnswer = () => {
       await queryClient.cancelQueries({ queryKey: ["questions"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to post answer");
+      toast.error(error?.response?.data?.error || "Trả lời câu hỏi thất bại");
     },
     onSuccess: (_data, variables) => {
-      toast.success("Answer posted successfully");
+      toast.success("Trả lời câu hỏi thành công");
 
       // invalidate chính xác danh sách câu trả lời cho question
       queryClient.invalidateQueries({

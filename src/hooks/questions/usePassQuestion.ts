@@ -8,11 +8,11 @@ export const usePassQuestion = () => {
   const passMutation = useMutation<void, Error, string>({
     mutationFn: PassQuestion,
     onSuccess: () => {
-      toast.success("Question passed successfully");
+      toast.success("Bỏ qua câu hỏi thành công");
       queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to pass question");
+      toast.error(error.message || "Bỏ qua câu hỏi thất bại");
     },
   });
 

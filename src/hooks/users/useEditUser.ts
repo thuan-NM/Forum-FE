@@ -10,13 +10,13 @@ export const useUpdateUser = (onSuccessCallback?: () => void) => {
       UpdateUser(id, data),
     onSuccess: (id) => {
       if (onSuccessCallback) onSuccessCallback();
-      toast.success(`Edit user successfully`);
+      toast.success(`Chỉnh sửa thông tin người dùng thành công`);
       queryClient.invalidateQueries({ queryKey: ["users"] });
       queryClient.invalidateQueries({ queryKey: ["user", id] });
       queryClient.refetchQueries({ queryKey: ["user", id] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to update user");
+      toast.error(error?.response?.data?.error || "Đã xảy ra lỗi khi cập nhật thông tin người dùng");
     },
   });
 

@@ -30,14 +30,14 @@ export const useLoginMutation = () => {
       dispatch(loginStart());
     },
     onSuccess: (data) => {
-      toast.success("Login successful");
+      toast.success("Đăng nhập thành công");
       queryClient.invalidateQueries({ queryKey: ["user"] });
       dispatch(loginSuccess({ token: data.token }));
       dispatch(setUser(data.user));
       navigate("/");
     },
     onError: (error: any) => {
-      let message = "Login failed";
+      let message = "Đăng nhập thất bại";
       if (error?.response?.data?.error) {
         message = error.response.data.error;
       } else if (error.message) {

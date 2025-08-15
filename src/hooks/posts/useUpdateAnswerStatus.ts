@@ -10,12 +10,12 @@ export const useUpdatePostStatus = () => {
     mutationFn: ({ id, status }: { id: string; status: string }) =>
       UpdatePostStatus(id, status),
     onSuccess: (data) => {
-      toast.success(`${capitalize(data.post.status)} post successfully`);
+      toast.success(`${capitalize(data.post.status)} bài viết thành công`);
       queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
     onError: (error: any) => {
       toast.error(
-        error?.response?.data?.error || "Failed to update post status"
+        error?.response?.data?.error || "Cập nhật trạng thái bài viết thất bại"
       );
     },
   });

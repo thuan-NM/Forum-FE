@@ -138,7 +138,8 @@ const EditorModal: React.FC<EditorModalProp> = ({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  // accept="image/*"
+                  accept="*/*"
                   multiple
                   onChange={handleImageSelect}
                   className="hidden"

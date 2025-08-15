@@ -8,11 +8,11 @@ export const useDeleteReport = () => {
   const deleteMutation = useMutation({
     mutationFn: DeleteReport,
     onSuccess: () => {
-      toast.success("Report deleted successfully");
+      toast.success("Xóa báo cáo thành công");
       queryClient.invalidateQueries({ queryKey: ["reports"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to delete report");
+      toast.error(error?.response?.data?.error || "Xóa báo cáo thất bại");
     },
   });
 

@@ -37,7 +37,7 @@ const PostHeader: React.FC<PostHeaderProps> = ({ post, onDeleted }) => {
   const handleDelete = () => {
     DeletePost(post.id);
     setOpenAlert(false);
-    onDeleted?.(); // optional callback
+    // onDeleted?.(); // optional callback
   };
 
   if (isCheckingFollow) return <PostHeaderSkeleton />;

@@ -13,7 +13,7 @@ export const useCreateQuestion = () => {
       return res;
     },
     onSuccess: (data) => {
-      toast.success(data.message || "Question created successfully", {
+      toast.success(data.message || "Đặt câu hỏi thành công", {
         style: {
           fontSize: "12px",
           lineHeight: "1.25rem",
@@ -23,7 +23,7 @@ export const useCreateQuestion = () => {
       queryClient.invalidateQueries({ queryKey: ["questions"] });
     },
     onError: (error: any) => {
-      toast.error(error?.response?.data?.error || "Failed to create question");
+      toast.error(error?.response?.data?.error || "Đặt câu hỏi thất bại");
     },
   });
 

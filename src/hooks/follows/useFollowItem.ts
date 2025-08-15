@@ -83,7 +83,7 @@ export const useFollowItem = <T extends { id: string; followsCount?: number }>(
         );
         queryClient.setQueryData([type], context.previousList);
       }
-      toast.error(error.message || "Failed to follow item");
+      toast.error(error.message || "Lỗi khi theo dõi");
     },
     onSuccess: () => {
       refetch();
@@ -133,7 +133,7 @@ export const useFollowItem = <T extends { id: string; followsCount?: number }>(
         );
         queryClient.setQueryData([type], context.previousList);
       }
-      toast.error(error.message || "Failed to unfollow item");
+      toast.error(error.message || "Xóa theo dõi thất bại");
     },
     onSuccess: () => {
       refetch();
